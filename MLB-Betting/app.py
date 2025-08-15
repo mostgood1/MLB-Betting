@@ -959,8 +959,12 @@ def home():
             if betting_recommendations and 'games' in betting_recommendations:
                 game_recommendations = betting_recommendations['games'].get(game_key, None)
             
-            # If no betting recommendations exist, generate them dynamically
-            if game_recommendations is None:
+            # If no betting recommendations exist OR they contain invalid data, generate them dynamically
+            if (game_recommendations is None or 
+                not game_recommendations or 
+                'value_bets' not in game_recommendations or 
+                not game_recommendations.get('value_bets')):
+                
                 # Ensure we have valid data before generating recommendations
                 valid_away_prob = away_win_prob/100 if away_win_prob and away_win_prob > 0 else 0.5
                 valid_home_prob = home_win_prob/100 if home_win_prob and home_win_prob > 0 else 0.5
