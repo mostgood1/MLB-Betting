@@ -1692,4 +1692,9 @@ if __name__ == '__main__':
     else:
         logger.warning("⚠️ No cache data found - check unified_predictions_cache.json")
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Use Render's PORT environment variable or default to 5000 for local development
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.environ.get('FLASK_ENV') != 'production'
+    
+    logger.info(f"🚀 Starting MLB Betting App on port {port} (debug: {debug_mode})")
+    app.run(debug=debug_mode, host='0.0.0.0', port=port)
