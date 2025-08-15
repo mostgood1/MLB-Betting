@@ -1,0 +1,140 @@
+{
+  "date": "2025-08-15",
+  "timestamp": "2025-08-15T01:32:20.222974",
+  "optimization_applied": true,
+  "optimization_version": "1.1_optimized",
+  "improvements_applied": [
+    "Pitcher ERA weight: 0.35 \u2192 0.45 (+29%)",
+    "Home field advantage: 0.15 \u2192 0.20 (+33%)",
+    "Minimum edge threshold: 5% \u2192 8% (+60%)",
+    "High confidence threshold: 0.65 \u2192 0.70 (+8%)"
+  ],
+  "prediction_count": 15,
+  "expected_improvements": {
+    "score_mae_target": 1.8,
+    "win_accuracy_target": 0.58,
+    "betting_roi_target": 0.05
+  },
+  "games": {
+    "Pittsburgh Pirates @ Chicago Cubs": {
+      "predicted_away_score": 5.2,
+      "predicted_home_score": 3.8,
+      "predicted_total_runs": 9.0,
+      "home_win_probability": 0.29,
+      "confidence_level": null,
+      "betting_recommendations": []
+    },
+    "Milwaukee Brewers @ Cincinnati Reds": {
+      "predicted_away_score": 4.2,
+      "predicted_home_score": 4.8,
+      "predicted_total_runs": 9.0,
+      "home_win_probability": 0.59,
+      "confidence_level": null,
+      "betting_recommendations": []
+    },
+    "Philadelphia Phillies @ Washington Nationals": {
+      "predicted_away_score": 5.2,
+      "predicted_home_score": 5.8,
+      "predicted_total_runs": 11.0,
+      "home_win_probability": 0.59,
+      "confidence_level": null,
+      "betting_recommendations": []
+    },
+    "Texas Rangers @ Toronto Blue Jays": {
+      "predicted_away_score": 5.2,
+      "predicted_home_score": 5.8,
+      "predicted_total_runs": 11.0,
+      "home_win_probability": 0.59,
+      "confidence_level": null,
+      "betting_recommendations": []
+    },
+    "Seattle Mariners @ New York Mets": {
+      "predicted_away_score": 4.2,
+      "predicted_home_score": 5.8,
+      "predicted_total_runs": 10.0,
+      "home_win_probability": 0.74,
+      "confidence_level": null,
+      "betting_recommendations": []
+    },
+    "Atlanta Braves @ Cleveland Guardians": {
+      "predicted_away_score": 3.2,
+      "predicted_home_score": 3.8,
+      "predicted_total_runs": 7.0,
+      "home_win_probability": 0.59,
+      "confidence_level": null,
+      "betting_recommendations": []
+    },
+    "Miami Marlins @ Boston Red Sox": {
+      "predicted_away_score": 5.2,
+      "predicted_home_score": 4.8,
+      "predicted_total_runs": 10.0,
+      "home_win_probability": 0.44,
+      "confidence_level": null,
+      "betting_recommendations": []
+    },
+    "Baltimore Orioles @ Houston Astros": {
+      "predicted_away_score": 3.2,
+      "predicted_home_score": 5.8,
+      "predicted_total_runs": 9.0,
+      "home_win_probability": 0.8,
+      "confidence_level": null,
+      "betting_recommendations": []
+    },
+    "Detroit Tigers @ Minnesota Twins": {
+      "predicted_away_score": 3.2,
+      "predicted_home_score": 4.8,
+      "predicted_total_runs": 8.0,
+      "home_win_probability": 0.74,
+      "confidence_level": null,
+      "betting_recommendations": []
+    },
+    "Chicago White Sox @ Kansas City Royals": {
+      "predicted_away_score": 4.2,
+      "predicted_home_score": 5.8,
+      "predicted_total_runs": 10.0,
+      "home_win_probability": 0.74,
+      "confidence_level": null,
+      "betting_recommendations": []
+    },
+    "New York Yankees @ St. Louis Cardinals": {
+      "predicted_away_score": 5.2,
+      "predicted_home_score": 3.8,
+      "predicted_total_runs": 9.0,
+      "home_win_probability": 0.29,
+      "confidence_level": null,
+      "betting_recommendations": []
+    },
+    "Arizona Diamondbacks @ Colorado Rockies": {
+      "predicted_away_score": 5.2,
+      "predicted_home_score": 3.8,
+      "predicted_total_runs": 9.0,
+      "home_win_probability": 0.29,
+      "confidence_level": null,
+      "betting_recommendations": []
+    },
+    "Los Angeles Angels @ Athletics": {
+      "predicted_away_score": 3.2,
+      "predicted_home_score": 3.8,
+      "predicted_total_runs": 7.0,
+      "home_win_probability": 0.59,
+      "confidence_level": null,
+      "betting_recommendations": []
+    },
+    "San Diego Padres @ Los Angeles Dodgers": {
+      "predicted_away_score": 3.2,
+      "predicted_home_score": 4.8,
+      "predicted_total_runs": 8.0,
+      "home_win_probability": 0.74,
+      "confidence_level": null,
+      "betting_recommendations": []
+    },
+    "Tampa Bay Rays @ San Francisco Giants": {
+      "predicted_away_score": 5.2,
+      "predicted_home_score": 3.8,
+      "predicted_total_runs": 9.0,
+      "home_win_probability": 0.29,
+      "confidence_level": null,
+      "betting_recommendations": []
+    }
+  }
+}

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calendar Button Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-area { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        input[type="date"] { padding: 10px; margin: 5px; }
+        .status { margin: 10px 0; padding: 10px; background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h1>Calendar Button Functionality Test</h1>
+    
+    <div class="test-area">
+        <h3>Basic Calendar Test</h3>
+        <input type="date" id="test-date" />
+        <button onclick="setYesterday()">Set Yesterday</button>
+        <button onclick="testToday()">Set Today</button>
+        <button onclick="testClick()">Test Click</button>
+        <div id="status" class="status">Ready...</div>
+    </div>
+
+    <div class="test-area">
+        <h3>Exact Historical Page Test</h3>
+        <input type="date" id="analysis-date" />
+        <button onclick="loadHistoricalAnalysis()">Load Analysis</button>
+        <button onclick="loadYesterday()">Yesterday</button>
+        <div id="results" class="status">No results yet...</div>
+    </div>
+
+    <script>
+        function log(message) {
+            document.getElementById('status').innerHTML += '<br>' + new Date().toLocaleTimeString() + ': ' + message;
+            console.log(message);
+        }
+
+        function testClick() {
+            log('✅ Button clicks are working!');
+        }
+
+        function setYesterday() {
+            try {
+                var yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                var year = yesterday.getFullYear();
+                var month = (yesterday.getMonth() + 1).toString();
+                if (month.length === 1) month = '0' + month;
+                var day = yesterday.getDate().toString();
+                if (day.length === 1) day = '0' + day;
+                var dateString = year + '-' + month + '-' + day;
+                
+                document.getElementById('test-date').value = dateString;
+                log('✅ Yesterday set to: ' + dateString);
+            } catch (error) {
+                log('❌ Error setting yesterday: ' + error.message);
+            }
+        }
+
+        function testToday() {
+            try {
+                var today = new Date();
+                var year = today.getFullYear();
+                var month = (today.getMonth() + 1).toString();
+                if (month.length === 1) month = '0' + month;
+                var day = today.getDate().toString();
+                if (day.length === 1) day = '0' + day;
+                var dateString = year + '-' + month + '-' + day;
+                
+                document.getElementById('test-date').value = dateString;
+                log('✅ Today set to: ' + dateString);
+            } catch (error) {
+                log('❌ Error setting today: ' + error.message);
+            }
+        }
+
+        // Copy the exact functions from the historical page
+        function loadYesterday() {
+            try {
+                var yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                var year = yesterday.getFullYear();
+                var month = (yesterday.getMonth() + 1).toString();
+                if (month.length === 1) month = '0' + month;
+                var day = yesterday.getDate().toString();
+                if (day.length === 1) day = '0' + day;
+                var yesterdayString = year + '-' + month + '-' + day;
+                
+                var dateInput = document.getElementById('analysis-date');
+                if (dateInput) {
+                    dateInput.value = yesterdayString;
+                    document.getElementById('results').innerHTML = 'Date set to: ' + yesterdayString;
+                    loadHistoricalAnalysis();
+                } else {
+                    document.getElementById('results').innerHTML = 'ERROR: Date input not found!';
+                }
+            } catch (error) {
+                document.getElementById('results').innerHTML = 'ERROR: ' + error.message;
+            }
+        }
+
+        function loadHistoricalAnalysis() {
+            var dateInput = document.getElementById('analysis-date');
+            var date = dateInput ? dateInput.value : '';
+            
+            if (!date) {
+                document.getElementById('results').innerHTML = 'ERROR: No date selected';
+                return;
+            }
+
+            document.getElementById('results').innerHTML = 'Loading analysis for: ' + date + '...';
+            
+            // Test XMLHttpRequest
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'http://localhost:5000/api/historical-recap/' + encodeURIComponent(date), true);
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            document.getElementById('results').innerHTML = 
+                                '✅ SUCCESS! Found ' + (data.games ? data.games.length : 0) + ' games<br>' +
+                                'Success: ' + data.success + '<br>' +
+                                'Date: ' + date;
+                        } catch (parseError) {
+                            document.getElementById('results').innerHTML = '❌ JSON Parse Error: ' + parseError.message;
+                        }
+                    } else {
+                        document.getElementById('results').innerHTML = '❌ HTTP Error: ' + xhr.status;
+                    }
+                }
+            };
+            
+            xhr.onerror = function() {
+                document.getElementById('results').innerHTML = '❌ Network Error';
+            };
+            
+            xhr.send();
+        }
+
+        window.onload = function() {
+            log('Page loaded successfully');
+            log('Browser: ' + navigator.userAgent);
+        };
+    </script>
+</body>
+</html>

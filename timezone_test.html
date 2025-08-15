@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MLB Game Time Test</title>
+</head>
+<body>
+    <h1>MLB Game Time Conversion Test</h1>
+    <div id="results"></div>
+
+    <script>
+        // Test the exact game times from your MLB API
+        const gameTimesFromAPI = [
+            "2025-08-14T17:05:00Z",  // First game (should be 12:05 PM CDT)
+            "2025-08-14T17:05:00+00:00",  // Alternative format
+            "2025-08-14T18:10:00Z",  // Another typical game time
+        ];
+        
+        let resultsHTML = '<h2>Game Time Conversions:</h2>';
+        
+        gameTimesFromAPI.forEach((gameTimeString, index) => {
+            const gameDate = new Date(gameTimeString);
+            
+            resultsHTML += `
+                <div style="border: 1px solid #ccc; margin: 10px 0; padding: 10px;">
+                    <h3>Game ${index + 1}</h3>
+                    <p><strong>API Time String:</strong> ${gameTimeString}</p>
+                    <p><strong>Parsed Date Object:</strong> ${gameDate}</p>
+                    <p><strong>UTC:</strong> ${gameDate.toISOString()}</p>
+                    <p><strong>Local Time (full):</strong> ${gameDate.toLocaleString()}</p>
+                    <p><strong>Central Time:</strong> ${gameDate.toLocaleTimeString('en-US', { 
+                        hour: 'numeric', 
+                        minute: '2-digit',
+                        hour12: true,
+                        timeZone: 'America/Chicago'
+                    })} CT</p>
+                    <p><strong>Eastern Time:</strong> ${gameDate.toLocaleTimeString('en-US', { 
+                        hour: 'numeric', 
+                        minute: '2-digit',
+                        hour12: true,
+                        timeZone: 'America/New_York'
+                    })} ET</p>
+                    <p><strong>Your System Timezone:</strong> ${gameDate.toLocaleTimeString('en-US', { 
+                        hour: 'numeric', 
+                        minute: '2-digit',
+                        hour12: true,
+                        timeZoneName: 'short'
+                    })}</p>
+                </div>
+            `;
+        });
+        
+        resultsHTML += `
+            <div style="background: #f0f8ff; padding: 15px; margin: 20px 0;">
+                <h3>Your System Info:</h3>
+                <p><strong>Current Time:</strong> ${new Date().toLocaleString()}</p>
+                <p><strong>Timezone Offset:</strong> ${-new Date().getTimezoneOffset() / 60} hours from UTC</p>
+                <p><strong>If 17:05 UTC shows as 5:05 PM on your system:</strong> Your computer is set to UTC+0 (GMT)</p>
+                <p><strong>If 17:05 UTC shows as 12:05 PM on your system:</strong> Your computer is set to UTC-5 (CDT)</p>
+            </div>
+        `;
+        
+        document.getElementById('results').innerHTML = resultsHTML;
+    </script>
+</body>
+</html>

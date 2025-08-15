@@ -1,0 +1,507 @@
+{
+  "date": "2025-08-13",
+  "updated_at": "2025-08-13T13:49:28.478394",
+  "source": "TheOddsAPI",
+  "games": {
+    "game_1": {
+      "game_id": "game_1",
+      "away_team": "Washington Nationals",
+      "home_team": "Kansas City Royals",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-13T18:10:10Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": -275,
+          "home": 210
+        },
+        "total_runs": {
+          "line": 14.5,
+          "over": -130,
+          "under": 100
+        },
+        "run_line": {
+          "line": 2.5,
+          "away": -105,
+          "home": -120
+        }
+      }
+    },
+    "game_2": {
+      "game_id": "game_2",
+      "away_team": "Detroit Tigers",
+      "home_team": "Chicago White Sox",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-13T18:11:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": -150,
+          "home": 118
+        },
+        "total_runs": {
+          "line": 5.5,
+          "over": 110,
+          "under": -140
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": 135,
+          "home": -175
+        }
+      }
+    },
+    "game_3": {
+      "game_id": "game_3",
+      "away_team": "Pittsburgh Pirates",
+      "home_team": "Milwaukee Brewers",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-13T18:11:45Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": 200,
+          "home": -295
+        },
+        "total_runs": {
+          "line": 5.5,
+          "over": -103,
+          "under": -137
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -148,
+          "home": 105
+        }
+      }
+    },
+    "game_4": {
+      "game_id": "game_4",
+      "away_team": "Colorado Rockies",
+      "home_team": "St. Louis Cardinals",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-13T18:16:20Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": 180,
+          "home": -250
+        },
+        "total_runs": {
+          "line": 6.5,
+          "over": -130,
+          "under": -108
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -143,
+          "home": 106
+        }
+      }
+    },
+    "game_5": {
+      "game_id": "game_5",
+      "away_team": "Arizona Diamondbacks",
+      "home_team": "Texas Rangers",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-13T18:36:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": 185,
+          "home": -275
+        },
+        "total_runs": {
+          "line": 7.5,
+          "over": -125,
+          "under": -113
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -121,
+          "home": -114
+        }
+      }
+    },
+    "game_6": {
+      "game_id": "game_6",
+      "away_team": "San Diego Padres",
+      "home_team": "San Francisco Giants",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-13T19:46:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": -140,
+          "home": 126
+        },
+        "total_runs": {
+          "line": 8.0,
+          "over": -105,
+          "under": -115
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": 110,
+          "home": -130
+        }
+      }
+    },
+    "game_7": {
+      "game_id": "game_7",
+      "away_team": "Philadelphia Phillies",
+      "home_team": "Cincinnati Reds",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-13T21:10:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": -122,
+          "home": 102
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -107,
+          "under": -115
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": 132,
+          "home": -165
+        }
+      }
+    },
+    "game_8": {
+      "game_id": "game_8",
+      "away_team": "Seattle Mariners",
+      "home_team": "Baltimore Orioles",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-13T22:35:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": -155,
+          "home": 130
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -108,
+          "under": -114
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": 104,
+          "home": -130
+        }
+      }
+    },
+    "game_9": {
+      "game_id": "game_9",
+      "away_team": "Miami Marlins",
+      "home_team": "Cleveland Guardians",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-13T22:40:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": 114,
+          "home": -139
+        },
+        "total_runs": {
+          "line": 8.0,
+          "over": -109,
+          "under": -113
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -195,
+          "home": 155
+        }
+      }
+    },
+    "game_10": {
+      "game_id": "game_10",
+      "away_team": "Minnesota Twins",
+      "home_team": "New York Yankees",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-13T23:05:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": 125,
+          "home": -152
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -113,
+          "under": -108
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -165,
+          "home": 132
+        }
+      }
+    },
+    "game_11": {
+      "game_id": "game_11",
+      "away_team": "Chicago Cubs",
+      "home_team": "Toronto Blue Jays",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-13T23:07:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": 118,
+          "home": -143
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -120,
+          "under": -103
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -182,
+          "home": 145
+        }
+      }
+    },
+    "game_12": {
+      "game_id": "game_12",
+      "away_team": "Atlanta Braves",
+      "home_team": "New York Mets",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-13T23:10:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": 170,
+          "home": -220
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -124,
+          "under": 100
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -118,
+          "home": -106
+        }
+      }
+    },
+    "game_13": {
+      "game_id": "game_13",
+      "away_team": "Boston Red Sox",
+      "home_team": "Houston Astros",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-13T23:10:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": 143,
+          "home": -175
+        },
+        "total_runs": {
+          "line": 8.0,
+          "over": -113,
+          "under": -109
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -159,
+          "home": 130
+        }
+      }
+    },
+    "game_14": {
+      "game_id": "game_14",
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "Los Angeles Angels",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-14T01:38:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": -210,
+          "home": 170
+        },
+        "total_runs": {
+          "line": 9.5,
+          "over": -107,
+          "under": -114
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -130,
+          "home": 106
+        }
+      }
+    },
+    "game_15": {
+      "game_id": "game_15",
+      "away_team": "Tampa Bay Rays",
+      "home_team": "Oakland Athletics",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-14T02:05:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": -137,
+          "home": 114
+        },
+        "total_runs": {
+          "line": 9.5,
+          "over": -106,
+          "under": -117
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": 110,
+          "home": -137
+        }
+      }
+    },
+    "game_16": {
+      "game_id": "game_16",
+      "away_team": "Seattle Mariners",
+      "home_team": "Baltimore Orioles",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-14T17:06:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": -125,
+          "home": 113
+        },
+        "total_runs": {
+          "line": 9.5,
+          "over": -105,
+          "under": -115
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": 120,
+          "home": -140
+        }
+      }
+    },
+    "game_17": {
+      "game_id": "game_17",
+      "away_team": "Chicago Cubs",
+      "home_team": "Toronto Blue Jays",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-14T19:08:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": -110,
+          "home": 100
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -105,
+          "under": -115
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": 130,
+          "home": -150
+        }
+      }
+    },
+    "game_18": {
+      "game_id": "game_18",
+      "away_team": "Miami Marlins",
+      "home_team": "Cleveland Guardians",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-14T22:41:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": 112,
+          "home": -123
+        },
+        "total_runs": {
+          "line": 7.5,
+          "over": -115,
+          "under": -105
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -190,
+          "home": 155
+        }
+      }
+    },
+    "game_19": {
+      "game_id": "game_19",
+      "away_team": "Atlanta Braves",
+      "home_team": "New York Mets",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-14T23:11:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": 167,
+          "home": -185
+        },
+        "total_runs": {
+          "line": 8.5,
+          "over": -110,
+          "under": -110
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -115,
+          "home": -105
+        }
+      }
+    },
+    "game_20": {
+      "game_id": "game_20",
+      "away_team": "Arizona Diamondbacks",
+      "home_team": "Colorado Rockies",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "start_time": "2025-08-15T00:41:00Z",
+      "status": "Pre-Game",
+      "betting_odds": {
+        "moneyline": {
+          "away": -172,
+          "home": 155
+        },
+        "total_runs": {
+          "line": 11.5,
+          "over": -125,
+          "under": 105
+        },
+        "run_line": {
+          "line": 1.5,
+          "away": -115,
+          "home": -105
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,450 @@
+{
+  "date": "2025-08-15",
+  "generated_at": "2025-08-15T14:00:25.190494",
+  "enhanced_with_market_data": true,
+  "games": {
+    "Pittsburgh Pirates @ Chicago Cubs": {
+      "away_team": "Pittsburgh Pirates",
+      "home_team": "Chicago Cubs",
+      "away_pitcher": "Braxton Ashcraft",
+      "home_pitcher": "Colin Rea",
+      "market_total_line": 9.0,
+      "predicted_total_runs": 10.9,
+      "market_vs_prediction": 1.9,
+      "win_probabilities": {
+        "away_prob": 0.446,
+        "home_prob": 0.554
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "home",
+          "team": "Chicago Cubs",
+          "confidence": 0.554
+        },
+        "total_runs": {
+          "market_line": 9.0,
+          "pick": "OVER",
+          "predicted_total": 10.9,
+          "confidence": 0.711,
+          "edge": 1.9
+        }
+      },
+      "overall_confidence": 0.711,
+      "market_alignment": "LOW"
+    },
+    "Milwaukee Brewers @ Cincinnati Reds": {
+      "away_team": "Milwaukee Brewers",
+      "home_team": "Cincinnati Reds",
+      "away_pitcher": "TBD",
+      "home_pitcher": "Nick Martinez",
+      "market_total_line": 9.5,
+      "predicted_total_runs": 10.8,
+      "market_vs_prediction": 1.3,
+      "win_probabilities": {
+        "away_prob": 0.461,
+        "home_prob": 0.539
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": null,
+          "team": null,
+          "confidence": 0
+        },
+        "total_runs": {
+          "market_line": 9.5,
+          "pick": "OVER",
+          "predicted_total": 10.8,
+          "confidence": 0.637,
+          "edge": 1.3
+        }
+      },
+      "overall_confidence": 0.637,
+      "market_alignment": "LOW"
+    },
+    "Philadelphia Phillies @ Washington Nationals": {
+      "away_team": "Philadelphia Phillies",
+      "home_team": "Washington Nationals",
+      "away_pitcher": "Zack Wheeler",
+      "home_pitcher": "MacKenzie Gore",
+      "market_total_line": 10.5,
+      "predicted_total_runs": 6.8,
+      "market_vs_prediction": -3.7,
+      "win_probabilities": {
+        "away_prob": 0.457,
+        "home_prob": 0.543
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": null,
+          "team": null,
+          "confidence": 0
+        },
+        "total_runs": {
+          "market_line": 10.5,
+          "pick": "UNDER",
+          "predicted_total": 6.8,
+          "confidence": 0.8,
+          "edge": -3.7
+        }
+      },
+      "overall_confidence": 0.8,
+      "market_alignment": "LOW"
+    },
+    "Texas Rangers @ Toronto Blue Jays": {
+      "away_team": "Texas Rangers",
+      "home_team": "Toronto Blue Jays",
+      "away_pitcher": "Jacob deGrom",
+      "home_pitcher": "Chris Bassitt",
+      "market_total_line": 9.0,
+      "predicted_total_runs": 6.7,
+      "market_vs_prediction": -2.3,
+      "win_probabilities": {
+        "away_prob": 0.459,
+        "home_prob": 0.541
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": null,
+          "team": null,
+          "confidence": 0
+        },
+        "total_runs": {
+          "market_line": 9.0,
+          "pick": "UNDER",
+          "predicted_total": 6.7,
+          "confidence": 0.756,
+          "edge": -2.3
+        }
+      },
+      "overall_confidence": 0.756,
+      "market_alignment": "LOW"
+    },
+    "Seattle Mariners @ New York Mets": {
+      "away_team": "Seattle Mariners",
+      "home_team": "New York Mets",
+      "away_pitcher": "Luis Castillo",
+      "home_pitcher": "Sean Manaea",
+      "market_total_line": 8.5,
+      "predicted_total_runs": 6.7,
+      "market_vs_prediction": -1.8,
+      "win_probabilities": {
+        "away_prob": 0.477,
+        "home_prob": 0.523
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": null,
+          "team": null,
+          "confidence": 0
+        },
+        "total_runs": {
+          "market_line": 8.5,
+          "pick": "UNDER",
+          "predicted_total": 6.7,
+          "confidence": 0.712,
+          "edge": -1.8
+        }
+      },
+      "overall_confidence": 0.712,
+      "market_alignment": "LOW"
+    },
+    "Atlanta Braves @ Cleveland Guardians": {
+      "away_team": "Atlanta Braves",
+      "home_team": "Cleveland Guardians",
+      "away_pitcher": "Hurston Waldrep",
+      "home_pitcher": "Joey Cantillo",
+      "market_total_line": 8.0,
+      "predicted_total_runs": 9.5,
+      "market_vs_prediction": 1.5,
+      "win_probabilities": {
+        "away_prob": 0.46,
+        "home_prob": 0.54
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": null,
+          "team": null,
+          "confidence": 0
+        },
+        "total_runs": {
+          "market_line": 8.0,
+          "pick": "OVER",
+          "predicted_total": 9.5,
+          "confidence": 0.688,
+          "edge": 1.5
+        }
+      },
+      "overall_confidence": 0.688,
+      "market_alignment": "LOW"
+    },
+    "Miami Marlins @ Boston Red Sox": {
+      "away_team": "Miami Marlins",
+      "home_team": "Boston Red Sox",
+      "away_pitcher": "Sandy Alcantara",
+      "home_pitcher": "Lucas Giolito",
+      "market_total_line": 9.5,
+      "predicted_total_runs": 10.8,
+      "market_vs_prediction": 1.3,
+      "win_probabilities": {
+        "away_prob": 0.454,
+        "home_prob": 0.546
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": null,
+          "team": null,
+          "confidence": 0
+        },
+        "total_runs": {
+          "market_line": 9.5,
+          "pick": "OVER",
+          "predicted_total": 10.8,
+          "confidence": 0.637,
+          "edge": 1.3
+        }
+      },
+      "overall_confidence": 0.637,
+      "market_alignment": "LOW"
+    },
+    "Baltimore Orioles @ Houston Astros": {
+      "away_team": "Baltimore Orioles",
+      "home_team": "Houston Astros",
+      "away_pitcher": "Brandon Young",
+      "home_pitcher": "Framber Valdez",
+      "market_total_line": 8.5,
+      "predicted_total_runs": 10.4,
+      "market_vs_prediction": 1.9,
+      "win_probabilities": {
+        "away_prob": 0.453,
+        "home_prob": 0.547
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": null,
+          "team": null,
+          "confidence": 0
+        },
+        "total_runs": {
+          "market_line": 8.5,
+          "pick": "OVER",
+          "predicted_total": 10.4,
+          "confidence": 0.724,
+          "edge": 1.9
+        }
+      },
+      "overall_confidence": 0.724,
+      "market_alignment": "LOW"
+    },
+    "Detroit Tigers @ Minnesota Twins": {
+      "away_team": "Detroit Tigers",
+      "home_team": "Minnesota Twins",
+      "away_pitcher": "Charlie Morton",
+      "home_pitcher": "Pierson Ohl",
+      "market_total_line": 8.0,
+      "predicted_total_runs": 8.7,
+      "market_vs_prediction": 0.7,
+      "win_probabilities": {
+        "away_prob": 0.465,
+        "home_prob": 0.535
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": null,
+          "team": null,
+          "confidence": 0
+        },
+        "total_runs": {
+          "market_line": 8.0,
+          "pick": "OVER",
+          "predicted_total": 8.7,
+          "confidence": 0.587,
+          "edge": 0.7
+        }
+      },
+      "overall_confidence": 0.587,
+      "market_alignment": "MEDIUM"
+    },
+    "Chicago White Sox @ Kansas City Royals": {
+      "away_team": "Chicago White Sox",
+      "home_team": "Kansas City Royals",
+      "away_pitcher": "Aaron Civale",
+      "home_pitcher": "Noah Cameron",
+      "market_total_line": 9.0,
+      "predicted_total_runs": 10.4,
+      "market_vs_prediction": 1.4,
+      "win_probabilities": {
+        "away_prob": 0.471,
+        "home_prob": 0.529
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": null,
+          "team": null,
+          "confidence": 0
+        },
+        "total_runs": {
+          "market_line": 9.0,
+          "pick": "OVER",
+          "predicted_total": 10.4,
+          "confidence": 0.656,
+          "edge": 1.4
+        }
+      },
+      "overall_confidence": 0.656,
+      "market_alignment": "LOW"
+    },
+    "New York Yankees @ St. Louis Cardinals": {
+      "away_team": "New York Yankees",
+      "home_team": "St. Louis Cardinals",
+      "away_pitcher": "Luis Gil",
+      "home_pitcher": "Andre Pallante",
+      "market_total_line": 9.5,
+      "predicted_total_runs": 8.3,
+      "market_vs_prediction": -1.2,
+      "win_probabilities": {
+        "away_prob": 0.463,
+        "home_prob": 0.537
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": null,
+          "team": null,
+          "confidence": 0
+        },
+        "total_runs": {
+          "market_line": 9.5,
+          "pick": "UNDER",
+          "predicted_total": 8.3,
+          "confidence": 0.626,
+          "edge": -1.2
+        }
+      },
+      "overall_confidence": 0.626,
+      "market_alignment": "LOW"
+    },
+    "Arizona Diamondbacks @ Colorado Rockies": {
+      "away_team": "Arizona Diamondbacks",
+      "home_team": "Colorado Rockies",
+      "away_pitcher": "Brandon Pfaadt",
+      "home_pitcher": "Tanner Gordon",
+      "market_total_line": 11.0,
+      "predicted_total_runs": 10.8,
+      "market_vs_prediction": -0.2,
+      "win_probabilities": {
+        "away_prob": 0.468,
+        "home_prob": 0.532
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": null,
+          "team": null,
+          "confidence": 0
+        },
+        "total_runs": {
+          "market_line": 11.0,
+          "pick": "PASS",
+          "predicted_total": 10.8,
+          "confidence": 0.5,
+          "edge": -0.2
+        }
+      },
+      "overall_confidence": 0.5,
+      "market_alignment": "HIGH"
+    },
+    "Los Angeles Angels @ Athletics": {
+      "away_team": "Los Angeles Angels",
+      "home_team": "Athletics",
+      "away_pitcher": "Yusei Kikuchi",
+      "home_pitcher": "Jack Perkins",
+      "market_total_line": 8.5,
+      "predicted_total_runs": 9.6,
+      "market_vs_prediction": 1.1,
+      "win_probabilities": {
+        "away_prob": 0.493,
+        "home_prob": 0.507
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": null,
+          "team": null,
+          "confidence": 0
+        },
+        "total_runs": {
+          "market_line": 8.5,
+          "pick": "OVER",
+          "predicted_total": 9.6,
+          "confidence": 0.629,
+          "edge": 1.1
+        }
+      },
+      "overall_confidence": 0.629,
+      "market_alignment": "LOW"
+    },
+    "San Diego Padres @ Los Angeles Dodgers": {
+      "away_team": "San Diego Padres",
+      "home_team": "Los Angeles Dodgers",
+      "away_pitcher": "TBD",
+      "home_pitcher": "Clayton Kershaw",
+      "market_total_line": 9.0,
+      "predicted_total_runs": 6.7,
+      "market_vs_prediction": -2.3,
+      "win_probabilities": {
+        "away_prob": 0.468,
+        "home_prob": 0.532
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": null,
+          "team": null,
+          "confidence": 0
+        },
+        "total_runs": {
+          "market_line": 9.0,
+          "pick": "UNDER",
+          "predicted_total": 6.7,
+          "confidence": 0.756,
+          "edge": -2.3
+        }
+      },
+      "overall_confidence": 0.756,
+      "market_alignment": "LOW"
+    },
+    "Tampa Bay Rays @ San Francisco Giants": {
+      "away_team": "Tampa Bay Rays",
+      "home_team": "San Francisco Giants",
+      "away_pitcher": "Joe Boyle",
+      "home_pitcher": "Landen Roupp",
+      "market_total_line": 7.5,
+      "predicted_total_runs": 10.8,
+      "market_vs_prediction": 3.3,
+      "win_probabilities": {
+        "away_prob": 0.476,
+        "home_prob": 0.524
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": null,
+          "team": null,
+          "confidence": 0
+        },
+        "total_runs": {
+          "market_line": 7.5,
+          "pick": "OVER",
+          "predicted_total": 10.8,
+          "confidence": 0.8,
+          "edge": 3.3
+        }
+      },
+      "overall_confidence": 0.8,
+      "market_alignment": "LOW"
+    }
+  },
+  "summary": {
+    "total_games": 15,
+    "moneyline_picks": 1,
+    "over_picks": 8,
+    "under_picks": 5,
+    "high_confidence_picks": 7,
+    "market_enhanced": true
+  }
+}

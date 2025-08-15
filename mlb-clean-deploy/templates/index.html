@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLB Prediction System</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .game { border: 1px solid #ccc; margin: 10px 0; padding: 15px; }
+        .prediction { background: #f0f8ff; padding: 10px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>MLB Prediction System</h1>
+    <h2>Games for {{ today_date }}</h2>
+    
+    {% if predictions %}
+        {% for pred in predictions %}
+        <div class="game">
+            <h3>{{ pred.game.away_team }} @ {{ pred.game.home_team }}</h3>
+            <p><strong>Status:</strong> {{ pred.game.status }}</p>
+            {% if pred.game.game_time %}
+                <p><strong>Game Time:</strong> {{ pred.game.game_time }}</p>
+            {% endif %}
+            
+            {% if pred.prediction %}
+            <div class="prediction">
+                <h4>Prediction:</h4>
+                <pre>{{ pred.prediction | tojson(indent=2) }}</pre>
+            </div>
+            {% else %}
+                <p><em>No prediction available</em></p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No games found for today.</p>
+    {% endif %}
+</body>
+</html>

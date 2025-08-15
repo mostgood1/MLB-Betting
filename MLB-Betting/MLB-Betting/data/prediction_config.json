@@ -1,0 +1,66 @@
+{
+  "pitcher": {
+    "era_weight": 0.35,
+    "whip_weight": 0.25,
+    "k9_weight": 0.2,
+    "home_away_adjustment": 0.15,
+    "rest_days_factor": 0.05,
+    "recent_form_weight": 0.3,
+    "career_vs_team_weight": 0.25,
+    "ace_era_threshold": 3.0,
+    "good_era_threshold": 3.75,
+    "average_era_threshold": 4.5,
+    "ace_run_impact": -0.8,
+    "good_run_impact": -0.4,
+    "average_run_impact": 0.0,
+    "poor_run_impact": 0.6
+  },
+  "team": {
+    "offensive_runs_weight": 0.4,
+    "defensive_runs_weight": 0.35,
+    "recent_form_weight": 0.25,
+    "home_field_advantage": 0.15,
+    "win_streak_bonus": 0.05,
+    "loss_streak_penalty": -0.05,
+    "max_streak_impact": 0.25,
+    "h2h_weight": 0.2,
+    "division_rival_adjustment": 0.1
+  },
+  "game_situation": {
+    "day_game_adjustment": -0.05,
+    "night_game_adjustment": 0.0,
+    "double_header_fatigue": -0.1,
+    "wind_speed_impact": 0.02,
+    "temperature_impact": 0.005,
+    "dome_adjustment": 0.0,
+    "series_opener_adjustment": 0.02,
+    "series_finale_adjustment": -0.02
+  },
+  "betting": {
+    "high_confidence_threshold": 0.65,
+    "medium_confidence_threshold": 0.55,
+    "minimum_edge_percentage": 5.0,
+    "strong_edge_percentage": 10.0,
+    "conservative_bet_percentage": 1.0,
+    "aggressive_bet_percentage": 3.0,
+    "max_bet_percentage": 5.0,
+    "target_roi_percentage": 8.0,
+    "minimum_roi_percentage": 3.0
+  },
+  "advanced": {
+    "uncertainty_scaling": 1.0,
+    "model_ensemble_weights": [
+      0.4,
+      0.35,
+      0.25
+    ],
+    "regression_factor": 0.15,
+    "minimum_sample_size": 10,
+    "sample_size_scaling": 0.1,
+    "outlier_threshold_std": 2.5,
+    "outlier_dampening": 0.7
+  },
+  "version": "1.0",
+  "last_updated": "2025-08-15T01:24:37.758252",
+  "performance_grade": "UNTESTED"
+}

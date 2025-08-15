@@ -1,0 +1,228 @@
+{
+  "generated_at": "2025-08-11T14:39:39.558271",
+  "date": "2025-08-11",
+  "total_games": 2,
+  "games": {
+    "Philadelphia Phillies@Cincinnati Reds": {
+      "away_team": "Philadelphia Phillies",
+      "home_team": "Cincinnati Reds",
+      "predictions": {
+        "home_win_prob": 0.619,
+        "away_win_prob": 0.381,
+        "predicted_home_score": 4.7,
+        "predicted_away_score": 3.3,
+        "predicted_total_runs": 8.0,
+        "home_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_score_range": [
+          1.0,
+          6.0
+        ],
+        "total_runs_range": [
+          5.0,
+          12.0
+        ],
+        "confidence": 62.0
+      },
+      "betting_lines": {
+        "home_ml": -118,
+        "away_ml": 100,
+        "total_line": 9.5,
+        "over_odds": -115,
+        "under_odds": -105,
+        "spread_home": -1.5,
+        "spread_odds": 162
+      },
+      "recommendations": [
+        {
+          "type": "moneyline",
+          "side": "home",
+          "team": "home",
+          "odds": -118,
+          "model_prob": 0.619,
+          "implied_prob": 0.541,
+          "expected_value": 0.144,
+          "edge": 0.078,
+          "kelly_bet_size": 8.9,
+          "confidence": "HIGH",
+          "reasoning": "Model: 61.9% vs Market: 54.1%"
+        },
+        {
+          "type": "total",
+          "side": "under",
+          "line": 9.5,
+          "odds": -105,
+          "model_total": 8.0,
+          "edge": 1.5,
+          "expected_value": 0.125,
+          "kelly_bet_size": 7.2,
+          "confidence": "HIGH",
+          "reasoning": "Model: 8.0 vs Line: 9.5"
+        }
+      ],
+      "pitcher_quality": {
+        "away_pitcher_name": "Taijuan Walker",
+        "home_pitcher_name": "Andrew Abbott",
+        "away_pitcher_factor": 0.9911999999999999,
+        "home_pitcher_factor": 0.76
+      },
+      "meta": {
+        "simulations_run": 2000,
+        "execution_time_ms": 31.7,
+        "recommendations_found": 2,
+        "timestamp": "2025-08-11T14:39:39.526782"
+      },
+      "live_betting_lines": {
+        "away_team": "Philadelphia Phillies",
+        "home_team": "Cincinnati Reds",
+        "moneyline": {
+          "home": -118,
+          "away": 100
+        },
+        "spread": {
+          "home": -1.5,
+          "home_odds": 162,
+          "away": 1.5,
+          "away_odds": -196
+        },
+        "total": {
+          "over": 9.5,
+          "over_odds": -115,
+          "under": 9.5,
+          "under_odds": -105
+        },
+        "last_updated": "2025-08-11T14:39:39.493291",
+        "source": "cached",
+        "status": "active"
+      },
+      "betting_analysis": {
+        "model_favors": "Philadelphia Phillies",
+        "market_favors": "Cincinnati Reds",
+        "value_discrepancy": "HIGH - Model disagrees with market",
+        "confidence_level": "High"
+      },
+      "recommendation": {
+        "action": "STRONG BET",
+        "reasoning": "Model strongly favors Philadelphia Phillies, market favors Cincinnati Reds",
+        "bet_type": "MONEYLINE",
+        "value_rating": 8
+      }
+    },
+    "Minnesota Twins@New York Yankees": {
+      "away_team": "Minnesota Twins",
+      "home_team": "New York Yankees",
+      "predictions": {
+        "home_win_prob": 0.436,
+        "away_win_prob": 0.564,
+        "predicted_home_score": 4.4,
+        "predicted_away_score": 4.3,
+        "predicted_total_runs": 8.7,
+        "home_score_range": [
+          2.0,
+          7.0
+        ],
+        "away_score_range": [
+          2.0,
+          7.0
+        ],
+        "total_runs_range": [
+          5.0,
+          13.0
+        ],
+        "confidence": 61.0
+      },
+      "betting_lines": {
+        "home_ml": -154,
+        "away_ml": 130,
+        "total_line": 9.0,
+        "over_odds": -115,
+        "under_odds": -105,
+        "spread_home": -1.5,
+        "spread_odds": 138
+      },
+      "recommendations": [
+        {
+          "type": "moneyline",
+          "side": "away",
+          "team": "away",
+          "odds": 130,
+          "model_prob": 0.564,
+          "implied_prob": 0.435,
+          "expected_value": 0.297,
+          "edge": 0.129,
+          "kelly_bet_size": 16.8,
+          "confidence": "HIGH",
+          "reasoning": "Model: 56.4% vs Market: 43.5%"
+        }
+      ],
+      "pitcher_quality": {
+        "away_pitcher_name": "Zebby Matthews",
+        "home_pitcher_name": "Will Warren",
+        "away_pitcher_factor": 1.0645,
+        "home_pitcher_factor": 1.129
+      },
+      "meta": {
+        "simulations_run": 2000,
+        "execution_time_ms": 26.0,
+        "recommendations_found": 1,
+        "timestamp": "2025-08-11T14:39:39.558271"
+      },
+      "live_betting_lines": {
+        "away_team": "Minnesota Twins",
+        "home_team": "New York Yankees",
+        "moneyline": {
+          "away": 130,
+          "home": -154
+        },
+        "spread": {
+          "away": 1.5,
+          "away_odds": -166,
+          "home": -1.5,
+          "home_odds": 138
+        },
+        "total": {
+          "over": 9.0,
+          "over_odds": -115,
+          "under": 9.0,
+          "under_odds": -105
+        },
+        "last_updated": "2025-08-11T14:39:39.493291",
+        "source": "cached",
+        "status": "active"
+      },
+      "betting_analysis": {
+        "model_favors": "Minnesota Twins",
+        "market_favors": "New York Yankees",
+        "value_discrepancy": "HIGH - Model disagrees with market",
+        "confidence_level": "High"
+      },
+      "recommendation": {
+        "action": "STRONG BET",
+        "reasoning": "Model strongly favors Minnesota Twins, market favors New York Yankees",
+        "bet_type": "MONEYLINE",
+        "value_rating": 8
+      }
+    }
+  },
+  "summary": {
+    "strong_bets": [
+      {
+        "game": "Philadelphia Phillies@Cincinnati Reds",
+        "team": "Philadelphia Phillies",
+        "reasoning": "Model strongly favors Philadelphia Phillies, market favors Cincinnati Reds",
+        "value": 8
+      },
+      {
+        "game": "Minnesota Twins@New York Yankees",
+        "team": "Minnesota Twins",
+        "reasoning": "Model strongly favors Minnesota Twins, market favors New York Yankees",
+        "value": 8
+      }
+    ],
+    "consider_bets": [],
+    "avg_value_rating": 8.0,
+    "total_recommendations": 2
+  }
+}

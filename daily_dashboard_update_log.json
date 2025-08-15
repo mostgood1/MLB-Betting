@@ -1,0 +1,24 @@
+{
+  "timestamp": "2025-08-15T12:01:03.505182",
+  "status": "success",
+  "stats_summary": {
+    "total_games": 97,
+    "premium_predictions": 0,
+    "date_range": {
+      "days_of_data": 9,
+      "end": "2025-08-15",
+      "start": "2025-08-07"
+    },
+    "data_sources": {
+      "sources": {
+        "auto_generated": 15,
+        "daily_cache": 7,
+        "historical_cache_direct": 19,
+        "real_prediction_engine": 45,
+        "unknown": 11
+      },
+      "total_teams": 52,
+      "unique_pitchers": 112
+    }
+  }
+}

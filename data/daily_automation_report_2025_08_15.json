@@ -1,0 +1,74 @@
+{
+  "date": "2025-08-15",
+  "generated_at": "2025-08-15T12:54:46.952964",
+  "workflow_log": [
+    {
+      "timestamp": "2025-08-15T12:54:46.062941",
+      "step": "Fetch Starting Pitchers",
+      "status": "SUCCESS",
+      "details": "Script: fetch_todays_starters.py"
+    },
+    {
+      "timestamp": "2025-08-15T12:54:46.197921",
+      "step": "Generate Predictions",
+      "status": "SUCCESS",
+      "details": "Script: generate_todays_predictions.py"
+    },
+    {
+      "timestamp": "2025-08-15T12:54:46.818018",
+      "step": "Generate Betting Recommendations",
+      "status": "SUCCESS",
+      "details": "Script: betting_recommendations_engine.py"
+    },
+    {
+      "timestamp": "2025-08-15T12:54:46.949529",
+      "step": "Update Historical Accuracy",
+      "status": "SUCCESS",
+      "details": "Script: fix_complete_betting_accuracy.py"
+    },
+    {
+      "timestamp": "2025-08-15T12:54:46.952964",
+      "step": "Check TBD Status",
+      "status": "PENDING",
+      "details": "2 games with TBD pitchers"
+    },
+    {
+      "timestamp": "2025-08-15T12:54:46.972654",
+      "step": "Check TBD Status",
+      "status": "PENDING",
+      "details": "2 games with TBD pitchers"
+    }
+  ],
+  "status": "MONITORING",
+  "summary": {},
+  "betting_summary": {
+    "total_games": 15,
+    "moneyline_picks": 14,
+    "over_picks": 2,
+    "under_picks": 4,
+    "high_confidence_picks": 3
+  },
+  "historical_accuracy": {
+    "winner_predictions_correct": 52,
+    "winner_accuracy_pct": 53.6,
+    "total_predictions_correct": 42,
+    "total_accuracy_pct": 43.3,
+    "perfect_games": 18,
+    "perfect_games_pct": 18.6
+  },
+  "tbd_status": {
+    "tbd_count": 2,
+    "games": [
+      {
+        "game": "Milwaukee Brewers @ Cincinnati Reds",
+        "away_pitcher": "TBD",
+        "home_pitcher": "Nick Martinez"
+      },
+      {
+        "game": "San Diego Padres @ Los Angeles Dodgers",
+        "away_pitcher": "TBD",
+        "home_pitcher": "Clayton Kershaw"
+      }
+    ]
+  }
+}

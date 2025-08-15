@@ -15,8 +15,6 @@ import os
 from datetime import datetime, timedelta
 import logging
 import traceback
-import statistics
-from collections import defaultdict, Counter
 from engines.ultra_fast_engine import UltraFastSimEngine
 
 app = Flask(__name__)
@@ -97,98 +95,6 @@ def load_unified_cache():
         logger.error(f"Error parsing unified cache: {e}")
         return {}
 
-def load_real_betting_lines():
-    """Load real betting lines"""
-    today = datetime.now().strftime('%Y-%m-%d').replace('-', '_')
-    lines_path = f'data/real_betting_lines_{today}.json'
-    
-    try:
-        with open(lines_path, 'r') as f:
-            data = json.load(f)
-            logger.info(f"Loaded real betting lines from {lines_path}")
-            return data
-    except FileNotFoundError:
-        logger.warning(f"Real betting lines not found at {lines_path}")
-        return None
-    except json.JSONDecodeError as e:
-        logger.error(f"Error parsing betting lines: {e}")
-        return None
-
-def load_betting_recommendations():
-    """Load betting recommendations from engine"""
-    today = datetime.now().strftime('%Y_%m_%d')
-    rec_path = f'data/betting_recommendations_{today}.json'
-    
-    logger.info(f"Attempting to load betting recommendations from: {rec_path}")
-    
-    try:
-        with open(rec_path, 'r') as f:
-            data = json.load(f)
-            logger.info(f"Successfully loaded betting recommendations from {rec_path}")
-            
-            # Show first few keys from file for debugging
-            if 'games' in data:
-                sample_keys = list(data['games'].keys())[:2]
-                logger.info(f"File has 'games' key with sample keys: {sample_keys}")
-                
-                # Check the structure of the first game
-                if sample_keys:
-                    first_game_data = data['games'][sample_keys[0]]
-                    logger.info(f"First game structure keys: {list(first_game_data.keys())}")
-                    
-                    if 'betting_recommendations' in first_game_data:
-                        logger.info(f"First game has 'betting_recommendations' with keys: {list(first_game_data['betting_recommendations'].keys())}")
-                    else:
-                        logger.warning(f"First game does NOT have 'betting_recommendations' key")
-            
-            # Handle new structure - the file already has the correct 'games' structure
-            if 'games' in data:
-                game_count = len(data['games'])
-                logger.info(f"Found {game_count} games with betting recommendations in new format")
-                return data
-            
-            # Handle legacy structure conversion if needed
-            # Convert structure to what the app expects
-            # Our data has: betting_recommendations.moneyline and betting_recommendations.total_runs
-            # App expects: games[game_key] structure
-            if 'betting_recommendations' in data:
-                logger.info("Converting legacy betting recommendations format")
-                converted_data = {'games': {}, 'summary': {}}
-                betting_data = data['betting_recommendations']
-                
-                # Process moneyline picks
-                for pick in betting_data.get('moneyline', []):
-                    game_key = pick.get('game', '')
-                    if game_key not in converted_data['games']:
-                        converted_data['games'][game_key] = {'recommendations': []}
-                    converted_data['games'][game_key]['recommendations'].append(pick)
-                
-                # Process total runs picks
-                for pick in betting_data.get('total_runs', []):
-                    game_key = pick.get('game', '')
-                    if game_key not in converted_data['games']:
-                        converted_data['games'][game_key] = {'recommendations': []}
-                    converted_data['games'][game_key]['recommendations'].append(pick)
-                
-                # Add summary data
-                converted_data['summary'] = {
-                    'total_games': data.get('total_games', 0),
-                    'generation_date': data.get('generation_date', ''),
-                    'date': data.get('date', '')
-                }
-                
-                logger.info(f"Converted legacy betting recommendations: {len(converted_data['games'])} games with picks")
-                return converted_data
-            
-            logger.warning("Betting recommendations file has unexpected format")
-            return data
-    except FileNotFoundError:
-        logger.warning(f"Betting recommendations not found at {rec_path}")
-        return None
-    except json.JSONDecodeError as e:
-        logger.error(f"Error parsing betting recommendations: {e}")
-        return None
-
 def calculate_performance_stats(predictions):
     """Calculate performance statistics for recap"""
     total_games = len(predictions)
@@ -212,198 +118,6 @@ def calculate_performance_stats(predictions):
         'coverage_rate': 100.0,  # We achieved 100% coverage!
         'data_quality': 'Premium' if premium_count > total_games * 0.4 else 'Standard'
     }
-
-def generate_comprehensive_dashboard_insights(unified_cache):
-    """Generate comprehensive dashboard insights from all historical data"""
-    from collections import defaultdict, Counter
-    import statistics
-    from datetime import datetime, timedelta
-    import os
-    
-    predictions_data = unified_cache.get('predictions_by_date', {})
-    
-    # Initialize comprehensive stats
-    total_games = 0
-    total_dates = 0
-    
-    # Load real betting accuracy if available
-    betting_accuracy_file = 'data/betting_accuracy_analysis.json'
-    real_betting_stats = None
-    
-    if os.path.exists(betting_accuracy_file):
-        try:
-            with open(betting_accuracy_file, 'r') as f:
-                real_betting_stats = json.load(f)
-        except:
-            pass
-    
-    # Score and performance tracking
-    all_scores = []
-    win_probabilities = []
-    sources = Counter()
-    dates_with_data = []
-    
-    # Team performance tracking
-    team_stats = defaultdict(lambda: {'games': 0, 'avg_score': 0, 'total_score': 0})
-    
-    # Date range analysis - from August 7th onwards
-    start_date = datetime(2025, 8, 7)
-    
-    for date_str, date_data in predictions_data.items():
-        if 'games' not in date_data:
-            continue
-            
-        try:
-            date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-            if date_obj < start_date:
-                continue  # Skip dates before Aug 7th
-        except:
-            continue
-        
-        dates_with_data.append(date_str)
-        total_dates += 1
-        
-        games = date_data['games']
-        games_list = []
-        
-        # Handle both dict and list formats
-        if isinstance(games, dict):
-            games_list = list(games.values())
-        elif isinstance(games, list):
-            games_list = games
-        
-        date_games = len(games_list)
-        total_games += date_games
-        
-        # Process each game for score analysis
-        for game in games_list:
-            if not isinstance(game, dict):
-                continue
-                
-            # Count sources
-            source = game.get('source', 'unknown')
-            sources[source] += 1
-            
-            # Score analysis for all games
-            if 'predicted_away_score' in game and 'predicted_home_score' in game:
-                away_score_raw = game.get('predicted_away_score')
-                home_score_raw = game.get('predicted_home_score')
-                
-                # Handle None values and convert to float
-                try:
-                    away_score = float(away_score_raw) if away_score_raw is not None else 0.0
-                    home_score = float(home_score_raw) if home_score_raw is not None else 0.0
-                    total_score = away_score + home_score
-                    all_scores.append(total_score)
-                    
-                    # Team stats
-                    away_team = game.get('away_team', '').replace('_', ' ')
-                    home_team = game.get('home_team', '').replace('_', ' ')
-                    
-                    if away_team:
-                        team_stats[away_team]['games'] += 1
-                        team_stats[away_team]['total_score'] += away_score
-                        team_stats[away_team]['avg_score'] = team_stats[away_team]['total_score'] / team_stats[away_team]['games']
-                    
-                    if home_team:
-                        team_stats[home_team]['games'] += 1
-                        team_stats[home_team]['total_score'] += home_score
-                        team_stats[home_team]['avg_score'] = team_stats[home_team]['total_score'] / team_stats[home_team]['games']
-                        
-                except (ValueError, TypeError) as e:
-                    logger.warning(f"Error converting scores to float for game: {game.get('away_team', 'Unknown')} @ {game.get('home_team', 'Unknown')}: {e}")
-                    continue
-            
-            # Win probability analysis
-            if 'away_win_probability' in game:
-                away_prob = float(game['away_win_probability'])
-                home_prob = float(game.get('home_win_probability', 1 - away_prob))
-                
-                # Convert to 0-100 scale if needed
-                if away_prob <= 1:
-                    away_prob *= 100
-                if home_prob <= 1:
-                    home_prob *= 100
-                
-                max_prob = max(away_prob, home_prob)
-                win_probabilities.append(max_prob)
-    
-    # Use real betting accuracy if available, otherwise fallback
-    if real_betting_stats:
-        bp = real_betting_stats['betting_performance']
-        betting_performance = {
-            'winner_predictions_correct': bp['winner_predictions_correct'],
-            'total_predictions_correct': bp['total_predictions_correct'],
-            'perfect_games': bp['perfect_games'],
-            'games_analyzed': real_betting_stats['total_predictions_analyzed'],
-            'winner_accuracy_pct': bp['winner_accuracy_pct'],
-            'total_accuracy_pct': bp['total_accuracy_pct'],
-            'perfect_games_pct': bp['perfect_games_pct'],
-            'using_real_data': True
-        }
-    else:
-        # Fallback to basic stats if real accuracy not available
-        betting_performance = {
-            'winner_predictions_correct': 0,
-            'total_predictions_correct': 0,
-            'perfect_games': 0,
-            'games_analyzed': 0,
-            'winner_accuracy_pct': 0,
-            'total_accuracy_pct': 0,
-            'perfect_games_pct': 0,
-            'using_real_data': False
-        }
-    
-    # Calculate comprehensive statistics
-    dashboard_insights = {
-        'total_games_analyzed': total_games,
-        'total_dates_covered': total_dates,
-        'date_range': {
-            'start': '2025-08-07',
-            'end': max(dates_with_data) if dates_with_data else '2025-08-07',
-            'days_of_data': len(dates_with_data)
-        },
-        'betting_performance': betting_performance,
-        'score_analysis': {
-            'avg_total_runs': round(statistics.mean(all_scores), 1) if all_scores else 0,
-            'min_total_runs': round(min(all_scores), 1) if all_scores else 0,
-            'max_total_runs': round(max(all_scores), 1) if all_scores else 0,
-            'games_with_scores': len(all_scores)
-        },
-        'data_sources': {
-            'total_teams': len(team_stats),
-            'unique_pitchers': len(set([game.get('away_pitcher', '') for date_data in predictions_data.values() 
-                                     for game in (date_data.get('games', {}).values() if isinstance(date_data.get('games', {}), dict) 
-                                                 else date_data.get('games', [])) if isinstance(game, dict)] + 
-                                    [game.get('home_pitcher', '') for date_data in predictions_data.values() 
-                                     for game in (date_data.get('games', {}).values() if isinstance(date_data.get('games', {}), dict) 
-                                                 else date_data.get('games', [])) if isinstance(game, dict) and game.get('home_pitcher') != 'TBD'])),
-            'sources': dict(sources)
-        },
-        'data_freshness': {
-            'last_update': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'most_recent_date': max(dates_with_data) if dates_with_data else 'N/A'
-        }
-    }
-    
-    return dashboard_insights
-
-def update_daily_dashboard_stats():
-    """Update dashboard statistics daily - can be called from a scheduler"""
-    try:
-        unified_cache = load_unified_cache()
-        comprehensive_stats = generate_comprehensive_dashboard_insights(unified_cache)
-        
-        # Save to file for persistence
-        stats_file = 'data/daily_dashboard_stats.json'
-        with open(stats_file, 'w') as f:
-            json.dump(comprehensive_stats, f, indent=2)
-        
-        logger.info(f"✅ Daily dashboard stats updated: {comprehensive_stats['total_games_analyzed']} games analyzed")
-        return comprehensive_stats
-    except Exception as e:
-        logger.error(f"❌ Error updating daily dashboard stats: {e}")
-        return None
 
 def calculate_enhanced_betting_grade(away_win_prob, home_win_prob, predicted_total, away_pitcher_factor, home_pitcher_factor):
     """
@@ -456,28 +170,20 @@ def calculate_enhanced_betting_grade(away_win_prob, home_win_prob, predicted_tot
     else:
         return 'Skip', 'D'
 
-def generate_betting_recommendations(away_win_prob, home_win_prob, predicted_total, away_team, home_team, real_lines=None):
+def generate_betting_recommendations(away_win_prob, home_win_prob, predicted_total, away_team, home_team):
     """Generate comprehensive betting recommendations with enhanced analysis"""
     recommendations = []
     
-    # Enhanced betting lines (use real lines if available)
+    # Enhanced betting lines (in real system, fetch from API)
     standard_total = 9.5
-    if real_lines and 'total_runs' in real_lines:
-        standard_total = real_lines['total_runs'].get('line', 9.5)
-    
     moneyline_threshold = 0.54  # 54% confidence for moneyline bets
     total_threshold = 0.8  # 0.8 run difference for total bets
     
-    # Moneyline analysis with real lines when available
+    # Moneyline analysis with more sophisticated edge calculation
     if away_win_prob > moneyline_threshold:
         edge_percentage = (away_win_prob - 0.5) * 100
         confidence = 'HIGH' if away_win_prob > 0.65 else 'MEDIUM'
-        
-        # Use real odds if available, otherwise calculate implied odds
-        if real_lines and 'moneyline' in real_lines and 'away' in real_lines['moneyline']:
-            estimated_odds = real_lines['moneyline']['away']
-        else:
-            estimated_odds = calculate_implied_odds(away_win_prob)
+        implied_odds = calculate_implied_odds(away_win_prob)
         
         recommendations.append({
             'type': 'Moneyline',
@@ -485,19 +191,14 @@ def generate_betting_recommendations(away_win_prob, home_win_prob, predicted_tot
             'recommendation': f"{away_team} ML ({away_win_prob:.1%})",
             'reasoning': f"Model projects {away_team} with {away_win_prob:.1%} win probability",
             'confidence': confidence,
-            'estimated_odds': f"{estimated_odds}",
+            'estimated_odds': f"{implied_odds}",
             'edge': edge_percentage,
             'edge_rating': '🔥' if edge_percentage > 15 else '⚡' if edge_percentage > 8 else '💡'
         })
     elif home_win_prob > moneyline_threshold:
         edge_percentage = (home_win_prob - 0.5) * 100
         confidence = 'HIGH' if home_win_prob > 0.65 else 'MEDIUM'
-        
-        # Use real odds if available, otherwise calculate implied odds
-        if real_lines and 'moneyline' in real_lines and 'home' in real_lines['moneyline']:
-            estimated_odds = real_lines['moneyline']['home']
-        else:
-            estimated_odds = calculate_implied_odds(home_win_prob)
+        implied_odds = calculate_implied_odds(home_win_prob)
         
         recommendations.append({
             'type': 'Moneyline',
@@ -505,7 +206,7 @@ def generate_betting_recommendations(away_win_prob, home_win_prob, predicted_tot
             'recommendation': f"{home_team} ML ({home_win_prob:.1%})",
             'reasoning': f"Model projects {home_team} with {home_win_prob:.1%} win probability",
             'confidence': confidence,
-            'estimated_odds': f"{estimated_odds}",
+            'estimated_odds': f"{implied_odds}",
             'edge': edge_percentage,
             'edge_rating': '🔥' if edge_percentage > 15 else '⚡' if edge_percentage > 8 else '💡'
         })
@@ -607,102 +308,6 @@ def generate_betting_recommendations(away_win_prob, home_win_prob, predicted_tot
         'summary': f"{len([r for r in recommendations if r['confidence'] == 'HIGH'])} high-confidence, {len([r for r in recommendations if r['confidence'] == 'MEDIUM'])} medium-confidence opportunities"
     }
 
-def convert_betting_recommendations_to_frontend_format(game_recommendations, real_lines=None):
-    """Convert betting recommendations to format expected by frontend template"""
-    if not game_recommendations or 'betting_recommendations' not in game_recommendations:
-        return None
-    
-    betting_recs = game_recommendations['betting_recommendations']
-    value_bets = []
-    
-    # Convert moneyline recommendation
-    if 'moneyline' in betting_recs and betting_recs['moneyline']['pick'] != 'PASS':
-        ml_rec = betting_recs['moneyline']
-        confidence_level = 'HIGH' if ml_rec['confidence'] > 0.65 else 'MEDIUM' if ml_rec['confidence'] > 0.55 else 'LOW'
-        
-        # Get real odds if available
-        odds = 'N/A'
-        if real_lines and 'moneyline' in real_lines:
-            if ml_rec['pick'] == 'away' and 'away' in real_lines['moneyline']:
-                odds = real_lines['moneyline']['away']
-            elif ml_rec['pick'] == 'home' and 'home' in real_lines['moneyline']:
-                odds = real_lines['moneyline']['home']
-        
-        edge_percentage = (ml_rec['confidence'] - 0.5) * 100
-        
-        value_bets.append({
-            'type': 'Moneyline',
-            'recommendation': f"{ml_rec['team']} ML ({ml_rec['confidence']:.1%})",
-            'confidence': confidence_level,
-            'edge': edge_percentage,
-            'edge_rating': '🔥' if confidence_level == 'HIGH' else '⚡' if confidence_level == 'MEDIUM' else '💡',
-            'estimated_odds': odds,
-            'reasoning': f"Model projects {ml_rec['team']} with {ml_rec['confidence']:.1%} win probability"
-        })
-    
-    # Convert total runs recommendation
-    if 'total_runs' in betting_recs and betting_recs['total_runs']['pick'] != 'PASS':
-        tr_rec = betting_recs['total_runs']
-        confidence_level = 'HIGH' if abs(tr_rec['edge']) > 1.0 else 'MEDIUM' if abs(tr_rec['edge']) > 0.5 else 'LOW'
-        
-        # Get real odds if available
-        odds = 'N/A'
-        if real_lines and 'total_runs' in real_lines:
-            if tr_rec['pick'] == 'OVER':
-                odds = real_lines['total_runs'].get('over', 'N/A')
-            elif tr_rec['pick'] == 'UNDER':
-                odds = real_lines['total_runs'].get('under', 'N/A')
-        
-        value_bets.append({
-            'type': 'Total Runs',
-            'recommendation': f"{tr_rec['pick']} {tr_rec['market_line']}",
-            'confidence': confidence_level,
-            'edge': abs(tr_rec['edge']) * 10,  # Convert to percentage
-            'edge_rating': '🔥' if confidence_level == 'HIGH' else '⚡' if confidence_level == 'MEDIUM' else '💡',
-            'estimated_odds': odds,
-            'reasoning': f"Predicted {tr_rec['predicted_total']:.1f} vs market {tr_rec['market_line']}"
-        })
-    
-    # Create summary
-    high_confidence_count = sum(1 for bet in value_bets if bet['confidence'] == 'HIGH')
-    medium_confidence_count = sum(1 for bet in value_bets if bet['confidence'] == 'MEDIUM')
-    
-    summary = f"{high_confidence_count} high-confidence, {medium_confidence_count} medium-confidence opportunities"
-    
-    return {
-        'value_bets': value_bets,
-        'summary': summary,
-        'total_bets': len(value_bets)
-    }
-
-def convert_legacy_recommendations_to_frontend_format(legacy_recommendations, real_lines=None):
-    """Convert legacy betting recommendations array to frontend format"""
-    if not legacy_recommendations or not isinstance(legacy_recommendations, list):
-        return None
-    
-    value_bets = []
-    for rec in legacy_recommendations:
-        value_bets.append({
-            'type': rec.get('type', 'Unknown'),
-            'recommendation': rec.get('recommendation', ''),
-            'confidence': rec.get('confidence', 'MEDIUM'),
-            'edge': rec.get('edge', 0),
-            'edge_rating': rec.get('edge_rating', '💡'),
-            'estimated_odds': rec.get('estimated_odds', 'N/A'),
-            'reasoning': rec.get('reasoning', '')
-        })
-    
-    high_confidence_count = sum(1 for bet in value_bets if bet['confidence'] == 'HIGH')
-    medium_confidence_count = sum(1 for bet in value_bets if bet['confidence'] == 'MEDIUM')
-    
-    summary = f"{high_confidence_count} high-confidence, {medium_confidence_count} medium-confidence opportunities"
-    
-    return {
-        'value_bets': value_bets,
-        'summary': summary,
-        'total_bets': len(value_bets)
-    }
-
 def calculate_implied_odds(win_probability):
     """Calculate implied American odds from win probability"""
     if win_probability >= 0.5:
@@ -712,62 +317,12 @@ def calculate_implied_odds(win_probability):
         # Underdog odds (positive)
         return f"+{int((1 - win_probability) / win_probability * 100)}"
 
-@app.route('/api/betting-test')
-def betting_test():
-    """Test endpoint to check betting data loading"""
-    try:
-        real_betting_lines = load_real_betting_lines()
-        betting_recommendations = load_betting_recommendations()
-        
-        result = {
-            'real_lines_loaded': real_betting_lines is not None,
-            'recommendations_loaded': betting_recommendations is not None,
-            'sample_data': {}
-        }
-        
-        if real_betting_lines:
-            result['sample_data']['cubs_line'] = real_betting_lines.get('lines', {}).get('Pittsburgh Pirates @ Chicago Cubs', {}).get('moneyline', {}).get('home', 'Not found')
-        
-        if betting_recommendations:
-            result['sample_data']['total_games'] = betting_recommendations.get('summary', {}).get('total_games', 0)
-            result['sample_data']['games_with_picks'] = len(betting_recommendations.get('games', {}))
-            # Sample first game
-            games = betting_recommendations.get('games', {})
-            if games:
-                first_game = next(iter(games.keys()))
-                result['sample_data']['first_game'] = first_game
-                result['sample_data']['first_game_raw_data'] = games[first_game]  # Show RAW data
-                
-                # Debug: Show the exact lookup key and available keys
-                test_key = "Pittsburgh Pirates @ Chicago Cubs"
-                result['sample_data']['test_lookup_key'] = test_key
-                result['sample_data']['key_exists'] = test_key in games
-                result['sample_data']['available_keys'] = list(games.keys())
-                
-                # Test exact lookup
-                raw_lookup_result = games.get(test_key, 'NOT_FOUND')
-                result['sample_data']['exact_lookup_result'] = raw_lookup_result
-                
-                # Show the structure that the converter expects
-                if raw_lookup_result != 'NOT_FOUND' and 'betting_recommendations' in raw_lookup_result:
-                    result['sample_data']['has_betting_recommendations_key'] = True
-                    result['sample_data']['betting_recommendations_structure'] = raw_lookup_result['betting_recommendations']
-                else:
-                    result['sample_data']['has_betting_recommendations_key'] = False
-            
-        return jsonify(result)
-        
-    except Exception as e:
-        return jsonify({'error': str(e), 'traceback': traceback.format_exc()})
-
 @app.route('/')
 def home():
-    """Enhanced home page with comprehensive archaeological data insights"""
+    """Enhanced home page with archaeological data insights"""
     try:
         # Load our treasure trove of data
         unified_cache = load_unified_cache()
-        real_betting_lines = load_real_betting_lines()
-        betting_recommendations = load_betting_recommendations()
         
         # Get today's date for filtering
         today = datetime.now().strftime('%Y-%m-%d')
@@ -793,16 +348,6 @@ def home():
             home_win_prob = game_data.get('home_win_probability', 0.5) * 100
             max_confidence = max(away_win_prob, home_win_prob)
             
-            # Get real betting lines for this game
-            real_lines = None
-            if real_betting_lines and 'lines' in real_betting_lines:
-                real_lines = real_betting_lines['lines'].get(game_key, None)
-            
-            # Get betting recommendations for this game
-            game_recommendations = None
-            if betting_recommendations and 'games' in betting_recommendations:
-                game_recommendations = betting_recommendations['games'].get(game_key, None)
-            
             # Determine betting recommendation
             if max_confidence > 65:
                 recommendation = 'Strong Bet'
@@ -820,8 +365,6 @@ def home():
             # Get total runs prediction
             total_runs_prediction = comprehensive_details.get('total_runs_prediction', {})
             predicted_total = total_runs_prediction.get('predicted_total', 0)
-            if not predicted_total:
-                predicted_total = game_data.get('predicted_total_runs', 0)
             
             enhanced_game = {
                 'game_id': game_key,
@@ -842,27 +385,30 @@ def home():
                 'bet_grade': bet_grade,
                 'predicted_winner': away_team if away_win_prob > home_win_prob else home_team,
                 'over_under_recommendation': 'OVER' if predicted_total > 9.5 else 'UNDER',
-                'status': 'Scheduled',
-                'real_betting_lines': real_lines,
-                'betting_recommendations': game_recommendations
+                'status': 'Scheduled'
             }
             today_predictions.append(enhanced_game)
         
         # Calculate performance statistics
         stats = calculate_performance_stats(today_predictions)
         
-        # Generate comprehensive archaeological insights from all data
-        comprehensive_stats = generate_comprehensive_dashboard_insights(unified_cache)
+        # Archaeological insights
+        archaeological_summary = {
+            'total_cache_entries': len(unified_cache),
+            'date_range_covered': get_date_range_summary(unified_cache),
+            'premium_discovery_count': sum(1 for game in unified_cache.values() 
+                                         if isinstance(game, dict) and game.get('confidence', 0) > 50),
+            'data_sources_unified': ['Historical Cache', 'Game Scores', 'Archaeological Recovery']
+        }
         
-        logger.info(f"Home page loaded - {len(today_predictions)} today's games, {stats.get('premium_predictions', 0)} premium")
+        logger.info(f"Home page loaded - {len(today_predictions)} today's games, {stats['premium_predictions']} premium")
         
         return render_template('index.html', 
                              predictions=today_predictions,
                              stats=stats,
-                             comprehensive_stats=comprehensive_stats,
+                             archaeological_summary=archaeological_summary,
                              today_date=today,
-                             games_count=len(today_predictions),
-                             betting_recommendations=betting_recommendations)
+                             games_count=len(today_predictions))
     
     except Exception as e:
         logger.error(f"Error in home route: {e}")
@@ -870,7 +416,7 @@ def home():
         return render_template('index.html', 
                              predictions=[],
                              stats={'total_games': 0, 'premium_predictions': 0},
-                             comprehensive_stats={},
+                             archaeological_summary={},
                              today_date=today,
                              games_count=0)
 
@@ -902,24 +448,16 @@ def api_historical_recap(date):
         unified_cache = load_unified_cache()
         predictions_by_date = unified_cache.get('predictions_by_date', {})
         
-        # Get the requested date data - check both structures
+        # Get the requested date data
         date_data = predictions_by_date.get(date, {})
         games_dict = date_data.get('games', {})
-        
-        # If not found in predictions_by_date, check direct date structure
-        if not games_dict:
-            games_list = unified_cache.get(date, [])
-            if games_list:
-                # Convert list to dict for consistent processing
-                games_dict = {f"game_{i}": game for i, game in enumerate(games_list)}
-                logger.info(f"Found {len(games_list)} games for {date} in direct date structure")
         
         if not games_dict:
             logger.warning(f"No games found for date {date}")
             return jsonify({
                 'success': False,
                 'error': f'No games found for {date}',
-                'available_dates': list(predictions_by_date.keys()) + [k for k in unified_cache.keys() if k.startswith('2025-')]
+                'available_dates': list(predictions_by_date.keys())
             })
         
         # Import live data fetcher for final scores
@@ -1283,29 +821,6 @@ def api_stats():
             'message': str(e)
         })
 
-@app.route('/api/update-dashboard-stats')
-def api_update_dashboard_stats():
-    """API endpoint to manually trigger dashboard statistics update"""
-    try:
-        updated_stats = update_daily_dashboard_stats()
-        if updated_stats:
-            return jsonify({
-                'status': 'success',
-                'message': 'Dashboard statistics updated successfully',
-                'stats': updated_stats
-            })
-        else:
-            return jsonify({
-                'status': 'error',
-                'message': 'Failed to update dashboard statistics'
-            })
-    except Exception as e:
-        logger.error(f"Error updating dashboard stats: {e}")
-        return jsonify({
-            'status': 'error',
-            'message': str(e)
-        })
-
 @app.route('/api/today-games')
 def api_today_games():
     """API endpoint for today's games with live status - this is what powers the game cards!"""
@@ -1316,8 +831,6 @@ def api_today_games():
         
         # Load unified cache 
         unified_cache = load_unified_cache()
-        real_betting_lines = load_real_betting_lines()
-        betting_recommendations = load_betting_recommendations()
         logger.info(f"Loaded cache with keys: {list(unified_cache.keys())[:5]}...")  # Show first 5 keys
         
         # Access the predictions_by_date structure
@@ -1374,22 +887,7 @@ def api_today_games():
             # Get total runs prediction for comprehensive analysis
             total_runs_prediction = comprehensive_details.get('total_runs_prediction', {})
             predicted_total = total_runs_prediction.get('predicted_total', 0)
-            if not predicted_total:
-                predicted_total = game_data.get('predicted_total_runs', 0)
             over_under_analysis = total_runs_prediction.get('over_under_analysis', {})
-            
-            # Get real betting lines for this game
-            real_lines = None
-            real_over_under_total = 9.5  # default
-            if real_betting_lines and 'lines' in real_betting_lines:
-                real_lines = real_betting_lines['lines'].get(game_key, None)
-                if real_lines and 'total_runs' in real_lines:
-                    real_over_under_total = real_lines['total_runs'].get('line', 9.5)
-            
-            # Get betting recommendations for this game
-            game_recommendations = None
-            if betting_recommendations and 'games' in betting_recommendations:
-                game_recommendations = betting_recommendations['games'].get(game_key, None)
             
             # Enhanced betting recommendation using multiple factors
             recommendation, bet_grade = calculate_enhanced_betting_grade(
@@ -1435,14 +933,10 @@ def api_today_games():
                 'bet_grade': bet_grade,
                 'predicted_winner': away_team if away_win_prob > home_win_prob else home_team,
                 
-                # Over/Under recommendation using real market line
-                'over_under_total': real_over_under_total,
-                'over_under_recommendation': 'OVER' if predicted_total > real_over_under_total else 'UNDER',
-                'over_probability': over_under_analysis.get(str(real_over_under_total), {}).get('over_probability', 0.5),
-                
-                # Real betting lines and recommendations  
-                'real_betting_lines': real_lines,
-                'betting_recommendations': convert_betting_recommendations_to_frontend_format(game_recommendations, real_lines) if game_recommendations else None,
+                # Over/Under recommendation
+                'over_under_total': 9.5,  # Standard MLB total
+                'over_under_recommendation': 'OVER' if predicted_total > 9.5 else 'UNDER',
+                'over_probability': over_under_analysis.get('9.5', {}).get('over_probability', 0.5),
                 
                 # Live status (default to scheduled for now)
                 'live_status': {
@@ -1555,15 +1049,13 @@ def api_single_prediction(away_team, home_team):
         date_param = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
         logger.info(f"Getting prediction for {away_team} @ {home_team} on {date_param}")
         
-        # Load unified cache (hardcoded daily predictions)
+        # Load unified cache
         unified_cache = load_unified_cache()
-        real_betting_lines = load_real_betting_lines()
-        betting_recommendations = load_betting_recommendations()
         predictions_by_date = unified_cache.get('predictions_by_date', {})
         today_data = predictions_by_date.get(date_param, {})
         games_dict = today_data.get('games', {})
         
-        # Find the matching game in cache
+        # Find the matching game
         matching_game = None
         for game_key, game_data in games_dict.items():
             game_away = normalize_team_name(game_data.get('away_team', ''))
@@ -1585,25 +1077,6 @@ def api_single_prediction(away_team, home_team):
         comprehensive_details = matching_game.get('comprehensive_details', {})
         winner_prediction = comprehensive_details.get('winner_prediction', {})
         total_runs_prediction = comprehensive_details.get('total_runs_prediction', {})
-        
-        # Build game key for betting lines lookup
-        game_key = f"{away_team} @ {home_team}"
-        logger.info(f"Looking for betting recommendations with game_key: '{game_key}'")
-        
-        # Get real betting lines for this game
-        real_lines = None
-        if real_betting_lines and 'lines' in real_betting_lines:
-            real_lines = real_betting_lines['lines'].get(game_key, None)
-        
-        # Get betting recommendations for this game
-        game_recommendations = None
-        if betting_recommendations and 'games' in betting_recommendations:
-            available_keys = list(betting_recommendations['games'].keys())
-            logger.info(f"Available betting recommendation keys: {available_keys}")
-            game_recommendations = betting_recommendations['games'].get(game_key, None)
-            logger.info(f"Found betting recommendation: {game_recommendations is not None}")
-        else:
-            logger.warning("No betting recommendations loaded or 'games' key missing")
         
         prediction_response = {
             'success': True,
@@ -1635,16 +1108,12 @@ def api_single_prediction(away_team, home_team):
                 'most_likely_range': total_runs_prediction.get('most_likely_range', 'Unknown'),
                 'over_under_analysis': total_runs_prediction.get('over_under_analysis', {})
             },
-            'betting_recommendations': convert_betting_recommendations_to_frontend_format(game_recommendations, real_lines) if game_recommendations else convert_legacy_recommendations_to_frontend_format(
-                generate_betting_recommendations(
-                    matching_game.get('away_win_probability', 0.5),
-                    matching_game.get('home_win_probability', 0.5),
-                    total_runs_prediction.get('predicted_total', 9.0),
-                    away_team, home_team, real_lines
-                ),
-                real_lines
-            ),
-            'real_betting_lines': real_lines
+            'betting_recommendations': generate_betting_recommendations(
+                matching_game.get('away_win_probability', 0.5),
+                matching_game.get('home_win_probability', 0.5),
+                total_runs_prediction.get('predicted_total', 9.0),
+                away_team, home_team
+            )
         }
         
         logger.info(f"Successfully found prediction for {away_team} @ {home_team}")
@@ -1667,28 +1136,8 @@ if __name__ == '__main__':
     # Verify our treasure is available
     cache = load_unified_cache()
     if cache:
-        # Handle both flat and nested cache structures
-        total_predictions = 0
-        premium_count = 0
-        
-        if 'predictions_by_date' in cache:
-            # Nested structure - count games in predictions_by_date
-            predictions_by_date = cache['predictions_by_date']
-            for date_data in predictions_by_date.values():
-                if 'games' in date_data:
-                    games = date_data['games']
-                    if isinstance(games, dict):
-                        total_predictions += len(games)
-                        premium_count += sum(1 for game in games.values() if game.get('confidence', 0) > 50)
-                    elif isinstance(games, list):
-                        total_predictions += len(games)
-                        premium_count += sum(1 for game in games if game.get('confidence', 0) > 50)
-        else:
-            # Flat structure - count directly
-            total_predictions = len(cache)
-            premium_count = sum(1 for game in cache.values() if game.get('confidence', 0) > 50)
-        
-        logger.info(f"🎯 System Ready: {total_predictions} total predictions, {premium_count} premium quality")
+        premium_count = sum(1 for game in cache.values() if game.get('confidence', 0) > 50)
+        logger.info(f"🎯 System Ready: {len(cache)} total predictions, {premium_count} premium quality")
     else:
         logger.warning("⚠️ No cache data found - check unified_predictions_cache.json")
     

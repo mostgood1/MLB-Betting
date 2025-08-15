@@ -1,0 +1,15 @@
+{
+  "2025-08-12": {
+    "date": "2025-08-12",
+    "total_games": 15,
+    "games_with_predictions": 15,
+    "games_with_results": 15,
+    "complete_recaps": 15,
+    "incomplete_games": [],
+    "missing_components": {
+      "predictions_only": [],
+      "results_only": [],
+      "no_data": []
+    }
+  }
+}

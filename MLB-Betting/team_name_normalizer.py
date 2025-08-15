@@ -13,8 +13,8 @@ def normalize_team_name(team_name: str) -> str:
     if not team_name:
         return team_name
         
-    # Strip whitespace and convert to title case for consistent comparison
-    team_name = team_name.strip()
+    # Strip whitespace and convert underscores to spaces for consistent comparison
+    team_name = team_name.strip().replace('_', ' ')
     
     # Dictionary of all possible team name variations to our standard names
     # These map to the exact names used in team_assets.json

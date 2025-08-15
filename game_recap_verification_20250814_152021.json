@@ -1,0 +1,139 @@
+{
+  "2025-08-07": {
+    "date": "2025-08-07",
+    "total_games": 4,
+    "games_with_predictions": 4,
+    "games_with_results": 4,
+    "complete_recaps": 4,
+    "incomplete_games": [],
+    "missing_components": {
+      "predictions_only": [],
+      "results_only": [],
+      "no_data": []
+    }
+  },
+  "2025-08-08": {
+    "date": "2025-08-08",
+    "total_games": 15,
+    "games_with_predictions": 15,
+    "games_with_results": 15,
+    "complete_recaps": 15,
+    "incomplete_games": [],
+    "missing_components": {
+      "predictions_only": [],
+      "results_only": [],
+      "no_data": []
+    }
+  },
+  "2025-08-09": {
+    "date": "2025-08-09",
+    "total_games": 16,
+    "games_with_predictions": 15,
+    "games_with_results": 16,
+    "complete_recaps": 15,
+    "incomplete_games": [],
+    "missing_components": {
+      "predictions_only": [
+        {
+          "game_id": "778431",
+          "matchup": "Miami Marlins @ Atlanta Braves"
+        }
+      ],
+      "results_only": [],
+      "no_data": []
+    }
+  },
+  "2025-08-10": {
+    "date": "2025-08-10",
+    "total_games": 15,
+    "games_with_predictions": 15,
+    "games_with_results": 15,
+    "complete_recaps": 15,
+    "incomplete_games": [],
+    "missing_components": {
+      "predictions_only": [],
+      "results_only": [],
+      "no_data": []
+    }
+  },
+  "2025-08-11": {
+    "date": "2025-08-11",
+    "total_games": 11,
+    "games_with_predictions": 11,
+    "games_with_results": 11,
+    "complete_recaps": 11,
+    "incomplete_games": [],
+    "missing_components": {
+      "predictions_only": [],
+      "results_only": [],
+      "no_data": []
+    }
+  },
+  "2025-08-12": {
+    "date": "2025-08-12",
+    "total_games": 25,
+    "games_with_predictions": 25,
+    "games_with_results": 15,
+    "complete_recaps": 15,
+    "incomplete_games": [],
+    "missing_components": {
+      "predictions_only": [],
+      "results_only": [
+        {
+          "game_id": "2025081206",
+          "matchup": "AZ @ SD"
+        },
+        {
+          "game_id": "2025081204",
+          "matchup": "MIA @ ATL"
+        },
+        {
+          "game_id": "2025081210",
+          "matchup": "CLE @ MIN"
+        },
+        {
+          "game_id": "2025081205",
+          "matchup": "WAS @ PHI"
+        },
+        {
+          "game_id": "2025081201",
+          "matchup": "SF @ LAD"
+        },
+        {
+          "game_id": "2025081203",
+          "matchup": "SEA @ HOU"
+        },
+        {
+          "game_id": "2025081202",
+          "matchup": "BAL @ NYY"
+        },
+        {
+          "game_id": "2025081207",
+          "matchup": "TB @ NYM"
+        },
+        {
+          "game_id": "2025081208",
+          "matchup": "TOR @ BOS"
+        },
+        {
+          "game_id": "2025081209",
+          "matchup": "CIN @ CHC"
+        }
+      ],
+      "no_data": []
+    }
+  },
+  "2025-08-13": {
+    "date": "2025-08-13",
+    "total_games": 15,
+    "games_with_predictions": 15,
+    "games_with_results": 15,
+    "complete_recaps": 15,
+    "incomplete_games": [],
+    "missing_components": {
+      "predictions_only": [],
+      "results_only": [],
+      "no_data": []
+    }
+  }
+}

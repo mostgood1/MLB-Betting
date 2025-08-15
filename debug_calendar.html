@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calendar Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        input, button { padding: 8px; margin: 5px; }
+        .result { background: #f0f0f0; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Calendar/Date Debug Test</h1>
+    
+    <div class="test-section">
+        <h3>Date Controls Test</h3>
+        <input type="date" id="analysis-date" />
+        <button onclick="loadHistoricalAnalysis()">Load Analysis</button>
+        <button onclick="loadYesterday()">Yesterday</button>
+        <button onclick="testDateCalculation()">Test Date Calculation</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>Debug Output</h3>
+        <div id="debug-output" class="result">Click buttons to see debug info...</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>API Test Results</h3>
+        <div id="api-results" class="result">API results will appear here...</div>
+    </div>
+
+    <script>
+        function debugLog(message) {
+            const output = document.getElementById('debug-output');
+            output.innerHTML += '<p><strong>' + new Date().toLocaleTimeString() + ':</strong> ' + message + '</p>';
+        }
+
+        function testDateCalculation() {
+            debugLog('Testing date calculation...');
+            
+            const today = new Date();
+            debugLog('Today: ' + today.toString());
+            
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            debugLog('Yesterday calculated: ' + yesterday.toString());
+            
+            const yesterdayString = yesterday.getFullYear() + '-' +
+                                  String(yesterday.getMonth() + 1).padStart(2, '0') + '-' +
+                                  String(yesterday.getDate()).padStart(2, '0');
+            debugLog('Yesterday string: ' + yesterdayString);
+            
+            // Test if date input accepts the value
+            const dateInput = document.getElementById('analysis-date');
+            debugLog('Date input element found: ' + (dateInput ? 'YES' : 'NO'));
+            
+            if (dateInput) {
+                dateInput.value = yesterdayString;
+                debugLog('Date input value set to: ' + dateInput.value);
+            }
+        }
+
+        function loadYesterday() {
+            debugLog('loadYesterday() called');
+            
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayString = yesterday.getFullYear() + '-' +
+                                  String(yesterday.getMonth() + 1).padStart(2, '0') + '-' +
+                                  String(yesterday.getDate()).padStart(2, '0');
+            
+            debugLog('Setting date input to: ' + yesterdayString);
+            
+            const dateInput = document.getElementById('analysis-date');
+            if (dateInput) {
+                dateInput.value = yesterdayString;
+                debugLog('Date input value after setting: ' + dateInput.value);
+                loadHistoricalAnalysis();
+            } else {
+                debugLog('ERROR: Date input element not found!');
+            }
+        }
+
+        async function loadHistoricalAnalysis() {
+            debugLog('loadHistoricalAnalysis() called');
+            
+            const dateInput = document.getElementById('analysis-date');
+            const date = dateInput ? dateInput.value : '';
+            
+            debugLog('Date from input: "' + date + '"');
+            
+            if (!date) {
+                debugLog('ERROR: No date selected');
+                alert('Please select a date for analysis');
+                return;
+            }
+
+            const apiResults = document.getElementById('api-results');
+            apiResults.innerHTML = '<p>Loading...</p>';
+
+            try {
+                debugLog('Calling API: /api/historical-recap/' + date);
+                
+                const response = await fetch(`http://localhost:5000/api/historical-recap/${date}`);
+                debugLog('API Response status: ' + response.status);
+                
+                const data = await response.json();
+                debugLog('API Response received, success: ' + data.success);
+                
+                if (data.success) {
+                    debugLog('Games found: ' + (data.games ? data.games.length : 0));
+                    apiResults.innerHTML = `
+                        <h4>API Success!</h4>
+                        <p>Date: ${date}</p>
+                        <p>Games: ${data.games ? data.games.length : 0}</p>
+                        <p>Summary: ${JSON.stringify(data.summary || {}, null, 2)}</p>
+                    `;
+                } else {
+                    debugLog('API returned success=false');
+                    apiResults.innerHTML = '<p>API returned success=false</p>';
+                }
+            } catch (error) {
+                debugLog('ERROR: ' + error.message);
+                apiResults.innerHTML = '<p>Error: ' + error.message + '</p>';
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            debugLog('Page loaded, DOMContentLoaded fired');
+            debugLog('Date input found: ' + (document.getElementById('analysis-date') ? 'YES' : 'NO'));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,617 @@
+{
+  "2025-08-07": {
+    "games": {
+      "ATH @ WSN": {
+        "predicted_away_score": 5.1,
+        "predicted_home_score": 5.4,
+        "predicted_total_runs": 10.5,
+        "away_win_probability": 0.532,
+        "home_win_probability": 0.468,
+        "confidence": 57.4,
+        "home_score_range": [
+          3.0,
+          8.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_team": "ATH",
+        "home_team": "WSN",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "CWS @ SEA": {
+        "predicted_away_score": 5.0,
+        "predicted_home_score": 5.3,
+        "predicted_total_runs": 10.4,
+        "away_win_probability": 0.508,
+        "home_win_probability": 0.492,
+        "confidence": 57.6,
+        "home_score_range": [
+          3.0,
+          8.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_team": "CWS",
+        "home_team": "SEA",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "CIN @ PIT": {
+        "predicted_away_score": 3.1,
+        "predicted_home_score": 3.2,
+        "predicted_total_runs": 6.3,
+        "away_win_probability": 0.559,
+        "home_win_probability": 0.441,
+        "confidence": 65.4,
+        "home_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_score_range": [
+          1.0,
+          5.0
+        ],
+        "away_team": "CIN",
+        "home_team": "PIT",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "MIA @ ATL": {
+        "predicted_away_score": 3.0,
+        "predicted_home_score": 3.2,
+        "predicted_total_runs": 6.3,
+        "away_win_probability": 0.568,
+        "home_win_probability": 0.432,
+        "confidence": 64.9,
+        "home_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_score_range": [
+          1.0,
+          5.0
+        ],
+        "away_team": "MIA",
+        "home_team": "ATL",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      }
+    }
+  },
+  "2025-08-08": {
+    "games": {
+      "CIN @ PIT": {
+        "predicted_away_score": 3.1,
+        "predicted_home_score": 3.2,
+        "predicted_total_runs": 6.3,
+        "away_win_probability": 0.559,
+        "home_win_probability": 0.441,
+        "confidence": 65.4,
+        "home_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_score_range": [
+          1.0,
+          5.0
+        ],
+        "away_team": "CIN",
+        "home_team": "PIT",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "ATH @ BAL": {
+        "predicted_away_score": 5.0,
+        "predicted_home_score": 5.4,
+        "predicted_total_runs": 10.5,
+        "away_win_probability": 0.515,
+        "home_win_probability": 0.485,
+        "confidence": 57.8,
+        "home_score_range": [
+          3.0,
+          9.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_team": "ATH",
+        "home_team": "BAL",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "HOU @ NYY": {
+        "predicted_away_score": 5.1,
+        "predicted_home_score": 5.4,
+        "predicted_total_runs": 10.5,
+        "away_win_probability": 0.512,
+        "home_win_probability": 0.488,
+        "confidence": 57.8,
+        "home_score_range": [
+          3.0,
+          9.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_team": "HOU",
+        "home_team": "NYY",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "LAA @ DET": {
+        "predicted_away_score": 5.0,
+        "predicted_home_score": 5.4,
+        "predicted_total_runs": 10.4,
+        "away_win_probability": 0.516,
+        "home_win_probability": 0.484,
+        "confidence": 57.8,
+        "home_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_team": "LAA",
+        "home_team": "DET",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "MIA @ ATL": {
+        "predicted_away_score": 3.0,
+        "predicted_home_score": 3.2,
+        "predicted_total_runs": 6.3,
+        "away_win_probability": 0.568,
+        "home_win_probability": 0.432,
+        "confidence": 64.9,
+        "home_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_score_range": [
+          1.0,
+          5.0
+        ],
+        "away_team": "MIA",
+        "home_team": "ATL",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "CLE @ CWS": {
+        "predicted_away_score": 3.3,
+        "predicted_home_score": 3.6,
+        "predicted_total_runs": 6.8,
+        "away_win_probability": 0.528,
+        "home_win_probability": 0.472,
+        "confidence": 64.2,
+        "home_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_team": "CLE",
+        "home_team": "CWS",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "PHI @ TEX": {
+        "predicted_away_score": 3.9,
+        "predicted_home_score": 4.3,
+        "predicted_total_runs": 8.2,
+        "away_win_probability": 0.529,
+        "home_win_probability": 0.471,
+        "confidence": 61.3,
+        "home_score_range": [
+          2.0,
+          7.0
+        ],
+        "away_score_range": [
+          1.0,
+          7.0
+        ],
+        "away_team": "PHI",
+        "home_team": "TEX",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "KC @ MIN": {
+        "predicted_away_score": 3.6,
+        "predicted_home_score": 3.7,
+        "predicted_total_runs": 7.3,
+        "away_win_probability": 0.548,
+        "home_win_probability": 0.452,
+        "confidence": 63.3,
+        "home_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_team": "KC",
+        "home_team": "MIN",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "NYM @ MIL": {
+        "predicted_away_score": 5.1,
+        "predicted_home_score": 5.5,
+        "predicted_total_runs": 10.6,
+        "away_win_probability": 0.513,
+        "home_win_probability": 0.487,
+        "confidence": 58.2,
+        "home_score_range": [
+          3.0,
+          9.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_team": "NYM",
+        "home_team": "MIL",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "CHC @ STL": {
+        "predicted_away_score": 5.1,
+        "predicted_home_score": 5.3,
+        "predicted_total_runs": 10.4,
+        "away_win_probability": 0.535,
+        "home_win_probability": 0.465,
+        "confidence": 58.5,
+        "home_score_range": [
+          3.0,
+          8.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_team": "CHC",
+        "home_team": "STL",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "COL @ ARI": {
+        "predicted_away_score": 4.5,
+        "predicted_home_score": 4.8,
+        "predicted_total_runs": 9.3,
+        "away_win_probability": 0.533,
+        "home_win_probability": 0.467,
+        "confidence": 59.0,
+        "home_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_score_range": [
+          2.0,
+          7.0
+        ],
+        "away_team": "COL",
+        "home_team": "ARI",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "BOS @ SD": {
+        "predicted_away_score": 5.0,
+        "predicted_home_score": 5.4,
+        "predicted_total_runs": 10.4,
+        "away_win_probability": 0.516,
+        "home_win_probability": 0.483,
+        "confidence": 57.8,
+        "home_score_range": [
+          3.0,
+          8.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_team": "BOS",
+        "home_team": "SD",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "TB @ SEA": {
+        "predicted_away_score": 4.3,
+        "predicted_home_score": 4.5,
+        "predicted_total_runs": 8.8,
+        "away_win_probability": 0.559,
+        "home_win_probability": 0.441,
+        "confidence": 60.7,
+        "home_score_range": [
+          2.0,
+          7.0
+        ],
+        "away_score_range": [
+          2.0,
+          7.0
+        ],
+        "away_team": "TB",
+        "home_team": "SEA",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "TOR @ LAD": {
+        "predicted_away_score": 5.2,
+        "predicted_home_score": 5.4,
+        "predicted_total_runs": 10.6,
+        "away_win_probability": 0.527,
+        "home_win_probability": 0.473,
+        "confidence": 57.4,
+        "home_score_range": [
+          3.0,
+          8.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_team": "TOR",
+        "home_team": "LAD",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "WSN @ SF": {
+        "predicted_away_score": 5.1,
+        "predicted_home_score": 5.4,
+        "predicted_total_runs": 10.5,
+        "away_win_probability": 0.538,
+        "home_win_probability": 0.462,
+        "confidence": 57.5,
+        "home_score_range": [
+          3.0,
+          9.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_team": "WSN",
+        "home_team": "SF",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      }
+    }
+  },
+  "2025-08-10": {
+    "games": {}
+  },
+  "2025-08-11": {
+    "games": {
+      "Phillies @ Reds": {
+        "predicted_away_score": 2.3,
+        "predicted_home_score": 3.2,
+        "predicted_total_runs": 5.5,
+        "away_win_probability": 0.442,
+        "home_win_probability": 0.558,
+        "confidence": 66.5,
+        "home_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_score_range": [
+          0.0,
+          4.0
+        ],
+        "away_team": "Phillies",
+        "home_team": "Reds",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "Twins @ Yankees": {
+        "predicted_away_score": 3.4,
+        "predicted_home_score": 3.5,
+        "predicted_total_runs": 6.9,
+        "away_win_probability": 0.568,
+        "home_win_probability": 0.432,
+        "confidence": 63.3,
+        "home_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_team": "Twins",
+        "home_team": "Yankees",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "Nationals @ Royals": {
+        "predicted_away_score": 3.1,
+        "predicted_home_score": 3.4,
+        "predicted_total_runs": 6.5,
+        "away_win_probability": 0.549,
+        "home_win_probability": 0.451,
+        "confidence": 64.1,
+        "home_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_score_range": [
+          1.0,
+          5.0
+        ],
+        "away_team": "Nationals",
+        "home_team": "Royals",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "Tigers @ White Sox": {
+        "predicted_away_score": 5.0,
+        "predicted_home_score": 5.8,
+        "predicted_total_runs": 10.9,
+        "away_win_probability": 0.469,
+        "home_win_probability": 0.531,
+        "confidence": 56.0,
+        "home_score_range": [
+          3.0,
+          9.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_team": "Tigers",
+        "home_team": "White Sox",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "Pirates @ Brewers": {
+        "predicted_away_score": 4.8,
+        "predicted_home_score": 5.6,
+        "predicted_total_runs": 10.5,
+        "away_win_probability": 0.477,
+        "home_win_probability": 0.523,
+        "confidence": 57.9,
+        "home_score_range": [
+          3.0,
+          9.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_team": "Pirates",
+        "home_team": "Brewers",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "Rockies @ Cardinals": {
+        "predicted_away_score": 5.7,
+        "predicted_home_score": 7.0,
+        "predicted_total_runs": 12.7,
+        "away_win_probability": 0.415,
+        "home_win_probability": 0.585,
+        "confidence": 55.5,
+        "home_score_range": [
+          4.0,
+          10.0
+        ],
+        "away_score_range": [
+          3.0,
+          9.0
+        ],
+        "away_team": "Rockies",
+        "home_team": "Cardinals",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "Diamondbacks @ Rangers": {
+        "predicted_away_score": 3.3,
+        "predicted_home_score": 4.7,
+        "predicted_total_runs": 7.9,
+        "away_win_probability": 0.373,
+        "home_win_probability": 0.627,
+        "confidence": 61.6,
+        "home_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_team": "Diamondbacks",
+        "home_team": "Rangers",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "Red Sox @ Astros": {
+        "predicted_away_score": 5.1,
+        "predicted_home_score": 4.2,
+        "predicted_total_runs": 9.3,
+        "away_win_probability": 0.679,
+        "home_win_probability": 0.321,
+        "confidence": 60.0,
+        "home_score_range": [
+          2.0,
+          7.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_team": "Red Sox",
+        "home_team": "Astros",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "Dodgers @ Angels": {
+        "predicted_away_score": 3.2,
+        "predicted_home_score": 2.7,
+        "predicted_total_runs": 5.9,
+        "away_win_probability": 0.681,
+        "home_win_probability": 0.319,
+        "confidence": 65.9,
+        "home_score_range": [
+          1.0,
+          5.0
+        ],
+        "away_score_range": [
+          1.0,
+          6.0
+        ],
+        "away_team": "Dodgers",
+        "home_team": "Angels",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "Padres @ Giants": {
+        "predicted_away_score": 4.6,
+        "predicted_home_score": 6.3,
+        "predicted_total_runs": 10.9,
+        "away_win_probability": 0.358,
+        "home_win_probability": 0.642,
+        "confidence": 57.4,
+        "home_score_range": [
+          3.0,
+          9.0
+        ],
+        "away_score_range": [
+          2.0,
+          7.0
+        ],
+        "away_team": "Padres",
+        "home_team": "Giants",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      },
+      "Rays @ Athletics": {
+        "predicted_away_score": 4.9,
+        "predicted_home_score": 5.1,
+        "predicted_total_runs": 10.0,
+        "away_win_probability": 0.527,
+        "home_win_probability": 0.473,
+        "confidence": 57.4,
+        "home_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_team": "Rays",
+        "home_team": "Athletics",
+        "source": "real_predictions_cache",
+        "extraction_method": "deep_archaeology"
+      }
+    }
+  }
+}

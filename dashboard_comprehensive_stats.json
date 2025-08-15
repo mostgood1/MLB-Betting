@@ -1,0 +1,119 @@
+{
+  "total_games": 97,
+  "total_dates": 9,
+  "date_range": {
+    "start": "2025-08-07",
+    "end": "2025-08-15",
+    "dates_with_data": 9
+  },
+  "prediction_quality": {
+    "premium_predictions": 17,
+    "high_confidence_games": 9,
+    "premium_percentage": 17.5,
+    "high_confidence_percentage": 9.3
+  },
+  "score_analysis": {
+    "avg_total_runs": 8.4,
+    "min_total_runs": 5.4,
+    "max_total_runs": 12.7,
+    "games_with_scores": 97
+  },
+  "data_sources": {
+    "historical_cache_direct": 19,
+    "real_prediction_engine": 45,
+    "unknown": 11,
+    "daily_cache": 7,
+    "auto_generated": 15
+  },
+  "team_coverage": 52,
+  "unique_pitchers": 111,
+  "top_teams_by_games": [
+    [
+      "Washington Nationals",
+      7
+    ],
+    [
+      "Seattle Mariners",
+      7
+    ],
+    [
+      "Miami Marlins",
+      7
+    ],
+    [
+      "Atlanta Braves",
+      7
+    ],
+    [
+      "Chicago White Sox",
+      6
+    ],
+    [
+      "Cincinnati Reds",
+      6
+    ],
+    [
+      "Pittsburgh Pirates",
+      6
+    ],
+    [
+      "Baltimore Orioles",
+      6
+    ],
+    [
+      "Detroit Tigers",
+      6
+    ],
+    [
+      "Cleveland Guardians",
+      6
+    ]
+  ],
+  "most_common_pitchers": [
+    [
+      "Taijuan Walker",
+      11
+    ],
+    [
+      "Andrew Abbott",
+      11
+    ],
+    [
+      "Sandy Alcantara",
+      2
+    ],
+    [
+      "Framber Valdez",
+      2
+    ],
+    [
+      "Luis Gil",
+      2
+    ],
+    [
+      "Brad Lord",
+      2
+    ],
+    [
+      "Yusei Kikuchi",
+      2
+    ],
+    [
+      "Charlie Morton",
+      2
+    ],
+    [
+      "Nick Martinez",
+      2
+    ],
+    [
+      "Jack Perkins",
+      2
+    ]
+  ],
+  "data_freshness": {
+    "last_update": "2025-08-15T11:39:34.290774",
+    "days_of_data": 9,
+    "most_recent_date": "2025-08-15"
+  }
+}

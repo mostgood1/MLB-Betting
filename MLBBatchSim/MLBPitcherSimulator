@@ -1,0 +1,334 @@
+import random
+import requests
+import datetime
+from flask import Flask, request, render_template_string
+from bs4 import BeautifulSoup
+from collections import namedtuple
+
+
+# Data classes for clarity
+Pitcher = namedtuple('Pitcher', ['id', 'name', 'team', 'team_id', 'opponent', 'opponent_id'])
+PitcherStats = namedtuple('PitcherStats', ['k', 'ip', 'bf', 'pa', 'hand', 'source', 'error', 'career_k', 'career_ip', 'career_bf', 'career_pa', 'career_gs'])
+TeamStats = namedtuple('TeamStats', ['k_rate', 'source', 'error'])
+
+app = Flask(__name__)
+
+def get_probable_pitchers():
+    today = datetime.date.today().strftime("%Y-%m-%d")
+    url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={today}&hydrate=probablePitcher"
+    try:
+        r = requests.get(url, timeout=10)
+        r.raise_for_status()
+        data = r.json()
+        games = data.get('dates', [{}])[0].get('games', [])
+    except Exception as e:
+        return [], f"Error fetching MLB schedule: {e}"
+    pitchers = []
+    for g in games:
+        for side, opp_side in [('away', 'home'), ('home', 'away')]:
+            team = g['teams'][side]['team']['name']
+            team_id = g['teams'][side]['team']['id']
+            opponent = g['teams'][opp_side]['team']['name']
+            opponent_id = g['teams'][opp_side]['team']['id']
+            pitcher = g['teams'][side].get('probablePitcher')
+            if pitcher:
+                pid = pitcher['id']
+                name = pitcher['fullName']
+                pitchers.append(Pitcher(pid, name, team, team_id, opponent, opponent_id))
+    if not pitchers:
+        return [], "No probable pitchers found for today."
+    return pitchers, None
+
+def get_pitcher_stats(pitcher):
+    try:
+        # Get 2025 season stats
+        season_url = f"https://statsapi.mlb.com/api/v1/people/{pitcher.id}?hydrate=stats(type=season,season=2025)"
+        r_season = requests.get(season_url, timeout=10)
+        r_season.raise_for_status()
+        person_season = r_season.json()['people'][0]
+        stats_season = person_season.get('stats', [])
+        hand = person_season.get('pitchHand', {}).get('code', 'R')  # 'R' or 'L'
+        k = ip = bf = pa = gs = None
+        for s in stats_season:
+            tname = s.get('type', {}).get('displayName', '').lower()
+            splits = s.get('splits', [])
+            if tname == 'season' and splits:
+                stat = splits[0]['stat']
+                k = float(stat.get('strikeOuts', 0))
+                ip = float(stat.get('inningsPitched', 0))
+                bf = float(stat.get('battersFaced', 0))
+                pa = float(stat.get('plateAppearances', 0))
+                gs = int(stat.get('gamesStarted', 1))
+
+        # Get career stats
+        career_url = f"https://statsapi.mlb.com/api/v1/people/{pitcher.id}?hydrate=stats(type=career)"
+        r_career = requests.get(career_url, timeout=10)
+        r_career.raise_for_status()
+        person_career = r_career.json()['people'][0]
+        stats_career = person_career.get('stats', [])
+        career_k = career_ip = career_bf = career_pa = career_gs = None
+        for s in stats_career:
+            tname = s.get('type', {}).get('displayName', '').lower()
+            splits = s.get('splits', [])
+            if tname == 'career' and splits:
+                stat = splits[0]['stat']
+                career_k = float(stat.get('strikeOuts', 0))
+                career_ip = float(stat.get('inningsPitched', 0))
+                career_bf = float(stat.get('battersFaced', 0))
+                career_pa = float(stat.get('plateAppearances', 0))
+                career_gs = int(stat.get('gamesStarted', 1))
+
+        # Fallback to career if season is missing or zero
+        def fallback(val, career_val):
+            if val is not None and val > 0:
+                return val
+            if career_val is not None and career_val > 0:
+                return career_val
+            return None
+
+        k_final = fallback(k, career_k)
+        ip_final = fallback(ip, career_ip)
+        bf_final = fallback(bf, career_bf)
+        pa_final = fallback(pa, career_pa)
+        gs_final = fallback(gs, career_gs)
+
+        # Defensive: ensure no None values in division
+        ip_val = ip_final if isinstance(ip_final, (int, float)) and ip_final is not None else 6.0
+        gs_val = gs_final if isinstance(gs_final, (int, float)) and gs_final and gs_final > 0 else 1
+        ip_per_start = ip_val / gs_val if gs_val > 0 else 6.0
+
+        # Career per start for display
+        career_ip_val = career_ip if isinstance(career_ip, (int, float)) and career_ip is not None else 6.0
+        career_gs_val = career_gs if isinstance(career_gs, (int, float)) and career_gs and career_gs > 0 else 1
+        career_ip_per_start = career_ip_val / career_gs_val if career_gs_val > 0 else 6.0
+
+        # If all are missing, return error
+        if k_final is None or (bf_final is None and pa_final is None):
+            return PitcherStats(None, None, None, None, hand, 'MLB API', "Could not find pitcher stats.", None, None, None, None, None)
+
+        return PitcherStats(k_final, ip_per_start, bf_final, pa_final, hand, 'MLB API', None, career_k, career_ip_per_start, career_bf, career_pa, career_gs)
+    except Exception as e:
+        return PitcherStats(None, None, None, None, 'R', 'Error', "Could not find pitcher stats.", None, None, None, None, None)
+
+
+def get_team_stats(team_id, hand='R'):
+    today = datetime.date.today().strftime("%Y-%m-%d")
+    import os, json
+    # Try to use local cache if available
+    cache_file = os.path.join(os.path.dirname(__file__), f"hitter_stats_cache.json")
+    batter_k_rates = []
+    used_cache = False
+    if os.path.exists(cache_file):
+        try:
+            with open(cache_file, "r", encoding="utf-8") as f:
+                cache = json.load(f)
+            # Find all hitters for this team and hand split
+            for pid, pdata in cache.items():
+                if str(pdata.get("team_id")) == str(team_id):
+                    splits = pdata.get("splits", {})
+                    hand_key = f"vs{hand}P"
+                    stat = splits.get(hand_key, {})
+                    so = float(stat.get('strikeOuts', 0))
+                    pa = float(stat.get('plateAppearances', 0))
+                    if pa > 0:
+                        batter_k_rates.append(so / pa)
+            used_cache = True
+        except Exception:
+            pass
+    if batter_k_rates:
+        return TeamStats(sum(batter_k_rates) / len(batter_k_rates), 'LocalCache', None)
+    # Fallback to API if no local data
+    lineup_url = f"https://statsapi.mlb.com/api/v1/teams/{team_id}/roster/active"
+    try:
+        r = requests.get(lineup_url, timeout=10)
+        r.raise_for_status()
+        roster = r.json().get('roster', [])
+        for player in roster:
+            pid = player.get('person', {}).get('id')
+            if not pid:
+                continue
+            batter_url = f"https://statsapi.mlb.com/api/v1/people/{pid}?hydrate=stats(type=season,season={today[:4]},group=hitting,split=vs{hand}P)"
+            try:
+                br = requests.get(batter_url, timeout=10)
+                br.raise_for_status()
+                stats = br.json().get('people', [{}])[0].get('stats', [])
+                for s in stats:
+                    if s.get('type', {}).get('displayName', '').lower() == 'season':
+                        splits = s.get('splits', [])
+                        if splits:
+                            stat = splits[0].get('stat', {})
+                            so = float(stat.get('strikeOuts', 0))
+                            pa = float(stat.get('plateAppearances', 0))
+                            if pa > 0:
+                                batter_k_rates.append(so / pa)
+            except Exception:
+                continue
+        if batter_k_rates:
+            return TeamStats(sum(batter_k_rates) / len(batter_k_rates), 'Lineup', None)
+        stats_url = f"https://statsapi.mlb.com/api/v1/teams/{team_id}/stats?stats=season&group=hitting&split=vs{hand}P"
+        try:
+            r2 = requests.get(stats_url, timeout=10)
+            r2.raise_for_status()
+            splits2 = r2.json().get('stats', [{}])[0].get('splits', [{}])
+            stat2 = splits2[0].get('stat', {})
+            so2 = float(stat2.get('strikeOuts', 0))
+            pa2 = float(stat2.get('plateAppearances', 1))
+            k_rate2 = so2 / pa2 if pa2 > 0 else 0.22
+            return TeamStats(k_rate2, 'Team', None)
+        except Exception:
+            return TeamStats(0.22, 'Fallback', None)
+    except Exception as e:
+        return TeamStats(0.22, 'Error', f"Error fetching opponent K rate: {e}")
+
+def simulate_strikeouts(pitcher_stats, team_stats, ip=6.0, sims=10):
+    import numpy as np
+    # Use K/BF or K/PA as pitcher K rate
+    if pitcher_stats.bf and pitcher_stats.bf > 0:
+        pitcher_k_rate = pitcher_stats.k / pitcher_stats.bf
+    elif pitcher_stats.pa and pitcher_stats.pa > 0:
+        pitcher_k_rate = pitcher_stats.k / pitcher_stats.pa
+    else:
+        pitcher_k_rate = 0.22  # fallback MLB avg
+    opponent_k_rate = team_stats.k_rate if team_stats.k_rate else 0.22
+    # Adjust pitcher K rate by opponent K rate vs league average
+    mlb_avg_k_rate = 0.22
+    adj_k_rate = pitcher_k_rate * (opponent_k_rate / mlb_avg_k_rate)
+    # Defensive: ensure ip is a float and not None
+    ip_val = ip if isinstance(ip, (int, float)) and ip is not None else 6.0
+    results = []
+    for _ in range(sims):
+        sim_ip = max(3.0, min(9.0, random.gauss(ip_val, 0.33)))
+        # Estimate batters faced: IP * 4.3 (typical MLB average)
+        bf = int(round(sim_ip * 4.3))
+        ks = np.random.binomial(bf, adj_k_rate)
+        results.append((ks, sim_ip, bf))
+    return results, adj_k_rate
+
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    pitchers, error = get_probable_pitchers()
+    result = None
+    selected_id = request.form.get('pitcher') if request.method == 'POST' else None
+    ip_val = None
+    pitcher_stats = None
+    team_stats = None
+    adj_so_per9 = None
+    avg_ip = None
+    hand = None
+    warning = ""
+    if request.method == 'POST' and selected_id:
+        pitcher = next((p for p in pitchers if str(p.id) == selected_id), None)
+        if not pitcher:
+            warning += f"<div style='color:orange;'>Could not find pitcher with ID {selected_id} in today's probable pitchers.</div>"
+            result = warning
+        elif not pitcher.id:
+            warning += f"<div style='color:orange;'>Selected pitcher is missing an MLB player ID and cannot be looked up.</div>"
+            result = warning
+        else:
+            pitcher_stats = get_pitcher_stats(pitcher)
+            # If pitcher stats are missing, only show error and skip simulation
+            if pitcher_stats.error:
+                warning += f"<div style='color:orange;'>Pitcher: {pitcher_stats.error}</div>"
+                result = warning
+            else:
+                team_stats = get_team_stats(pitcher.opponent_id, pitcher_stats.hand)
+                avg_ip = pitcher_stats.ip
+                hand = pitcher_stats.hand
+                if team_stats.error:
+                    warning += f"<div style='color:orange;'>Opponent: {team_stats.error}</div>"
+                # Allow user to select which stats to use (current or career)
+                stat_choice = request.form.get('stat_choice', 'current')
+                if stat_choice == 'career' and pitcher_stats.career_k:
+                    k = pitcher_stats.career_k
+                    avg_ip = pitcher_stats.career_ip
+                    bf = pitcher_stats.career_bf
+                    pa = pitcher_stats.career_pa
+                    stat_label = 'Career'
+                else:
+                    k = pitcher_stats.k if pitcher_stats.k is not None else pitcher_stats.career_k
+                    avg_ip = pitcher_stats.ip if pitcher_stats.ip is not None else pitcher_stats.career_ip
+                    bf = pitcher_stats.bf if pitcher_stats.bf is not None else pitcher_stats.career_bf
+                    pa = pitcher_stats.pa if pitcher_stats.pa is not None else pitcher_stats.career_pa
+                    stat_label = 'Current'
+
+                # Prefer K/BF, fallback to K/PA, and label which is used
+                if k is not None and bf is not None and bf > 0:
+                    pitcher_k_rate = k / bf
+                    k_rate_label = 'K/BF'
+                elif k is not None and pa is not None and pa > 0:
+                    pitcher_k_rate = k / pa
+                    k_rate_label = 'K/PA'
+                else:
+                    pitcher_k_rate = 0.22
+                    k_rate_label = 'MLB Avg'
+
+                # Defensive: ensure avg_ip is a float and not None
+                try:
+                    ip_val = float(request.form.get('ip', avg_ip if avg_ip is not None else 6.0))
+                except Exception:
+                    ip_val = avg_ip if avg_ip is not None else 6.0
+                if ip_val is None:
+                    ip_val = 6.0
+
+                # Defensive: check for missing k, bf, pa, or ip_val
+                if k is None or (bf is None and pa is None) or ip_val is None:
+                    warning += "<div style='color:orange;'>Could not find enough pitcher stats to run simulation (missing K, BF/PA, or IP). Please try another pitcher.</div>"
+                    result = warning
+                else:
+                    sims = 20
+                    # Use a realistic IP distribution: mean = ip_val, stddev = 0.5, clamp 3-9
+                    import numpy as np
+                    sim_results = []
+                    for _ in range(sims):
+                        sim_ip = max(3.0, min(9.0, random.gauss(ip_val, 0.5)))
+                        bf_sim = int(round(sim_ip * 4.3))
+                        ks = np.random.binomial(bf_sim, pitcher_k_rate * (team_stats.k_rate / 0.22))
+                        sim_results.append((ks, sim_ip, bf_sim))
+                    ks_list = [k for k, _, _ in sim_results]
+                    ip_list = [ip for _, ip, _ in sim_results]
+                    bf_list = [bf for _, _, bf in sim_results]
+                    avg_ks = sum(ks_list) / len(ks_list)
+                    min_ks = min(ks_list)
+                    max_ks = max(ks_list)
+                    avg_sim_ip = sum(ip_list) / len(ip_list)
+                    avg_bf = sum(bf_list) / len(bf_list)
+                    hand_str = 'Right' if hand == 'R' else 'Left'
+                    k_rate = team_stats.k_rate if team_stats and team_stats.k_rate else 0.22
+                    debug_expected_ks = avg_bf * pitcher_k_rate * (k_rate / 0.22) if avg_bf else 0
+                    result = f"<h3>Simulated {sims} starts for {pitcher.name} vs {pitcher.opponent} ({hand_str}-handed pitcher):</h3>"
+                    result += warning
+                    result += f"<b>Pitcher {k_rate_label} ({stat_label}):</b> {pitcher_k_rate:.3f} &nbsp; <b>Opponent K rate vs {hand_str}:</b> {k_rate:.3f} &nbsp; <b>Avg Sim IP:</b> {avg_sim_ip:.2f} &nbsp; <b>Avg BF:</b> {avg_bf:.1f}<br>"
+                    result += f"<b>Strikeouts per sim:</b> {', '.join(str(k) for k in ks_list)}<br>"
+                    result += f"<b>Avg Ks:</b> {avg_ks:.2f} &nbsp; <b>Min:</b> {min_ks} &nbsp; <b>Max:</b> {max_ks}<br>"
+                    result += f"<div style='color:blue;font-size:small;'>[DEBUG] pitcher_{k_rate_label.lower()}: {pitcher_k_rate:.3f}, ip_val: {ip_val}, avg_bf: {avg_bf:.1f}, expected_ks: {debug_expected_ks:.2f}</div>"
+    return render_template_string('''
+        <h2>MLB Pitcher Strikeout Simulator</h2>
+        {% if error %}<div style="color:red;font-weight:bold;">{{error}}</div>{% endif %}
+        <form method="post">
+            <label for="pitcher">Select Pitcher:</label>
+            <select name="pitcher" id="pitcher" required>
+                <option value="">--Choose--</option>
+                {% for p in pitchers %}
+                    <option value="{{p.id}}" {% if p.id|string == selected_id %}selected{% endif %}>{{p.name}} ({{p.team}} vs {{p.opponent}})</option>
+                {% endfor %}
+            </select>
+            {% if pitcher_stats and not pitcher_stats.error and (pitcher_stats.k or pitcher_stats.career_k) %}<br><br>
+                <label>Use Stats:
+                    <select name="stat_choice">
+                        {% if pitcher_stats.k %}<option value="current" {% if request.form.get('stat_choice', 'current') == 'current' %}selected{% endif %}>Current Year</option>{% endif %}
+                        {% if pitcher_stats.career_k %}<option value="career" {% if request.form.get('stat_choice') == 'career' %}selected{% endif %}>Career</option>{% endif %}
+                    </select>
+                </label><br>
+                <label>Innings Pitched: <input name="ip" type="number" step="0.1" value="{{ip_val or avg_ip}}"></label>
+                <br>
+                <span style="font-size:small;">Current K/BF: {{'%.3f' % (pitcher_stats.k/pitcher_stats.bf) if pitcher_stats.k and pitcher_stats.bf else 'N/A'}} | Career K/BF: {{'%.3f' % (pitcher_stats.career_k/pitcher_stats.career_bf) if pitcher_stats.career_k and pitcher_stats.career_bf else 'N/A'}}</span>
+            {% endif %}
+            <br><br>
+            <input type="submit" value="Simulate">
+        </form>
+        <div>{{result|safe}}</div>
+    ''', pitchers=pitchers, error=error, result=result, pitcher_stats=pitcher_stats, avg_ip=avg_ip, selected_id=selected_id, ip_val=ip_val)
+
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calendar Test v2</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .controls { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        input, button { padding: 10px; margin: 5px; border: 1px solid #ccc; border-radius: 3px; }
+        button { background: #007bff; color: white; cursor: pointer; border: none; }
+        button:hover { background: #0056b3; }
+        .output { margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px; }
+        .error { color: red; }
+        .success { color: green; }
+        .loading { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Calendar & API Test</h1>
+    
+    <div class="controls">
+        <h3>Date Controls</h3>
+        <input type="date" id="analysis-date" />
+        <button onclick="loadHistoricalAnalysis()">Load Analysis</button>
+        <button onclick="loadYesterday()">Yesterday</button>
+        <button onclick="testToday()">Today</button>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+    
+    <div class="output">
+        <h3>Test Results</h3>
+        <div id="results">Click a button to test...</div>
+    </div>
+
+    <script>
+        function log(message) {
+            var results = document.getElementById('results');
+            var timestamp = new Date().toLocaleTimeString();
+            results.innerHTML += '<p><strong>' + timestamp + ':</strong> ' + message + '</p>';
+            console.log(message);
+        }
+
+        function clearLog() {
+            document.getElementById('results').innerHTML = 'Log cleared...';
+        }
+
+        function loadYesterday() {
+            log('🗓️ Loading yesterday...');
+            
+            try {
+                var today = new Date();
+                log('Today is: ' + today.toString());
+                
+                var yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                log('Yesterday calculated as: ' + yesterday.toString());
+                
+                // Format as YYYY-MM-DD using compatible method
+                var year = yesterday.getFullYear();
+                var month = (yesterday.getMonth() + 1).toString();
+                if (month.length === 1) month = '0' + month;
+                var day = yesterday.getDate().toString();
+                if (day.length === 1) day = '0' + day;
+                var dateString = year + '-' + month + '-' + day;
+                
+                log('Formatted date string: ' + dateString);
+                
+                var dateInput = document.getElementById('analysis-date');
+                if (dateInput) {
+                    dateInput.value = dateString;
+                    log('<span class="success">✅ Date input set successfully</span>');
+                    log('Input value is now: ' + dateInput.value);
+                    
+                    // Auto-trigger the analysis
+                    log('🚀 Auto-triggering analysis...');
+                    loadHistoricalAnalysis();
+                } else {
+                    log('<span class="error">❌ ERROR: Date input not found!</span>');
+                }
+            } catch (error) {
+                log('<span class="error">❌ ERROR in loadYesterday: ' + error.message + '</span>');
+            }
+        }
+
+        function testToday() {
+            log('🗓️ Testing today...');
+            
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = (today.getMonth() + 1).toString();
+            if (month.length === 1) month = '0' + month;
+            var day = today.getDate().toString();
+            if (day.length === 1) day = '0' + day;
+            var dateString = year + '-' + month + '-' + day;
+            
+            document.getElementById('analysis-date').value = dateString;
+            log('Set date to today: ' + dateString);
+        }
+
+        function loadHistoricalAnalysis() {
+            var dateInput = document.getElementById('analysis-date');
+            var date = dateInput ? dateInput.value : '';
+            
+            log('📊 Loading analysis for date: "' + date + '"');
+            
+            if (!date) {
+                log('<span class="error">❌ No date selected!</span>');
+                return;
+            }
+
+            log('<span class="loading">🔄 Calling API...</span>');
+            
+            // Test with XMLHttpRequest for maximum compatibility
+            var xhr = new XMLHttpRequest();
+            var url = 'http://localhost:5000/api/historical-recap/' + encodeURIComponent(date);
+            log('URL: ' + url);
+            
+            xhr.open('GET', url, true);
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            log('<span class="success">✅ API SUCCESS!</span>');
+                            log('Response: success=' + data.success);
+                            if (data.games) {
+                                log('Games count: ' + data.games.length);
+                                
+                                // Show some sample game data
+                                if (data.games.length > 0) {
+                                    var firstGame = data.games[0];
+                                    log('First game: ' + firstGame.away_team + ' @ ' + firstGame.home_team);
+                                    if (firstGame.prediction) {
+                                        log('Has prediction: YES');
+                                    }
+                                    if (firstGame.result) {
+                                        log('Has result: YES');
+                                    }
+                                }
+                            }
+                            if (data.summary) {
+                                log('Summary: ' + JSON.stringify(data.summary));
+                            }
+                        } catch (parseError) {
+                            log('<span class="error">❌ JSON Parse Error: ' + parseError.message + '</span>');
+                            log('Raw response (first 200 chars): ' + xhr.responseText.substring(0, 200) + '...');
+                        }
+                    } else {
+                        log('<span class="error">❌ HTTP Error: ' + xhr.status + ' ' + xhr.statusText + '</span>');
+                        
+                        // Try fallback endpoint
+                        log('🔄 Trying fallback endpoint...');
+                        testFallbackEndpoint(date);
+                    }
+                }
+            };
+            
+            xhr.onerror = function() {
+                log('<span class="error">❌ Network Error!</span>');
+            };
+            
+            xhr.ontimeout = function() {
+                log('<span class="error">❌ Request Timeout!</span>');
+            };
+            
+            xhr.timeout = 10000; // 10 second timeout
+            xhr.send();
+        }
+
+        function testFallbackEndpoint(date) {
+            var xhr = new XMLHttpRequest();
+            var url = 'http://localhost:5000/api/historical/' + encodeURIComponent(date);
+            log('Fallback URL: ' + url);
+            
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            log('<span class="success">✅ FALLBACK API SUCCESS!</span>');
+                            log('Fallback response: success=' + data.success);
+                            if (data.games) {
+                                log('Fallback games count: ' + data.games.length);
+                            }
+                        } catch (parseError) {
+                            log('<span class="error">❌ Fallback JSON Parse Error: ' + parseError.message + '</span>');
+                        }
+                    } else {
+                        log('<span class="error">❌ Fallback HTTP Error: ' + xhr.status + '</span>');
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        // Initialize page
+        window.onload = function() {
+            log('🚀 Page loaded successfully');
+            log('Date input found: ' + (document.getElementById('analysis-date') ? 'YES' : 'NO'));
+            log('Server should be running at: http://localhost:5000');
+            
+            // Auto-load yesterday's data
+            setTimeout(function() {
+                log('🚀 Auto-loading yesterday\'s data...');
+                loadYesterday();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+{
+  "generated_at": "2025-08-10T15:35:30.234587",
+  "date": "2025-08-10",
+  "total_games": 2,
+  "games": {
+    "LAA@TEX": {
+      "away_team": "LAA",
+      "home_team": "TEX",
+      "predictions": {
+        "home_win_prob": 0.441,
+        "away_win_prob": 0.559,
+        "predicted_home_score": 4.2,
+        "predicted_away_score": 4.0,
+        "predicted_total_runs": 8.2,
+        "home_score_range": [
+          2.0,
+          7.0
+        ],
+        "away_score_range": [
+          2.0,
+          7.0
+        ],
+        "total_runs_range": [
+          5.0,
+          12.0
+        ],
+        "confidence": 61.0
+      },
+      "betting_lines": {
+        "home_ml": 126,
+        "away_ml": -78,
+        "total_line": 8.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "spread_home": 1.5,
+        "spread_odds": -110
+      },
+      "recommendations": [
+        {
+          "type": "moneyline",
+          "side": "away",
+          "team": "away",
+          "odds": -78,
+          "model_prob": 0.559,
+          "implied_prob": 0.438,
+          "expected_value": 0.276,
+          "edge": 0.121,
+          "kelly_bet_size": 15.4,
+          "confidence": "HIGH",
+          "reasoning": "Model: 55.9% vs Market: 43.8%"
+        }
+      ],
+      "pitcher_quality": {
+        "away_pitcher_name": null,
+        "home_pitcher_name": null,
+        "away_pitcher_factor": 1.0,
+        "home_pitcher_factor": 1.0
+      },
+      "meta": {
+        "simulations_run": 2000,
+        "execution_time_ms": 12.1,
+        "recommendations_found": 1,
+        "timestamp": "2025-08-10T15:35:30.226446"
+      },
+      "live_betting_lines": {
+        "away_team": "LAA",
+        "home_team": "TEX",
+        "moneyline": {
+          "away": 120,
+          "home": -140
+        },
+        "spread": {
+          "away": 1.5,
+          "home": -1.5,
+          "away_odds": -110,
+          "home_odds": -110
+        },
+        "total": {
+          "over": 8.5,
+          "under": 8.5,
+          "over_odds": -110,
+          "under_odds": -110
+        },
+        "last_updated": "2025-08-10T15:35:30.214320"
+      },
+      "betting_analysis": {
+        "model_favors": "LAA",
+        "market_favors": "TEX",
+        "value_discrepancy": "HIGH - Model disagrees with market",
+        "confidence_level": "High"
+      },
+      "recommendation": {
+        "action": "STRONG BET",
+        "reasoning": "Model strongly favors LAA, market favors TEX",
+        "bet_type": "MONEYLINE",
+        "value_rating": 8
+      }
+    },
+    "NYM@COL": {
+      "away_team": "NYM",
+      "home_team": "COL",
+      "predictions": {
+        "home_win_prob": 0.475,
+        "away_win_prob": 0.524,
+        "predicted_home_score": 4.9,
+        "predicted_away_score": 4.6,
+        "predicted_total_runs": 9.6,
+        "home_score_range": [
+          2.0,
+          8.0
+        ],
+        "away_score_range": [
+          2.0,
+          7.0
+        ],
+        "total_runs_range": [
+          6.0,
+          14.0
+        ],
+        "confidence": 59.1
+      },
+      "betting_lines": {
+        "home_ml": 110,
+        "away_ml": -90,
+        "total_line": 9.1,
+        "over_odds": -110,
+        "under_odds": -110,
+        "spread_home": 1.5,
+        "spread_odds": -110
+      },
+      "recommendations": [
+        {
+          "type": "moneyline",
+          "side": "away",
+          "team": "away",
+          "odds": -90,
+          "model_prob": 0.524,
+          "implied_prob": 0.474,
+          "expected_value": 0.107,
+          "edge": 0.051,
+          "kelly_bet_size": 5.6,
+          "confidence": "HIGH",
+          "reasoning": "Model: 52.4% vs Market: 47.4%"
+        }
+      ],
+      "pitcher_quality": {
+        "away_pitcher_name": null,
+        "home_pitcher_name": null,
+        "away_pitcher_factor": 1.0,
+        "home_pitcher_factor": 1.0
+      },
+      "meta": {
+        "simulations_run": 2000,
+        "execution_time_ms": 7.0,
+        "recommendations_found": 1,
+        "timestamp": "2025-08-10T15:35:30.234587"
+      },
+      "live_betting_lines": {
+        "away_team": "NYM",
+        "home_team": "COL",
+        "moneyline": {
+          "away": -150,
+          "home": 130
+        },
+        "spread": {
+          "away": -1.5,
+          "home": 1.5,
+          "away_odds": -110,
+          "home_odds": -110
+        },
+        "total": {
+          "over": 9.0,
+          "under": 9.0,
+          "over_odds": -105,
+          "under_odds": -115
+        },
+        "last_updated": "2025-08-10T15:35:30.214320"
+      },
+      "betting_analysis": {
+        "model_favors": "NYM",
+        "market_favors": "NYM",
+        "value_discrepancy": null,
+        "confidence_level": "Medium"
+      },
+      "recommendation": {
+        "action": "NO BET",
+        "reasoning": "Insufficient edge detected",
+        "bet_type": null,
+        "value_rating": 1
+      }
+    }
+  },
+  "summary": {
+    "strong_bets": [
+      {
+        "game": "LAA@TEX",
+        "team": "LAA",
+        "reasoning": "Model strongly favors LAA, market favors TEX",
+        "value": 8
+      }
+    ],
+    "consider_bets": [],
+    "avg_value_rating": 4.5,
+    "total_recommendations": 1
+  }
+}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Calendar Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .controls { margin: 20px 0; }
+        input, button { padding: 8px; margin: 5px; font-size: 16px; }
+        .results { margin: 20px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Simple Calendar Test</h1>
+    
+    <div class="controls">
+        <input type="date" id="test-date" />
+        <button onclick="testLoad()">Test Load</button>
+        <button onclick="setYesterday()">Set Yesterday</button>
+    </div>
+    
+    <div id="status" class="results">Ready to test...</div>
+    <div id="api-result" class="results">API results will appear here...</div>
+
+    <script>
+        function log(message) {
+            const status = document.getElementById('status');
+            const timestamp = new Date().toLocaleTimeString();
+            status.innerHTML += '<div>' + timestamp + ': ' + message + '</div>';
+        }
+
+        function setYesterday() {
+            log('Setting yesterday date...');
+            try {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                // Compatible date formatting
+                const year = yesterday.getFullYear();
+                const month = yesterday.getMonth() + 1;
+                const day = yesterday.getDate();
+                
+                const monthStr = month < 10 ? '0' + month : month.toString();
+                const dayStr = day < 10 ? '0' + day : day.toString();
+                const dateString = year + '-' + monthStr + '-' + dayStr;
+                
+                log('Calculated date: ' + dateString);
+                
+                const dateInput = document.getElementById('test-date');
+                if (dateInput) {
+                    dateInput.value = dateString;
+                    log('Date input set to: ' + dateInput.value);
+                } else {
+                    log('ERROR: Date input not found!');
+                }
+            } catch (error) {
+                log('ERROR: ' + error.message);
+            }
+        }
+
+        function testLoad() {
+            log('Testing API load...');
+            
+            const dateInput = document.getElementById('test-date');
+            const date = dateInput ? dateInput.value : '';
+            
+            if (!date) {
+                log('ERROR: No date selected');
+                return;
+            }
+            
+            log('Loading data for: ' + date);
+            
+            const apiResult = document.getElementById('api-result');
+            apiResult.innerHTML = '<div>Loading...</div>';
+            
+            // Test fetch with promise syntax for compatibility
+            fetch('http://localhost:5000/api/historical-recap/' + date)
+                .then(function(response) {
+                    log('Response status: ' + response.status);
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(function(data) {
+                    log('API success: ' + data.success);
+                    log('Games count: ' + (data.games ? data.games.length : 0));
+                    
+                    if (data.success && data.games && data.games.length > 0) {
+                        apiResult.innerHTML = '<div class="success">✅ SUCCESS: Found ' + data.games.length + ' games</div>';
+                        apiResult.innerHTML += '<div>Sample game: ' + data.games[0].away_team + ' @ ' + data.games[0].home_team + '</div>';
+                    } else {
+                        apiResult.innerHTML = '<div class="error">❌ No games found</div>';
+                    }
+                })
+                .catch(function(error) {
+                    log('ERROR: ' + error.message);
+                    apiResult.innerHTML = '<div class="error">❌ ERROR: ' + error.message + '</div>';
+                });
+        }
+
+        // Auto-set yesterday on load
+        window.onload = function() {
+            log('Page loaded');
+            setYesterday();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Historical Analysis - MLB Prediction System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .date-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .date-controls input[type="date"] {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #ccc;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .success {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #51cf66;
+            background: rgba(81, 207, 102, 0.1);
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .game-teams h3 {
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        .game-info {
+            margin: 15px 0;
+        }
+
+        .game-info h4 {
+            color: #4ecdc4;
+            margin-bottom: 10px;
+        }
+
+        .score-line {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        .recap-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .recap-title {
+            color: #fff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .recap-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #4ecdc4;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .date-controls {
+                justify-content: center;
+            }
+            
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Historical Analysis</h1>
+            <p>Comprehensive Performance Review & Betting Analysis</p>
+        </div>
+
+        <div class="nav-controls">
+            <a href="/" class="btn secondary">⬅️ Back to Today's Games</a>
+            <div class="date-controls">
+                <input type="date" id="analysis-date" />
+                <button class="btn" onclick="loadHistoricalAnalysis()">Load Analysis</button>
+                <button class="btn secondary" onclick="loadYesterday()">Yesterday</button>
+            </div>
+        </div>
+
+        <div id="recap-section" class="recap-section">
+            <h2 class="recap-title">Daily Performance Recap</h2>
+            <div class="recap-stats">
+                <div class="stat-card">
+                    <h3 id="total-games-analyzed">-</h3>
+                    <p>Games Analyzed</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="winner-accuracy">-</h3>
+                    <p>Winner Accuracy</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="avg-score-error">-</h3>
+                    <p>Avg Score Error</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="market-beat-rate">-</h3>
+                    <p>Beat Market Rate</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="games-container">
+            <div class="loading">Select a date to analyze...</div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize with yesterday's date when page loads
+        window.onload = function() {
+            console.log('Historical page loaded, initializing...');
+            try {
+                loadYesterday();
+            } catch (error) {
+                console.error('Error during initialization:', error);
+                showError('Error initializing page: ' + error.message);
+            }
+        };
+
+        function loadYesterday() {
+            console.log('loadYesterday() called');
+            try {
+                var yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                // Format date as YYYY-MM-DD (compatible method)
+                var year = yesterday.getFullYear();
+                var month = (yesterday.getMonth() + 1).toString();
+                if (month.length === 1) month = '0' + month;
+                var day = yesterday.getDate().toString();
+                if (day.length === 1) day = '0' + day;
+                var yesterdayString = year + '-' + month + '-' + day;
+                
+                console.log('Setting date to:', yesterdayString);
+                
+                var dateInput = document.getElementById('analysis-date');
+                if (dateInput) {
+                    dateInput.value = yesterdayString;
+                    console.log('Date input set, calling loadHistoricalAnalysis');
+                    loadHistoricalAnalysis();
+                } else {
+                    console.error('Date input element not found!');
+                    showError('Error: Date input not found on page');
+                }
+            } catch (error) {
+                console.error('Error in loadYesterday:', error);
+                showError('Error loading yesterday\'s date: ' + error.message);
+            }
+        }
+
+        function loadHistoricalAnalysis() {
+            console.log('loadHistoricalAnalysis() called');
+            
+            var dateInput = document.getElementById('analysis-date');
+            var date = dateInput ? dateInput.value : '';
+            console.log('Date from input:', date);
+            
+            if (!date) {
+                console.warn('No date selected');
+                showError('Please select a date for analysis');
+                return;
+            }
+
+            var container = document.getElementById('games-container');
+            if (!container) {
+                console.error('games-container not found!');
+                showError('Error: Games container not found on page');
+                return;
+            }
+            
+            container.innerHTML = '<div class="loading">Loading historical analysis...</div>';
+            console.log('Loading analysis for date:', date);
+
+            // Try enhanced historical recap endpoint first
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/historical-recap/' + encodeURIComponent(date), true);
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            console.log('API response received:', {success: data.success, gamesCount: data.games ? data.games.length : 0});
+
+                            if (data.success && data.games && data.games.length > 0) {
+                                console.log('Enhanced endpoint returned data, checking for complete predictions...');
+                                
+                                // Check if games have actual score predictions
+                                var hasScorePredictions = false;
+                                for (var i = 0; i < data.games.length; i++) {
+                                    var game = data.games[i];
+                                    if (game.prediction && 
+                                        game.prediction.predicted_away_score !== null && 
+                                        game.prediction.predicted_home_score !== null) {
+                                        hasScorePredictions = true;
+                                        break;
+                                    }
+                                }
+
+                                if (hasScorePredictions) {
+                                    displayEnhancedData(data, date);
+                                } else {
+                                    console.log('Enhanced recap has incomplete predictions, falling back');
+                                    tryFallbackEndpoint(date);
+                                }
+                            } else {
+                                console.log('No games found in enhanced endpoint, trying fallback');
+                                tryFallbackEndpoint(date);
+                            }
+                        } catch (parseError) {
+                            console.error('Error parsing enhanced API response:', parseError);
+                            tryFallbackEndpoint(date);
+                        }
+                    } else {
+                        console.error('Enhanced API HTTP Error:', xhr.status);
+                        tryFallbackEndpoint(date);
+                    }
+                }
+            };
+            
+            xhr.onerror = function() {
+                console.error('Enhanced API Network Error');
+                tryFallbackEndpoint(date);
+            };
+            
+            xhr.send();
+        }
+
+        function tryFallbackEndpoint(date) {
+            console.log('Trying fallback endpoint for date:', date);
+            
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/historical/' + encodeURIComponent(date), true);
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            if (data.success && data.games && data.games.length > 0) {
+                                displaySimpleData(data.games, date);
+                            } else {
+                                tryTodayGamesEndpoint(date);
+                            }
+                        } catch (parseError) {
+                            console.error('Error parsing fallback API response:', parseError);
+                            tryTodayGamesEndpoint(date);
+                        }
+                    } else {
+                        tryTodayGamesEndpoint(date);
+                    }
+                }
+            };
+            
+            xhr.send();
+        }
+
+        function tryTodayGamesEndpoint(date) {
+            console.log('Trying today-games endpoint for date:', date);
+            
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/today-games?date=' + encodeURIComponent(date), true);
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            if (data.success && data.games && data.games.length > 0) {
+                                var finalGames = [];
+                                for (var i = 0; i < data.games.length; i++) {
+                                    var game = data.games[i];
+                                    if (game.live_status && game.live_status.is_final && game.post_game_analysis) {
+                                        finalGames.push(game);
+                                    }
+                                }
+
+                                if (finalGames.length > 0) {
+                                    displayLegacyData(finalGames, date);
+                                } else {
+                                    showError('No completed games with analysis found for this date.');
+                                }
+                            } else {
+                                showError('No games found for this date.');
+                            }
+                        } catch (parseError) {
+                            showError('Error parsing data from all endpoints: ' + parseError.message);
+                        }
+                    } else {
+                        showError('Error loading data from all endpoints: HTTP ' + xhr.status);
+                    }
+                }
+            };
+            
+            xhr.send();
+        }
+
+        function displayEnhancedData(data, date) {
+            console.log('Displaying enhanced data for', data.games.length, 'games');
+            
+            // Show recap section
+            var recapSection = document.getElementById('recap-section');
+            recapSection.style.display = 'block';
+            
+            // Update recap title with formatted date
+            var dateObj = new Date(date + 'T00:00:00');
+            var formattedDate = dateObj.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            document.querySelector('.recap-title').textContent = 'Performance Recap - ' + formattedDate;
+
+            // Update statistics
+            var gamesWithAnalysis = [];
+            for (var i = 0; i < data.games.length; i++) {
+                if (data.games[i].performance_analysis) {
+                    gamesWithAnalysis.push(data.games[i]);
+                }
+            }
+            
+            var correctWinners = 0;
+            var gradeSum = 0;
+            for (var i = 0; i < gamesWithAnalysis.length; i++) {
+                if (gamesWithAnalysis[i].performance_analysis.winner_correct) {
+                    correctWinners++;
+                }
+                gradeSum += gamesWithAnalysis[i].performance_analysis.grade_percentage || 0;
+            }
+            
+            var avgGrade = gamesWithAnalysis.length > 0 ? gradeSum / gamesWithAnalysis.length : 0;
+
+            // Update stat cards
+            document.getElementById('total-games-analyzed').textContent = data.games.length;
+            document.getElementById('winner-accuracy').textContent = gamesWithAnalysis.length > 0 ? 
+                Math.round((correctWinners / gamesWithAnalysis.length) * 100) + '%' : '-';
+            document.getElementById('avg-score-error').textContent = '±0.0 runs'; // Placeholder
+            document.getElementById('market-beat-rate').textContent = Math.round(avgGrade) + '%';
+
+            // Display games
+            displayGames(data.games, 'enhanced');
+        }
+
+        function displaySimpleData(games, date) {
+            console.log('Displaying simple data for', games.length, 'games');
+            
+            var recapSection = document.getElementById('recap-section');
+            recapSection.style.display = 'block';
+            
+            var dateObj = new Date(date + 'T00:00:00');
+            var formattedDate = dateObj.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            document.querySelector('.recap-title').textContent = 'Performance Recap - ' + formattedDate;
+
+            document.getElementById('total-games-analyzed').textContent = games.length;
+            document.getElementById('winner-accuracy').textContent = '-';
+            document.getElementById('avg-score-error').textContent = '-';
+            document.getElementById('market-beat-rate').textContent = '-';
+
+            displayGames(games, 'simple');
+        }
+
+        function displayLegacyData(games, date) {
+            console.log('Displaying legacy data for', games.length, 'games');
+            // Similar to displaySimpleData but for legacy format
+            displaySimpleData(games, date);
+        }
+
+        function displayGames(games, type) {
+            var container = document.getElementById('games-container');
+            container.innerHTML = '';
+
+            var gamesGrid = document.createElement('div');
+            gamesGrid.className = 'games-grid';
+
+            for (var i = 0; i < games.length; i++) {
+                var gameCard = createGameCard(games[i], type);
+                gamesGrid.appendChild(gameCard);
+            }
+
+            container.appendChild(gamesGrid);
+        }
+
+        function createGameCard(game, type) {
+            var card = document.createElement('div');
+            card.className = 'game-card';
+
+            var prediction = game.prediction || {};
+            var result = game.result || {};
+            var analysis = game.performance_analysis || {};
+
+            var html = '<div class="game-header">' +
+                '<div class="game-teams">' +
+                '<h3>' + game.away_team + ' @ ' + game.home_team + '</h3>' +
+                '</div>' +
+                '</div>';
+
+            if (type === 'enhanced' && analysis.overall_grade) {
+                html += '<div class="game-info">' +
+                    '<h4>Performance Grade: ' + analysis.overall_grade + '</h4>' +
+                    '</div>';
+            }
+
+            if (prediction.predicted_away_score !== null && prediction.predicted_home_score !== null) {
+                html += '<div class="game-info">' +
+                    '<h4>🎯 Prediction</h4>' +
+                    '<div class="score-line">' +
+                    '<span>' + game.away_team + ':</span>' +
+                    '<span>' + (prediction.predicted_away_score ? prediction.predicted_away_score.toFixed(1) : 'N/A') + '</span>' +
+                    '</div>' +
+                    '<div class="score-line">' +
+                    '<span>' + game.home_team + ':</span>' +
+                    '<span>' + (prediction.predicted_home_score ? prediction.predicted_home_score.toFixed(1) : 'N/A') + '</span>' +
+                    '</div>' +
+                    '</div>';
+            }
+
+            if (result.away_score !== undefined && result.home_score !== undefined) {
+                html += '<div class="game-info">' +
+                    '<h4>📊 Actual Result</h4>' +
+                    '<div class="score-line">' +
+                    '<span>' + game.away_team + ':</span>' +
+                    '<span>' + result.away_score + '</span>' +
+                    '</div>' +
+                    '<div class="score-line">' +
+                    '<span>' + game.home_team + ':</span>' +
+                    '<span>' + result.home_score + '</span>' +
+                    '</div>' +
+                    '</div>';
+            }
+
+            card.innerHTML = html;
+            return card;
+        }
+
+        function showError(message) {
+            var container = document.getElementById('games-container');
+            container.innerHTML = '<div class="error">' + message + '</div>';
+            
+            var recapSection = document.getElementById('recap-section');
+            if (recapSection) {
+                recapSection.style.display = 'none';
+            }
+        }
+
+        function showSuccess(message) {
+            var container = document.getElementById('games-container');
+            container.innerHTML = '<div class="success">' + message + '</div>';
+        }
+    </script>
+</body>
+</html>

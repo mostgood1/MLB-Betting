@@ -1,0 +1,21 @@
+{
+  "timestamp": "2025-08-13T12:54:32.187191",
+  "overall": {
+    "dates_analyzed": 1,
+    "games_found": 15,
+    "games_with_predictions": 0,
+    "games_with_betting_lines": 13,
+    "prediction_coverage": 0.0,
+    "betting_line_coverage": 86.7
+  },
+  "dates": [
+    {
+      "date": "2025-08-13",
+      "games_found": 15,
+      "games_with_predictions": 0,
+      "games_with_betting_lines": 13,
+      "prediction_coverage": 0.0,
+      "betting_line_coverage": 86.7
+    }
+  ]
+}
