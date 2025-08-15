@@ -959,6 +959,14 @@ def home():
             if betting_recommendations and 'games' in betting_recommendations:
                 game_recommendations = betting_recommendations['games'].get(game_key, None)
             
+            # If no betting recommendations exist, generate them dynamically
+            if game_recommendations is None:
+                game_recommendations = {
+                    'value_bets': generate_betting_recommendations(
+                        away_win_prob/100, home_win_prob/100, predicted_total, away_team, home_team, real_lines
+                    )
+                }
+            
             # Determine betting recommendation
             if max_confidence > 65:
                 recommendation = 'Strong Bet'
