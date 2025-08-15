@@ -1,0 +1,37 @@
+# API Keys and sensitive files
+api_keys.json
+*.env
+
+# Cache files and backups
+*.bak_*
+*.json.bak_*
+game_scores_cache.json.bak_*
+historical_betting_lines_cache.json.bak_*
+historical_predictions_cache.json.bak_*
+
+# Log files
+*.log
+*.txt
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Backup directories
+duplicate_backups/
+data_preservation/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Large data files that change frequently
+game_scores_cache.json
+historical_betting_lines_cache.json
+unified_predictions_cache.json
+
+# OS files
+.DS_Store
+Thumbs.db
