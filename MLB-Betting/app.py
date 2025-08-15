@@ -340,6 +340,65 @@ def create_sample_betting_recommendations():
         }
     }
 
+def create_safe_recommendation_fallback(away_team, home_team, confidence):
+    """Create safe fallback betting recommendations when dynamic generation fails"""
+    try:
+        # Ensure we have valid team names
+        safe_away = away_team if away_team and away_team.strip() else "Away Team"
+        safe_home = home_team if home_team and home_team.strip() else "Home Team"
+        safe_confidence = max(50, min(95, confidence)) if confidence else 55
+        
+        # Determine recommendation based on confidence
+        if safe_confidence > 65:
+            recommendation_type = "Strong Value"
+            edge_rating = "🔥"
+            edge = round((safe_confidence - 50) * 0.8, 1)
+        elif safe_confidence > 55:
+            recommendation_type = "Moderate Value"
+            edge_rating = "⚡"
+            edge = round((safe_confidence - 50) * 0.6, 1)
+        else:
+            recommendation_type = "Market Analysis"
+            edge_rating = "💡"
+            edge = round((safe_confidence - 50) * 0.4, 1)
+        
+        # Create safe recommendations
+        value_bets = [{
+            'type': 'Moneyline',
+            'bet': f"{safe_away if safe_confidence > 50 else safe_home} ML",
+            'recommendation': f"{safe_away if safe_confidence > 50 else safe_home} ML ({safe_confidence:.1f}%)",
+            'reasoning': f"Model projects {safe_confidence:.1f}% win probability",
+            'confidence': 'HIGH' if safe_confidence > 65 else 'MEDIUM' if safe_confidence > 55 else 'LOW',
+            'estimated_odds': "+110",
+            'edge': edge,
+            'edge_rating': edge_rating
+        }]
+        
+        return {
+            'value_bets': value_bets,
+            'total_opportunities': 1 if safe_confidence > 55 else 0,
+            'best_bet': value_bets[0] if safe_confidence > 65 else None,
+            'summary': f"Safe fallback recommendations generated"
+        }
+    except Exception as e:
+        logger.error(f"Error in safe fallback: {e}")
+        # Ultimate fallback
+        return {
+            'value_bets': [{
+                'type': 'Market Analysis',
+                'bet': 'No Value',
+                'recommendation': 'No clear value identified',
+                'reasoning': 'Unable to generate recommendations',
+                'confidence': 'LOW',
+                'estimated_odds': 'N/A',
+                'edge': 0,
+                'edge_rating': '💡'
+            }],
+            'total_opportunities': 0,
+            'best_bet': None,
+            'summary': 'No recommendations available'
+        }
+
 def calculate_performance_stats(predictions):
     """Calculate performance statistics for recap"""
     total_games = len(predictions)
@@ -959,19 +1018,48 @@ def home():
             if betting_recommendations and 'games' in betting_recommendations:
                 game_recommendations = betting_recommendations['games'].get(game_key, None)
             
-            # Temporarily disable dynamic generation to debug
+            # Generate dynamic betting recommendations with robust error handling
             if game_recommendations is None:
-                game_recommendations = {
-                    'value_bets': [{
-                        'type': 'Debug Mode',
-                        'recommendation': 'Dynamic generation disabled for debugging',
-                        'reasoning': 'Troubleshooting server error',
-                        'confidence': 'LOW',
-                        'edge': 0,
-                        'edge_rating': '💡'
-                    }],
-                    'summary': 'Debug mode active'
-                }
+                try:
+                    # Safely extract prediction data
+                    away_win_decimal = game_data.get('away_win_probability', 0.5)
+                    home_win_decimal = game_data.get('home_win_probability', 0.5)
+                    predicted_total_safe = game_data.get('predicted_total_runs', 0) or predicted_total or 9.0
+                    
+                    # Ensure values are valid
+                    if not (0 <= away_win_decimal <= 1) or not (0 <= home_win_decimal <= 1):
+                        logger.warning(f"Invalid win probabilities for {game_key}: away={away_win_decimal}, home={home_win_decimal}")
+                        away_win_decimal = 0.5
+                        home_win_decimal = 0.5
+                    
+                    if predicted_total_safe <= 0 or predicted_total_safe > 25:
+                        logger.warning(f"Invalid predicted total for {game_key}: {predicted_total_safe}")
+                        predicted_total_safe = 9.0
+                    
+                    # Validate team names
+                    safe_away_team = away_team if away_team and away_team.strip() else "Away Team"
+                    safe_home_team = home_team if home_team and home_team.strip() else "Home Team"
+                    
+                    # Generate recommendations with error handling
+                    game_recommendations = generate_betting_recommendations(
+                        away_win_decimal, 
+                        home_win_decimal, 
+                        predicted_total_safe, 
+                        safe_away_team, 
+                        safe_home_team, 
+                        real_lines
+                    )
+                    
+                    # Validate the result
+                    if not isinstance(game_recommendations, dict) or 'value_bets' not in game_recommendations:
+                        raise ValueError("Invalid recommendations format returned")
+                    
+                    logger.info(f"Generated {len(game_recommendations.get('value_bets', []))} recommendations for {game_key}")
+                    
+                except Exception as rec_error:
+                    logger.error(f"Error generating recommendations for {game_key}: {rec_error}")
+                    # Safe fallback with sample data
+                    game_recommendations = create_safe_recommendation_fallback(away_team, home_team, max_confidence)
             
             # Determine betting recommendation
             if max_confidence > 65:
