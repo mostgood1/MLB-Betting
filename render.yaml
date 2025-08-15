@@ -3,7 +3,8 @@ services:
     name: mlb-betting-predictions
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt
+    runtime: python-3.11
+    buildCommand: pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
     startCommand: cd MLB-Betting && python app.py
     envVars:
       - key: FLASK_ENV
