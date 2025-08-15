@@ -961,11 +961,20 @@ def home():
             
             # If no betting recommendations exist, generate them dynamically
             if game_recommendations is None:
-                game_recommendations = {
-                    'value_bets': generate_betting_recommendations(
-                        away_win_prob/100, home_win_prob/100, predicted_total, away_team, home_team, real_lines
-                    )
-                }
+                # Ensure we have valid data before generating recommendations
+                valid_away_prob = away_win_prob/100 if away_win_prob and away_win_prob > 0 else 0.5
+                valid_home_prob = home_win_prob/100 if home_win_prob and home_win_prob > 0 else 0.5
+                valid_total = predicted_total if predicted_total and predicted_total > 0 else 9.0
+                valid_away_team = away_team if away_team and away_team != '' else 'Away Team'
+                valid_home_team = home_team if home_team and home_team != '' else 'Home Team'
+                
+                logger.info(f"Generating recommendations for {valid_away_team} @ {valid_home_team} - Away: {valid_away_prob:.1%}, Home: {valid_home_prob:.1%}, Total: {valid_total}")
+                
+                generated_recs = generate_betting_recommendations(
+                    valid_away_prob, valid_home_prob, valid_total, valid_away_team, valid_home_team, real_lines
+                )
+                
+                game_recommendations = generated_recs
             
             # Determine betting recommendation
             if max_confidence > 65:
