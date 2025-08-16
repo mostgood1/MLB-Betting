@@ -2792,7 +2792,12 @@
           "game_id": "776737",
           "game_time": "2025-08-15T18:20:00Z",
           "date": "2025-08-15",
-          "has_real_results": false,
+          "has_real_results": true,
+          "actual_scores": {
+            "away": 3,
+            "home": 2,
+            "total": 5
+          },
           "comprehensive_details": {
             "winner_prediction": {
               "predicted_winner": "Chicago Cubs",

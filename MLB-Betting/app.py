@@ -1230,6 +1230,15 @@ def home():
             predicted_total = total_runs_prediction.get('predicted_total', 0)
             if not predicted_total:
                 predicted_total = game_data.get('predicted_total_runs', 0)
+            if not predicted_total:
+                # Fallback to score_prediction.total_runs
+                score_prediction = comprehensive_details.get('score_prediction', {})
+                predicted_total = score_prediction.get('total_runs', 0)
+            if not predicted_total:
+                # Ultimate fallback: sum of individual scores
+                away_score = game_data.get('predicted_away_score', 0)
+                home_score = game_data.get('predicted_home_score', 0)
+                predicted_total = away_score + home_score
             
             enhanced_game = {
                 'game_id': game_key,
@@ -1439,6 +1448,12 @@ def calculate_game_performance_analysis(prediction, result):
         pred_away = prediction.get('predicted_away_score', 0) or 0
         pred_home = prediction.get('predicted_home_score', 0) or 0
         pred_total = prediction.get('predicted_total_runs', pred_away + pred_home) or 0
+        
+        # Enhanced fallback for predicted_total_runs
+        if pred_total == 0:
+            comprehensive_details = prediction.get('comprehensive_details', {})
+            score_prediction = comprehensive_details.get('score_prediction', {})
+            pred_total = score_prediction.get('total_runs', pred_away + pred_home) or 0
         
         actual_away = result.get('away_score', 0) or 0
         actual_home = result.get('home_score', 0) or 0
@@ -1784,6 +1799,15 @@ def api_today_games():
             predicted_total = total_runs_prediction.get('predicted_total', 0)
             if not predicted_total:
                 predicted_total = game_data.get('predicted_total_runs', 0)
+            if not predicted_total:
+                # Fallback to score_prediction.total_runs
+                score_prediction = comprehensive_details.get('score_prediction', {})
+                predicted_total = score_prediction.get('total_runs', 0)
+            if not predicted_total:
+                # Ultimate fallback: sum of individual scores
+                away_score = game_data.get('predicted_away_score', 0)
+                home_score = game_data.get('predicted_home_score', 0)
+                predicted_total = away_score + home_score
             over_under_analysis = total_runs_prediction.get('over_under_analysis', {})
             
             # Get real betting lines for this game
