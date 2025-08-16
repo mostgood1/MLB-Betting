@@ -8,7 +8,10 @@
     "source": "daily_hardcoded_predictions",
     "last_market_enhancement": "2025-08-15T14:00:25.144173",
     "market_enhancement_date": "2025-08-15",
-    "enhanced_games_count": 15
+    "enhanced_games_count": 15,
+    "last_pitcher_update": "2025-08-15T19:32:30.796850",
+    "pitcher_update_date": "2025-08-15",
+    "pitchers_updated_count": 15
   },
   "predictions_by_date": {
     "2025-08-07": {
@@ -2826,7 +2829,7 @@
           "predicted_total_runs": 10.8,
           "away_win_probability": 0.4611111111111111,
           "home_win_probability": 0.5388888888888889,
-          "away_pitcher": "TBD",
+          "away_pitcher": "Jacob Misiorowski",
           "home_pitcher": "Nick Martinez",
           "model_version": "UltraFastSimEngine_5000sims",
           "source": "daily_hardcoded",
@@ -3366,7 +3369,7 @@
           "predicted_total_runs": 6.7,
           "away_win_probability": 0.46777777777777774,
           "home_win_probability": 0.5322222222222223,
-          "away_pitcher": "TBD",
+          "away_pitcher": "Wandy Peralta",
           "home_pitcher": "Clayton Kershaw",
           "model_version": "UltraFastSimEngine_5000sims",
           "source": "daily_hardcoded",

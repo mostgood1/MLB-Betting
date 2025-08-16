@@ -16,6 +16,9 @@ from datetime import datetime, timedelta
 import logging
 import traceback
 import statistics
+import threading
+import time
+import subprocess
 from collections import defaultdict, Counter
 from engines.ultra_fast_engine import UltraFastSimEngine
 
@@ -32,6 +35,143 @@ try:
 except Exception as e:
     logger.warning(f"⚠️ Prediction engine initialization failed: {e}, using fallback")
     prediction_engine = None
+
+# TBD Monitor Integration
+class TBDMonitor:
+    def __init__(self):
+        self.monitoring = False
+        self.last_check = datetime.now()
+        self.check_interval = 900  # 15 minutes
+        self.thread = None
+        
+    def get_current_tbd_games(self):
+        """Get list of games that currently have TBD pitchers"""
+        try:
+            current_date = datetime.now().strftime('%Y-%m-%d')
+            cache_path = 'data/unified_predictions_cache.json'
+            
+            if not os.path.exists(cache_path):
+                logger.warning(f"Cache file not found: {cache_path}")
+                return set()
+                
+            with open(cache_path, 'r') as f:
+                data = json.load(f)
+            
+            today_data = data.get('predictions_by_date', {}).get(current_date, {})
+            if 'games' not in today_data:
+                logger.warning(f"No games found for {current_date}")
+                return set()
+            
+            tbd_games = set()
+            for game_key, game_data in today_data['games'].items():
+                away_pitcher = game_data.get('away_pitcher', 'TBD')
+                home_pitcher = game_data.get('home_pitcher', 'TBD')
+                
+                if away_pitcher == 'TBD' or home_pitcher == 'TBD':
+                    tbd_games.add(game_key)
+                    logger.info(f"Found TBD in game: {game_key} (away: {away_pitcher}, home: {home_pitcher})")
+            
+            logger.info(f"Found {len(tbd_games)} games with TBD pitchers")
+            return tbd_games
+            
+        except Exception as e:
+            logger.error(f"Error getting TBD games: {e}")
+            return set()
+    
+    def check_for_updates(self):
+        """Check for pitcher updates and refresh if needed"""
+        try:
+            logger.info("🔍 TBD Monitor: Checking for pitcher updates...")
+            
+            # Get current TBD games
+            tbd_games_before = self.get_current_tbd_games()
+            
+            if not tbd_games_before:
+                logger.info("✅ TBD Monitor: No TBD pitchers found")
+                return False
+            
+            logger.info(f"🎯 TBD Monitor: Found {len(tbd_games_before)} games with TBD pitchers")
+            
+            # Run pitcher fetch
+            result = subprocess.run([
+                'python', '../fetch_todays_starters.py'
+            ], capture_output=True, text=True, cwd=os.getcwd())
+            
+            if result.returncode != 0:
+                logger.error(f"❌ TBD Monitor: Error fetching pitchers: {result.stderr}")
+                return False
+            
+            # Check if TBDs were resolved
+            tbd_games_after = self.get_current_tbd_games()
+            
+            if len(tbd_games_after) < len(tbd_games_before):
+                resolved_games = tbd_games_before - tbd_games_after
+                logger.info(f"✅ TBD Monitor: {len(resolved_games)} games had pitcher updates!")
+                
+                # Regenerate betting recommendations
+                logger.info("🔄 TBD Monitor: Regenerating betting recommendations...")
+                result = subprocess.run([
+                    'python', 'fix_betting_recommendations.py'
+                ], capture_output=True, text=True, cwd=os.getcwd())
+                
+                if result.returncode == 0:
+                    logger.info("✅ TBD Monitor: Betting recommendations updated!")
+                    return True
+                else:
+                    logger.error(f"❌ TBD Monitor: Error updating recommendations: {result.stderr}")
+            
+            return False
+            
+        except Exception as e:
+            logger.error(f"❌ TBD Monitor: Error in check_for_updates: {e}")
+            return False
+    
+    def monitor_loop(self):
+        """Background monitoring loop"""
+        logger.info("🎯 TBD Monitor: Background monitoring started")
+        
+        while self.monitoring:
+            try:
+                self.check_for_updates()
+                self.last_check = datetime.now()
+                
+                # Sleep for check interval
+                time.sleep(self.check_interval)
+                
+            except Exception as e:
+                logger.error(f"❌ TBD Monitor: Error in monitor loop: {e}")
+                time.sleep(60)  # Wait 1 minute before retrying
+        
+        logger.info("🛑 TBD Monitor: Background monitoring stopped")
+    
+    def start_monitoring(self):
+        """Start background TBD monitoring"""
+        if not self.monitoring:
+            self.monitoring = True
+            self.thread = threading.Thread(target=self.monitor_loop, daemon=True)
+            self.thread.start()
+            logger.info("🚀 TBD Monitor: Background monitoring started")
+    
+    def stop_monitoring(self):
+        """Stop background TBD monitoring"""
+        self.monitoring = False
+        if self.thread and self.thread.is_alive():
+            self.thread.join(timeout=5)
+        logger.info("🛑 TBD Monitor: Background monitoring stopped")
+    
+    def get_status(self):
+        """Get current monitoring status"""
+        tbd_games = self.get_current_tbd_games()
+        return {
+            'monitoring': self.monitoring,
+            'last_check': self.last_check.isoformat(),
+            'tbd_games_count': len(tbd_games),
+            'tbd_games': list(tbd_games),
+            'next_check': (self.last_check + timedelta(seconds=self.check_interval)).isoformat() if self.monitoring else None
+        }
+
+# Initialize TBD Monitor
+tbd_monitor = TBDMonitor()
 
 def get_team_logo_url(team_name):
     """Get team logo URL from team name using ESPN's reliable CDN"""
@@ -831,34 +971,44 @@ def convert_betting_recommendations_to_frontend_format(game_recommendations, rea
     value_bets = []
     
     # Convert moneyline recommendation
-    if 'moneyline' in betting_recs and betting_recs['moneyline']['pick'] != 'PASS':
+    if 'moneyline' in betting_recs and betting_recs['moneyline'] is not None and betting_recs['moneyline'].get('pick') not in [None, 'PASS']:
         ml_rec = betting_recs['moneyline']
-        confidence_level = 'HIGH' if ml_rec['confidence'] > 0.65 else 'MEDIUM' if ml_rec['confidence'] > 0.55 else 'LOW'
         
-        # Get real odds if available
-        odds = 'N/A'
-        if real_lines and 'moneyline' in real_lines:
-            if ml_rec['pick'] == 'away' and 'away' in real_lines['moneyline']:
-                odds = real_lines['moneyline']['away']
-            elif ml_rec['pick'] == 'home' and 'home' in real_lines['moneyline']:
-                odds = real_lines['moneyline']['home']
-        
-        edge_percentage = (ml_rec['confidence'] - 0.5) * 100
-        
-        value_bets.append({
-            'type': 'Moneyline',
-            'recommendation': f"{ml_rec['team']} ML ({ml_rec['confidence']:.1%})",
-            'confidence': confidence_level,
-            'edge': edge_percentage,
-            'edge_rating': '🔥' if confidence_level == 'HIGH' else '⚡' if confidence_level == 'MEDIUM' else '💡',
-            'estimated_odds': odds,
-            'reasoning': f"Model projects {ml_rec['team']} with {ml_rec['confidence']:.1%} win probability"
-        })
+        # Skip if team is null/None (invalid recommendation)
+        if not ml_rec.get('team') or ml_rec.get('team') is None:
+            logger.warning(f"Skipping moneyline recommendation with null team: {ml_rec}")
+        else:
+            confidence_level = 'HIGH' if ml_rec['confidence'] > 65 else 'MEDIUM' if ml_rec['confidence'] > 55 else 'LOW'
+            
+            # Get real odds if available
+            odds = 'N/A'
+            if real_lines and 'moneyline' in real_lines:
+                if ml_rec['pick'] == 'away' and 'away' in real_lines['moneyline']:
+                    odds = real_lines['moneyline']['away']
+                elif ml_rec['pick'] == 'home' and 'home' in real_lines['moneyline']:
+                    odds = real_lines['moneyline']['home']
+            
+            edge_percentage = ml_rec['confidence'] - 50
+            
+            value_bets.append({
+                'type': 'Moneyline',
+                'recommendation': f"{ml_rec['team']} ML ({ml_rec['confidence']:.1f}%)",
+                'confidence': confidence_level,
+                'edge': edge_percentage,
+                'edge_rating': '🔥' if confidence_level == 'HIGH' else '⚡' if confidence_level == 'MEDIUM' else '💡',
+                'estimated_odds': odds,
+                'reasoning': f"Model projects {ml_rec['team']} with {ml_rec['confidence']:.1f}% win probability"
+            })
     
     # Convert total runs recommendation
-    if 'total_runs' in betting_recs and betting_recs['total_runs']['pick'] != 'PASS':
+    if 'total_runs' in betting_recs and betting_recs['total_runs'] and betting_recs['total_runs']['pick'] != 'PASS':
         tr_rec = betting_recs['total_runs']
-        confidence_level = 'HIGH' if abs(tr_rec['edge']) > 1.0 else 'MEDIUM' if abs(tr_rec['edge']) > 0.5 else 'LOW'
+        # Calculate edge from predicted vs market
+        predicted_total = tr_rec.get('predicted_total', 8.5)
+        market_line = tr_rec.get('line', 8.5)
+        edge = abs(predicted_total - market_line)
+        
+        confidence_level = 'HIGH' if edge > 1.0 else 'MEDIUM' if edge > 0.5 else 'LOW'
         
         # Get real odds if available
         odds = 'N/A'
@@ -870,12 +1020,12 @@ def convert_betting_recommendations_to_frontend_format(game_recommendations, rea
         
         value_bets.append({
             'type': 'Total Runs',
-            'recommendation': f"{tr_rec['pick']} {tr_rec['market_line']}",
+            'recommendation': f"{tr_rec['pick']} {tr_rec['line']}",
             'confidence': confidence_level,
-            'edge': abs(tr_rec['edge']) * 10,  # Convert to percentage
+            'edge': edge * 10,  # Convert to percentage
             'edge_rating': '🔥' if confidence_level == 'HIGH' else '⚡' if confidence_level == 'MEDIUM' else '💡',
             'estimated_odds': odds,
-            'reasoning': f"Predicted {tr_rec['predicted_total']:.1f} vs market {tr_rec['market_line']}"
+            'reasoning': f"Predicted {tr_rec['predicted_total']:.1f} vs market {tr_rec['line']}"
         })
     
     # Create summary
@@ -1916,11 +2066,114 @@ def api_single_prediction(away_team, home_team):
             'error': str(e)
         }), 500
 
+@app.route('/health')
+def health_check():
+    """Simple health check endpoint for deployment verification"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat(),
+        'app': 'MLB Betting System',
+        'version': '1.0.0'
+    })
+
+@app.route('/api/error-details')
+def error_details():
+    """Debugging endpoint to check system status"""
+    try:
+        # Check critical files
+        files_status = {}
+        required_files = [
+            'data/unified_predictions_cache.json',
+            'data/real_betting_lines_2025_08_15.json',
+            'templates/index.html'
+        ]
+        
+        for file_path in required_files:
+            files_status[file_path] = os.path.exists(file_path)
+        
+        # Check cache loading
+        cache = load_unified_cache()
+        cache_status = 'loaded' if cache else 'failed'
+        
+        return jsonify({
+            'status': 'debug',
+            'files': files_status,
+            'cache': cache_status,
+            'working_directory': os.getcwd(),
+            'python_path': os.path.dirname(os.path.abspath(__file__)),
+            'environment': {
+                'PORT': os.environ.get('PORT', 'not set'),
+                'FLASK_ENV': os.environ.get('FLASK_ENV', 'not set')
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        })
+
+@app.route('/api/tbd-status')
+def tbd_status():
+    """Get current TBD monitoring status"""
+    try:
+        status = tbd_monitor.get_status()
+        return jsonify({
+            'success': True,
+            'status': status
+        })
+    except Exception as e:
+        logger.error(f"Error getting TBD status: {e}")
+        return jsonify({'error': 'Failed to get TBD status', 'details': str(e)}), 500
+
+@app.route('/api/tbd-check', methods=['POST'])
+def tbd_manual_check():
+    """Manually trigger TBD check"""
+    try:
+        updated = tbd_monitor.check_for_updates()
+        return jsonify({
+            'success': True,
+            'updated': updated,
+            'message': 'Betting recommendations updated!' if updated else 'No updates needed'
+        })
+    except Exception as e:
+        logger.error(f"Error in manual TBD check: {e}")
+        return jsonify({'error': 'TBD check failed', 'details': str(e)}), 500
+
+@app.route('/api/tbd-toggle', methods=['POST'])
+def tbd_toggle_monitoring():
+    """Toggle TBD monitoring on/off"""
+    try:
+        data = request.get_json() or {}
+        enable = data.get('enable', not tbd_monitor.monitoring)
+        
+        if enable and not tbd_monitor.monitoring:
+            tbd_monitor.start_monitoring()
+            message = 'TBD monitoring started'
+        elif not enable and tbd_monitor.monitoring:
+            tbd_monitor.stop_monitoring()
+            message = 'TBD monitoring stopped'
+        else:
+            message = f'TBD monitoring already {"enabled" if tbd_monitor.monitoring else "disabled"}'
+        
+        return jsonify({
+            'success': True,
+            'monitoring': tbd_monitor.monitoring,
+            'message': message
+        })
+    except Exception as e:
+        logger.error(f"Error toggling TBD monitoring: {e}")
+        return jsonify({'error': 'Failed to toggle TBD monitoring', 'details': str(e)}), 500
+
 if __name__ == '__main__':
     logger.info("🏆 MLB Prediction System Starting")
     logger.info("🏺 Archaeological Data Recovery: COMPLETE")
     logger.info("📊 100% Prediction Coverage: ACHIEVED")
     logger.info("💎 Premium Quality Data: RESTORED")
+    
+    # Start TBD Monitor
+    logger.info("🎯 Starting Auto TBD Monitor...")
+    tbd_monitor.start_monitoring()
     
     # Verify our treasure is available
     cache = load_unified_cache()
