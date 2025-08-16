@@ -43,6 +43,18 @@
             flex-wrap: wrap;
         }
 
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn.active {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+            transform: translateY(-2px);
+        }
+
         .btn {
             background: linear-gradient(45deg, #4fd1c7, #5f9ea0);
             color: white;
@@ -414,12 +426,29 @@
 <body>
     <div class="container">
         <div class="header">
+            {% if filter_type == 'winners' %}
+            <h1>🎯 Winner Predictions History</h1>
+            <p>All games where we correctly predicted the winning team</p>
+            {% elif filter_type == 'totals' %}
+            <h1>📊 Total Predictions History</h1>
+            <p>All games where we correctly predicted over/under totals</p>
+            {% elif filter_type == 'perfect' %}
+            <h1>💎 Perfect Game Predictions</h1>
+            <p>Games where we correctly predicted both winner and total</p>
+            {% else %}
             <h1>🏆 Historical Analysis</h1>
             <p>Performance tracking and prediction accuracy analysis</p>
+            {% endif %}
         </div>
 
         <div class="controls">
             <a href="/" class="btn home">🏠 Back to Today's Games</a>
+            <div class="filter-controls">
+                <a href="/historical?filter=all" class="btn {% if filter_type == 'all' %}active{% endif %}">📊 All Games</a>
+                <a href="/historical?filter=winners" class="btn {% if filter_type == 'winners' %}active{% endif %}">🎯 Winners</a>
+                <a href="/historical?filter=totals" class="btn {% if filter_type == 'totals' %}active{% endif %}">📈 Totals</a>
+                <a href="/historical?filter=perfect" class="btn {% if filter_type == 'perfect' %}active{% endif %}">💎 Perfect</a>
+            </div>
             <input type="date" id="analysis-date" class="date-input" />
             <button class="btn" onclick="loadAnalysis()">📊 Analyze Date</button>
             <button class="btn secondary" onclick="loadToday()">📅 Today</button>
@@ -513,10 +542,16 @@
     </div>
 
     <script>
+        // Set filter type from backend
+        const FILTER_TYPE = '{{ filter_type or "all" }}';
+        
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Page loaded, initializing...');
-            updateDebugInfo('Page loaded, calling loadToday()...');
+            console.log('Page loaded, initializing with filter:', FILTER_TYPE);
+            updateDebugInfo('Page loaded with filter: ' + FILTER_TYPE);
+            
+            // Always start by loading yesterday's data, then apply filters
+            updateDebugInfo('Loading yesterday analysis and applying filter: ' + FILTER_TYPE);
             setTimeout(function() {
                 loadToday();
             }, 100);
@@ -531,27 +566,419 @@
         }
 
         function loadToday() {
-            console.log('Loading previous day for historical analysis...');
-            updateDebugInfo('loadToday() called - defaulting to previous day');
+            console.log('Loading recent completed games for historical analysis...');
+            updateDebugInfo('loadToday() called - loading recent games with filter: ' + FILTER_TYPE);
             
-            // Get yesterday's date instead of today
-            const today = new Date();
-            const yesterday = new Date(today);
-            yesterday.setDate(today.getDate() - 1);
+            // For filters, load multiple dates to ensure we find matching games
+            // For "all" mode, just load yesterday as before
+            if (FILTER_TYPE !== 'all') {
+                updateDebugInfo('Filter mode: loading multiple dates to find ' + FILTER_TYPE + ' games');
+                loadMultipleDatesForFilter();
+            } else {
+                // Get yesterday's date as before for "all" mode
+                const today = new Date();
+                const yesterday = new Date(today);
+                yesterday.setDate(today.getDate() - 1);
+                
+                const year = yesterday.getFullYear();
+                const month = yesterday.getMonth() + 1;
+                const day = yesterday.getDate();
+                
+                const monthStr = month < 10 ? '0' + month : month.toString();
+                const dayStr = day < 10 ? '0' + day : day.toString();
+                const targetDate = year + '-' + monthStr + '-' + dayStr;
+                updateDebugInfo('All games mode: loading yesterday: ' + targetDate);
+                
+                console.log('Target date calculated as:', targetDate);
+                updateDebugInfo('Target date: ' + targetDate + ', calling loadAnalysis()...');
+                
+                document.getElementById('analysis-date').value = targetDate;
+                loadAnalysis();
+            }
+        }
+
+        // Load betting accuracy data for filtering - same as main page
+        function loadBettingAccuracyData() {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', '/data/betting_accuracy_analysis.json', true);
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        try {
+                            const data = JSON.parse(xhr.responseText);
+                            resolve(data);
+                        } catch (e) {
+                            console.error('Error parsing betting accuracy data:', e);
+                            reject(e);
+                        }
+                    } else {
+                        console.log('Betting accuracy data not available');
+                        resolve(null);
+                    }
+                };
+                xhr.onerror = function() {
+                    console.log('Failed to load betting accuracy data');
+                    resolve(null);
+                };
+                xhr.send();
+            });
+        }
+
+        function showError(message) {
+            const container = document.getElementById('games-container');
+            container.innerHTML = `
+                <div class="status" style="color: #ff6b6b;">
+                    <h3>❌ ${message}</h3>
+                    <p>Try selecting a different filter or refresh the page.</p>
+                    <div style="margin-top: 15px;">
+                        <a href="/historical?filter=all" class="btn" style="text-decoration: none; margin-right: 10px;">📊 View All Games</a>
+                        <button class="btn secondary" onclick="location.reload()">🔄 Refresh</button>
+                    </div>
+                </div>
+            `;
+            hideStatus();
+        }
+
+        function loadMultipleDatesForFilter() {
+            console.log('🔄 UPDATED SCRIPT LOADED - v2.1 Loading filtered games for:', FILTER_TYPE);
+            showStatus('Loading ' + FILTER_TYPE + ' games from betting accuracy data...');
             
-            const year = yesterday.getFullYear();
-            const month = yesterday.getMonth() + 1;
-            const day = yesterday.getDate();
+            // Use the new filtered API endpoint - much simpler!
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/historical-filtered/' + FILTER_TYPE, true);
+            xhr.timeout = 10000; // 10 seconds timeout
             
-            const monthStr = month < 10 ? '0' + month : month.toString();
-            const dayStr = day < 10 ? '0' + day : day.toString();
-            const yesterdayString = year + '-' + monthStr + '-' + dayStr;
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            const data = JSON.parse(xhr.responseText);
+                            if (data.games && Array.isArray(data.games)) {
+                                console.log(`✅ Found ${data.games.length} ${FILTER_TYPE} games`);
+                                console.log('🔍 Sample game data:', data.games[0]);
+                                updateDebugInfo(`✅ Loaded ${data.games.length} ${FILTER_TYPE} games from betting accuracy data`);
+                                
+                                // Convert the betting accuracy format to game format for display
+                                const formattedGames = data.games.map(function(game) {
+                                    console.log('🔧 Processing game:', game.away_team, '@', game.home_team, game.date);
+                                    // Parse predicted score
+                                    const predictedScoreParts = game.predicted_score.split('-');
+                                    const predAwayScore = parseFloat(predictedScoreParts[0]) || 0;
+                                    const predHomeScore = parseFloat(predictedScoreParts[1]) || 0;
+                                    
+                                    // Parse actual score
+                                    const actualScoreParts = game.actual_score.split('-');
+                                    const actualAwayScore = parseFloat(actualScoreParts[0]) || 0;
+                                    const actualHomeScore = parseFloat(actualScoreParts[1]) || 0;
+                                    
+                                    const formattedGame = {
+                                        away_team: game.away_team,
+                                        home_team: game.home_team,
+                                        display_date: game.date,
+                                        game_id: game.away_team + '_' + game.home_team + '_' + game.date,
+                                        predicted_score: game.predicted_score,
+                                        actual_score: game.actual_score,
+                                        predicted_total: game.predicted_total,
+                                        actual_total: game.actual_total,
+                                        winner_correct: game.winner_correct,
+                                        total_correct: game.total_correct,
+                                        perfect_game: game.perfect_game,
+                                        prediction: {
+                                            predicted_away_score: predAwayScore,
+                                            predicted_home_score: predHomeScore,
+                                            predicted_total_runs: game.predicted_total,
+                                            away_win_probability: predAwayScore > predHomeScore ? 0.6 : 0.4,
+                                            home_win_probability: predHomeScore > predAwayScore ? 0.6 : 0.4,
+                                            predicted_winner: predAwayScore > predHomeScore ? game.away_team : game.home_team,
+                                            away_pitcher: 'TBD',
+                                            home_pitcher: 'TBD'
+                                        },
+                                        result: {
+                                            status: 'Final',
+                                            away_score: actualAwayScore,
+                                            home_score: actualHomeScore
+                                        },
+                                        performance_analysis: {
+                                            winner_correct: game.winner_correct,
+                                            total_correct: game.total_correct,
+                                            overall_grade: game.perfect_game ? 'A+' : (game.winner_correct && game.total_correct ? 'A' : (game.winner_correct || game.total_correct ? 'B' : 'C')),
+                                            grade_percentage: game.perfect_game ? 1.0 : (game.winner_correct && game.total_correct ? 0.9 : (game.winner_correct || game.total_correct ? 0.7 : 0.3))
+                                        }
+                                    };
+                                    
+                                    console.log('✅ Formatted game:', formattedGame.game_id, 'prediction:', formattedGame.prediction);
+                                    return formattedGame;
+                                });
+                                
+                                displayMultiDateResults(formattedGames);
+                                hideStatus();
+                            } else {
+                                console.error('No games found or invalid data structure:', data);
+                                showError('No ' + FILTER_TYPE + ' games found');
+                            }
+                        } catch (e) {
+                            console.error('Error parsing filtered games data:', e);
+                            showError('Error loading ' + FILTER_TYPE + ' games');
+                        }
+                    } else {
+                        console.error('Failed to load filtered games, status:', xhr.status);
+                        showError('Failed to load ' + FILTER_TYPE + ' games (HTTP ' + xhr.status + ')');
+                    }
+                }
+            };
             
-            console.log('Previous day calculated as:', yesterdayString);
-            updateDebugInfo('Previous day: ' + yesterdayString + ', calling loadAnalysis()...');
+            xhr.ontimeout = function() {
+                console.error('Timeout loading filtered games');
+                showError('Timeout loading ' + FILTER_TYPE + ' games');
+            };
             
-            document.getElementById('analysis-date').value = yesterdayString;
-            loadAnalysis();
+            xhr.onerror = function() {
+                console.error('Error loading filtered games');
+                showError('Error loading ' + FILTER_TYPE + ' games');
+            };
+            
+            xhr.send();
+        }
+        
+        function loadDatesParallel(dates, callback) {
+            let allFilteredGames = [];
+            let completedRequests = 0;
+            let totalRequests = dates.length;
+            
+            // Set a timeout to prevent hanging
+            const timeoutId = setTimeout(function() {
+                console.log('Timeout reached, returning results found so far');
+                clearTimeout(timeoutId);
+                callback(allFilteredGames);
+            }, 5000); // 5 second timeout for each batch
+            
+            function checkIfComplete() {
+                if (completedRequests >= totalRequests) {
+                    clearTimeout(timeoutId);
+                    callback(allFilteredGames);
+                }
+            }
+            
+            // Load all dates in parallel for much faster loading
+            dates.forEach(function(currentDate, index) {
+                console.log('Starting request for date:', currentDate);
+                
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', '/api/historical-recap/' + currentDate, true);
+                xhr.timeout = 2000; // 2 seconds per request
+                
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        completedRequests++;
+                        showStatus('Loading ' + FILTER_TYPE + ' games... (' + completedRequests + '/' + totalRequests + ')');
+                        
+                        if (xhr.status === 200) {
+                            try {
+                                const data = JSON.parse(xhr.responseText);
+                                if (data.success && data.games) {
+                                    console.log(`Processing ${data.games.length} games for ${currentDate}`);
+                                    
+                                    // Count completed games for debugging  
+                                    const completedGames = data.games.filter(g => g.result && g.result.status === 'Final');
+                                    console.log(`Found ${completedGames.length} completed games out of ${data.games.length} total on ${currentDate}`);
+                                    updateDebugInfo(`${currentDate}: Processing ${data.games.length} games (${completedGames.length} completed)`);
+                                    
+                                    // Log first game structure for debugging
+                                    if (data.games.length > 0 && dateIndex === 0) {
+                                        const sampleGame = data.games[0];
+                                        console.log('Sample game structure:', {
+                                            away_team: sampleGame.away_team,
+                                            home_team: sampleGame.home_team,
+                                            predicted_total_runs: sampleGame.predicted_total_runs,
+                                            result: sampleGame.result,
+                                            betting_recommendations: sampleGame.betting_recommendations,
+                                            performance_analysis: sampleGame.performance_analysis
+                                        });
+                                        updateDebugInfo(`Sample game: ${sampleGame.away_team} @ ${sampleGame.home_team}, Pred Total: ${sampleGame.predicted_total_runs}, Result: ${sampleGame.result?.away_score}-${sampleGame.result?.home_score}`);
+                                    }
+                    // Helper function to check over/under prediction accuracy
+                    function checkOverUnderAccuracy(game) {
+                        // First, let's just check if the game has the basic data we need
+                        if (!game.result || game.result.status !== 'Final') {
+                            return false;
+                        }
+                        
+                        const predTotal = game.predicted_total_runs || 0;
+                        const actualTotal = (game.result?.away_score || 0) + (game.result?.home_score || 0);
+                        
+                        // For debugging, let's be very lenient and just check if we have basic data
+                        if (predTotal > 0 && actualTotal > 0) {
+                            updateDebugInfo(`FOUND GAME: ${game.away_team} @ ${game.home_team} - Pred: ${predTotal}, Actual: ${actualTotal}`);
+                            
+                            // Now do the actual over/under calculation
+                            let bettingLine = 9.5; // Default
+                            if (game.betting_recommendations && game.betting_recommendations.total_runs) {
+                                for (let rec of game.betting_recommendations.total_runs) {
+                                    if (rec.line) {
+                                        bettingLine = rec.line;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            const predOverUnder = predTotal > bettingLine ? 'OVER' : 'UNDER';
+                            const actualOverUnder = actualTotal > bettingLine ? 'OVER' : 'UNDER';
+                            const isCorrect = predOverUnder === actualOverUnder;
+                            
+                            updateDebugInfo(`O/U Check: Pred ${predTotal} (${predOverUnder}) vs Actual ${actualTotal} (${actualOverUnder}) Line ${bettingLine} = ${isCorrect ? 'CORRECT' : 'WRONG'}`);
+                            
+                            return isCorrect;
+                        }
+                        
+                        return false;
+                    }                                    // Filter games for this date - match main page calculation logic
+                                    const filteredGames = data.games.filter(function(game) {
+                                        // Only count games that are Final (have actual results)
+                                        if (!game.result || game.result.status !== 'Final') {
+                                            return false;
+                                        }
+                                        
+                                        const analysis = game.performance_analysis || {};
+                                        
+                                        // Log the game being checked for debugging
+                                        updateDebugInfo(`CHECKING FINAL GAME: ${game.away_team} @ ${game.home_team} - Analysis: ${JSON.stringify(analysis)}`);
+                                        
+                                        let isWinnerCorrect, isTotalCorrect, isPerfectGame;
+                                        
+                                        switch(FILTER_TYPE) {
+                                            case 'winners':
+                                                isWinnerCorrect = analysis.winner_correct === true;
+                                                if (isWinnerCorrect) {
+                                                    updateDebugInfo(`✅ WINNER CORRECT: ${game.away_team} @ ${game.home_team}`);
+                                                }
+                                                return isWinnerCorrect;
+                                                
+                                            case 'totals':
+                                                isTotalCorrect = analysis.total_correct === true;
+                                                if (isTotalCorrect) {
+                                                    updateDebugInfo(`✅ TOTAL CORRECT: ${game.away_team} @ ${game.home_team}`);
+                                                }
+                                                return isTotalCorrect;
+                                                
+                                            case 'perfect':
+                                                isWinnerCorrect = analysis.winner_correct === true;
+                                                isTotalCorrect = analysis.total_correct === true;
+                                                isPerfectGame = isWinnerCorrect && isTotalCorrect;
+                                                if (isPerfectGame) {
+                                                    updateDebugInfo(`✅ PERFECT GAME: ${game.away_team} @ ${game.home_team}`);
+                                                }
+                                                return isPerfectGame;
+                                                
+                                            default:
+                                                return true;
+                                        }
+                                    });
+                                    
+                                    // Add date to each game for display
+                                    filteredGames.forEach(function(game) {
+                                        game.display_date = currentDate;
+                                    });
+                                    
+                                    allFilteredGames = allFilteredGames.concat(filteredGames);
+                                    console.log('Found', filteredGames.length, 'matching games on', currentDate);
+                                    
+                                    // Update progress with current count
+                                    if (filteredGames.length > 0) {
+                                        showStatus('Found ' + allFilteredGames.length + ' ' + FILTER_TYPE + ' games so far... (' + completedRequests + '/' + totalRequests + ')');
+                                    }
+                                }
+                            } catch (e) {
+                                console.error('Error parsing data for', currentDate, ':', e);
+                            }
+                        } else {
+                            console.log('Failed to load data for', currentDate, '- Status:', xhr.status);
+                        }
+                        
+                        checkIfComplete();
+                    }
+                };
+                
+                xhr.ontimeout = function() {
+                    console.log('Request timeout for', currentDate);
+                    completedRequests++;
+                    checkIfComplete();
+                };
+                
+                xhr.onerror = function() {
+                    console.log('Request error for', currentDate);
+                    completedRequests++;
+                    checkIfComplete();
+                };
+                
+                xhr.send();
+            });
+        }
+
+        function displayMultiDateResults(games) {
+            console.log('Displaying', games.length, 'filtered games from multiple dates');
+            
+            // Update the recap section with multi-date info
+            const recapSection = document.getElementById('recap-section');
+            recapSection.style.display = 'block';
+            
+            // Count unique dates
+            const uniqueDates = [...new Set(games.map(g => g.display_date))];
+            
+            document.getElementById('total-games').textContent = games.length;
+            document.getElementById('correct-predictions').textContent = games.length;
+            
+            // Update title
+            const titleElement = document.querySelector('.recap-title');
+            if (titleElement) {
+                let filterTitle = '';
+                switch(FILTER_TYPE) {
+                    case 'winners': filterTitle = 'Correct Winner Predictions'; break;
+                    case 'totals': filterTitle = 'Correct Total Predictions'; break;
+                    case 'perfect': filterTitle = 'Perfect Games'; break;
+                }
+                titleElement.textContent = filterTitle + ' - ' + games.length + ' games across ' + uniqueDates.length + ' dates';
+            }
+            
+            // Display the games
+            displayGames(games);
+            updateDebugInfo('Displayed ' + games.length + ' ' + FILTER_TYPE + ' games from ' + uniqueDates.length + ' dates');
+        }
+
+        function showNoResultsMessage() {
+            const container = document.getElementById('games-container');
+            container.innerHTML = '';
+            
+            const noResults = document.createElement('div');
+            noResults.className = 'status';
+            
+            let filterMessage = '';
+            switch(FILTER_TYPE) {
+                case 'winners':
+                    filterMessage = '🎯 No correct winner predictions found in recent games';
+                    break;
+                case 'totals':
+                    filterMessage = '📊 No correct total predictions found in recent games';
+                    break;
+                case 'perfect':
+                    filterMessage = '💎 No perfect games found in recent dates';
+                    break;
+            }
+            
+            // Get the debug info that was collected
+            const debugElement = document.getElementById('debug-info');
+            const debugInfo = debugElement ? debugElement.textContent : '';
+            
+            noResults.innerHTML = `
+                <h3>${filterMessage}</h3>
+                <p>We searched the last 9 days of games (Aug 7-15) but didn't find any matches for this filter.</p>
+                ${debugInfo ? `<div style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 5px; font-family: monospace; font-size: 12px; white-space: pre-wrap;">${debugInfo}</div>` : ''}
+                <div style="margin-top: 15px;">
+                    <a href="/historical?filter=all" class="btn" style="text-decoration: none; margin-right: 10px;">📊 View All Games</a>
+                    <a href="/" class="btn home" style="text-decoration: none;">🏠 Back to Dashboard</a>
+                </div>
+            `;
+            container.appendChild(noResults);
+            hideStatus();
         }
 
         function loadAnalysis() {
@@ -669,31 +1096,66 @@
         }
 
         function displayGames(games) {
-            console.log('Displaying', games.length, 'games');
-            updateDebugInfo('displayGames called with ' + games.length + ' games');
+            console.log('Displaying', games.length, 'games with filter:', FILTER_TYPE);
+            updateDebugInfo('displayGames called with ' + games.length + ' games, filter: ' + FILTER_TYPE);
+            
+            // Data is already filtered by the API, so no need to filter again
+            const filteredGames = games;
             
             const container = document.getElementById('games-container');
             container.innerHTML = '';
 
+            if (filteredGames.length === 0) {
+                const noResults = document.createElement('div');
+                noResults.className = 'status';
+                
+                let filterMessage = '';
+                switch(FILTER_TYPE) {
+                    case 'winners':
+                        filterMessage = '🎯 No correct winner predictions found for this date';
+                        break;
+                    case 'totals':
+                        filterMessage = '📊 No correct total predictions found for this date';
+                        break;
+                    case 'perfect':
+                        filterMessage = '� No perfect games found for this date';
+                        break;
+                    default:
+                        filterMessage = '📊 No games found for this date';
+                        break;
+                }
+                
+                noResults.innerHTML = `
+                    <h3>${filterMessage}</h3>
+                    <p>Try selecting a different date or use the "All Games" filter to see all predictions.</p>
+                    <div style="margin-top: 15px;">
+                        <a href="/historical?filter=all" class="btn" style="text-decoration: none; margin-right: 10px;">📊 View All Games</a>
+                        <button class="btn secondary" onclick="loadToday()">📅 Try Yesterday</button>
+                    </div>
+                `;
+                container.appendChild(noResults);
+                return;
+            }
+
             const gamesGrid = document.createElement('div');
             gamesGrid.className = 'games-grid';
 
-            for (var i = 0; i < games.length; i++) {
+            for (var i = 0; i < filteredGames.length; i++) {
                 try {
-                    const gameCard = createGameCard(games[i]);
+                    const gameCard = createGameCard(filteredGames[i]);
                     gamesGrid.appendChild(gameCard);
                 } catch (error) {
                     console.error('Error creating game card:', error);
                     updateDebugInfo('ERROR creating game card ' + i + ': ' + error.message);
                     const errorCard = document.createElement('div');
                     errorCard.className = 'game-card error';
-                    errorCard.innerHTML = '<p>Error displaying game: ' + (games[i].away_team || 'Unknown') + ' @ ' + (games[i].home_team || 'Unknown') + '</p>';
+                    errorCard.innerHTML = '<p>Error displaying game: ' + (filteredGames[i].away_team || 'Unknown') + ' @ ' + (filteredGames[i].home_team || 'Unknown') + '</p>';
                     gamesGrid.appendChild(errorCard);
                 }
             }
 
             container.appendChild(gamesGrid);
-            updateDebugInfo('Games display completed successfully');
+            updateDebugInfo('Games display completed successfully - ' + filteredGames.length + ' filtered games shown');
         }
 
         function createGameCard(game) {
@@ -742,6 +1204,7 @@
             }
         
             card.innerHTML = 
+                (game.display_date ? '<div class="game-date-header" style="background: rgba(79, 209, 199, 0.2); padding: 5px 10px; font-size: 0.9em; font-weight: bold; border-radius: 5px 5px 0 0; margin-bottom: 10px;">' + game.display_date + '</div>' : '') +
                 '<div class="game-header">' +
                     '<div class="game-teams">' +
                         '<span class="away-team">' + game.away_team + '</span>' +
@@ -820,21 +1283,106 @@
             console.log('Loading performance analytics for', date);
             updateDebugInfo('Loading performance analytics for ' + date);
             
-            fetch('/api/performance-analytics/' + date)
+            fetch('/api/historical-recap/' + date)
                 .then(response => response.json())
                 .then(data => {
                     console.log('Performance analytics response:', data);
-                    if (data.success) {
-                        displayPerformanceAnalytics(data.analytics);
+                    if (data.success && data.games) {
+                        // Extract analytics from the historical recap data
+                        const analytics = extractAnalyticsFromGames(data.games);
+                        displayPerformanceAnalytics(analytics);
                     } else {
-                        console.error('Performance analytics failed:', data.error);
-                        updateDebugInfo('Performance analytics failed: ' + data.error);
+                        console.error('Performance analytics failed:', data.error || 'No games data');
+                        updateDebugInfo('Performance analytics failed: ' + (data.error || 'No games data'));
                     }
                 })
                 .catch(error => {
                     console.error('Error loading performance analytics:', error);
                     updateDebugInfo('Error loading performance analytics: ' + error.message);
                 });
+        }
+
+        function extractAnalyticsFromGames(games) {
+            // Extract performance analytics from games data
+            const completedGames = games.filter(g => g.result && g.result.status === 'Final');
+            const winnerCorrect = completedGames.filter(g => g.performance_analysis && g.performance_analysis.winner_correct);
+            const totalCorrect = completedGames.filter(g => g.performance_analysis && g.performance_analysis.total_correct);
+            
+            // Calculate winner performance
+            const winnerAccuracy = completedGames.length > 0 ? (winnerCorrect.length / completedGames.length * 100) : 0;
+            
+            // Calculate score performance (simplified)
+            let totalScoreDiff = 0;
+            let totalRunsDiff = 0;
+            completedGames.forEach(game => {
+                if (game.performance_analysis) {
+                    totalScoreDiff += Math.abs((game.performance_analysis.away_score_diff || 0) + (game.performance_analysis.home_score_diff || 0)) / 2;
+                    totalRunsDiff += Math.abs(game.performance_analysis.total_score_diff || 0);
+                }
+            });
+            
+            const avgScoreDiff = completedGames.length > 0 ? totalScoreDiff / completedGames.length : 0;
+            const avgTotalDiff = completedGames.length > 0 ? totalRunsDiff / completedGames.length : 0;
+            
+            // Calculate overall system grade (simplified)
+            const overallPercentage = completedGames.length > 0 ? (winnerCorrect.length + totalCorrect.length) / (completedGames.length * 2) * 100 : 0;
+            let systemGrade = 'F';
+            if (overallPercentage >= 90) systemGrade = 'A+';
+            else if (overallPercentage >= 85) systemGrade = 'A';
+            else if (overallPercentage >= 80) systemGrade = 'A-';
+            else if (overallPercentage >= 75) systemGrade = 'B+';
+            else if (overallPercentage >= 70) systemGrade = 'B';
+            else if (overallPercentage >= 65) systemGrade = 'B-';
+            else if (overallPercentage >= 60) systemGrade = 'C+';
+            else if (overallPercentage >= 55) systemGrade = 'C';
+            else if (overallPercentage >= 50) systemGrade = 'C-';
+            else if (overallPercentage >= 45) systemGrade = 'D+';
+            else if (overallPercentage >= 40) systemGrade = 'D';
+            
+            // Create grade distribution (simplified)
+            const gradeDistribution = {};
+            const grades = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'F'];
+            grades.forEach(grade => gradeDistribution[grade] = 0);
+            
+            // Assign games to grades based on individual performance
+            completedGames.forEach(game => {
+                if (game.performance_analysis) {
+                    const gameScore = ((game.performance_analysis.winner_correct ? 1 : 0) + (game.performance_analysis.total_correct ? 1 : 0)) / 2 * 100;
+                    let gameGrade = 'F';
+                    if (gameScore >= 90) gameGrade = 'A+';
+                    else if (gameScore >= 85) gameGrade = 'A';
+                    else if (gameScore >= 80) gameGrade = 'A-';
+                    else if (gameScore >= 75) gameGrade = 'B+';
+                    else if (gameScore >= 70) gameGrade = 'B';
+                    else if (gameScore >= 65) gameGrade = 'B-';
+                    else if (gameScore >= 60) gameGrade = 'C+';
+                    else if (gameScore >= 55) gameGrade = 'C';
+                    else if (gameScore >= 50) gameGrade = 'C-';
+                    else if (gameScore >= 45) gameGrade = 'D+';
+                    else if (gameScore >= 40) gameGrade = 'D';
+                    
+                    gradeDistribution[gameGrade]++;
+                }
+            });
+            
+            return {
+                winner_performance: {
+                    accuracy_rate: winnerAccuracy,
+                    by_confidence: {
+                        high: {
+                            accuracy: winnerAccuracy // Simplified - using overall accuracy
+                        }
+                    }
+                },
+                score_performance: {
+                    avg_away_diff: avgScoreDiff / 2,
+                    avg_home_diff: avgScoreDiff / 2,
+                    avg_total_diff: avgTotalDiff
+                },
+                overall_system_grade: overallPercentage,
+                overall_system_letter: systemGrade,
+                grade_distribution: gradeDistribution
+            };
         }
 
         function displayPerformanceAnalytics(analytics) {

@@ -1,6 +1,6 @@
 {
   "date": "2025-08-15",
-  "fetched_at": "2025-08-15T12:55:22.986524",
+  "fetched_at": "2025-08-15T19:43:48.325397",
   "games": [
     {
       "away_team": "Pittsburgh Pirates",
@@ -12,7 +12,7 @@
     {
       "away_team": "Milwaukee Brewers",
       "home_team": "Cincinnati Reds",
-      "away_pitcher": "TBD",
+      "away_pitcher": "Jacob Misiorowski",
       "home_pitcher": "Nick Martinez",
       "game_key": "Milwaukee Brewers @ Cincinnati Reds"
     },
@@ -96,7 +96,7 @@
     {
       "away_team": "San Diego Padres",
       "home_team": "Los Angeles Dodgers",
-      "away_pitcher": "TBD",
+      "away_pitcher": "Wandy Peralta",
       "home_pitcher": "Clayton Kershaw",
       "game_key": "San Diego Padres @ Los Angeles Dodgers"
     },

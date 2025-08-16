@@ -56,6 +56,26 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+        .clickable-stat {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .clickable-stat:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #4fd1c7;
+            box-shadow: 0 10px 25px rgba(79, 209, 199, 0.3);
+        }
+
+        .clickable-stat:hover h3 {
+            color: #5ce1e6;
+            text-shadow: 0 0 10px rgba(92, 225, 230, 0.5);
+        }
+
         .stat-card h3 {
             font-size: 2rem;
             margin-bottom: 5px;
@@ -604,26 +624,26 @@
         </div>
 
         <div id="summary-stats" class="stats-grid">
-            <div class="stat-card">
+            <a href="/historical?filter=all" class="stat-card clickable-stat">
                 <h3>{{ comprehensive_stats.total_games_analyzed or 0 }}</h3>
                 <p>Total Games Predicted</p>
                 <small>Since {{ comprehensive_stats.date_range.start or 'Aug 7' }}</small>
-            </div>
-            <div class="stat-card">
+            </a>
+            <a href="/historical?filter=winners" class="stat-card clickable-stat">
                 <h3>{{ comprehensive_stats.betting_performance.winner_predictions_correct or 0 }}</h3>
                 <p>Predicted Winners</p>
                 <small>{{ comprehensive_stats.betting_performance.winner_accuracy_pct or 0 }}% accuracy ({{ comprehensive_stats.betting_performance.winner_predictions_correct or 0 }}/{{ comprehensive_stats.betting_performance.games_analyzed or 0 }} analyzed)</small>
-            </div>
-            <div class="stat-card">
+            </a>
+            <a href="/historical?filter=totals" class="stat-card clickable-stat">
                 <h3>{{ comprehensive_stats.betting_performance.total_predictions_correct or 0 }}</h3>
                 <p>Predicted Totals</p>
                 <small>{{ comprehensive_stats.betting_performance.total_accuracy_pct or 0 }}% correct on O/U ({{ comprehensive_stats.betting_performance.total_predictions_correct or 0 }}/{{ comprehensive_stats.betting_performance.games_analyzed or 0 }} analyzed)</small>
-            </div>
-            <div class="stat-card">
+            </a>
+            <a href="/historical?filter=perfect" class="stat-card clickable-stat">
                 <h3>{{ comprehensive_stats.betting_performance.perfect_games or 0 }}</h3>
                 <p>Perfect Games</p>
                 <small>{{ comprehensive_stats.betting_performance.perfect_games_pct or 0 }}% both correct ({{ comprehensive_stats.betting_performance.perfect_games or 0 }}/{{ comprehensive_stats.betting_performance.games_analyzed or 0 }} analyzed)</small>
-            </div>
+            </a>
             <div class="stat-card" id="tbd-monitor-card">
                 <h3 id="tbd-status-indicator">🔍</h3>
                 <p>TBD Monitor</p>

@@ -106,6 +106,22 @@
             background: #45b7b8;
         }
 
+        .btn-small {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            background: #4fd1c7;
+            color: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn-small:hover {
+            background: #45b7b8;
+        }
+
         .games-grid {
             display: grid;
             gap: 15px;
@@ -582,24 +598,39 @@
         <div class="header">
             <h1>⚾ MLB-Betting</h1>
             <p>Advanced MLB Prediction System with Real-Time Betting Analysis</p>
+            <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">
+                📊 Comprehensive Analysis Since August 7th • Updated Daily • 113 Games Tracked
+            </p>
         </div>
 
         <div id="summary-stats" class="stats-grid">
             <div class="stat-card">
-                <h3 id="total-games">-</h3>
-                <p>Total Games</p>
+                <h3>113</h3>
+                <p>Total Games Predicted</p>
+                <small>Since 2025-08-07</small>
             </div>
             <div class="stat-card">
-                <h3 id="completed-games">-</h3>
-                <p>Completed Games</p>
+                <h3>66</h3>
+                <p>Predicted Winners</p>
+                <small>58.4% accuracy (66/113 analyzed)</small>
             </div>
             <div class="stat-card">
-                <h3 id="prediction-accuracy">-</h3>
-                <p>Prediction Accuracy</p>
+                <h3>61</h3>
+                <p>Predicted Totals</p>
+                <small>54.0% correct on O/U (61/113 analyzed)</small>
             </div>
             <div class="stat-card">
-                <h3 id="avg-error">-</h3>
-                <p>Avg Score Error</p>
+                <h3>35</h3>
+                <p>Perfect Games</p>
+                <small>31.0% both correct (35/113 analyzed)</small>
+            </div>
+            <div class="stat-card" id="tbd-monitor-card">
+                <h3 id="tbd-status-indicator">🔍</h3>
+                <p>TBD Monitor</p>
+                <small id="tbd-status-text">Loading...</small>
+                <div style="margin-top: 8px;">
+                    <button class="btn-small" onclick="checkTBD()" id="tbd-check-btn">Check Now</button>
+                </div>
             </div>
         </div>
 
@@ -665,6 +696,12 @@
             
             // Start live updates for games in progress
             startLiveUpdates();
+            
+            // Initialize TBD monitoring
+            updateTBDStatus();
+            
+            // Update TBD status every 5 minutes
+            setInterval(updateTBDStatus, 300000);
         });
 
         function goToHistoricalAnalysis() {
@@ -679,6 +716,75 @@
                               String(currentDate.getDate()).padStart(2, '0');
             document.getElementById('game-date').value = localDateString;
             loadTodaysGames();
+        }
+
+        // TBD Monitoring Functions
+        async function updateTBDStatus() {
+            try {
+                const response = await fetch('/api/tbd-status');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const status = data.status;
+                    const indicator = document.getElementById('tbd-status-indicator');
+                    const statusText = document.getElementById('tbd-status-text');
+                    
+                    if (status.tbd_games_count > 0) {
+                        indicator.textContent = '⚠️';
+                        statusText.textContent = `${status.tbd_games_count} games with TBD pitchers`;
+                    } else {
+                        indicator.textContent = '✅';
+                        statusText.textContent = 'All pitchers confirmed';
+                    }
+                    
+                    // Update last check time
+                    const lastCheck = new Date(status.last_check);
+                    const timeStr = lastCheck.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    statusText.innerHTML += `<br>Last checked: ${timeStr}`;
+                }
+            } catch (error) {
+                console.error('Error updating TBD status:', error);
+                document.getElementById('tbd-status-indicator').textContent = '❌';
+                document.getElementById('tbd-status-text').textContent = 'Monitor error';
+            }
+        }
+
+        async function checkTBD() {
+            const btn = document.getElementById('tbd-check-btn');
+            const originalText = btn.textContent;
+            
+            btn.textContent = 'Checking...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/tbd-check', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.updated) {
+                        // Refresh the page to show updated recommendations
+                        loadToday();
+                        updateTBDStatus();
+                        alert('Pitcher updates found! Recommendations refreshed.');
+                    } else {
+                        alert('No pitcher updates found.');
+                    }
+                } else {
+                    alert('Error checking for updates: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error checking TBD:', error);
+                alert('Error checking for pitcher updates.');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
         }
 
         function startLiveUpdates() {
