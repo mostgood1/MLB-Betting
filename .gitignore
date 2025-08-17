@@ -11,7 +11,10 @@ historical_predictions_cache.json.bak_*
 
 # Log files
 *.log
-*.txt
+*_report_*.txt
+*_validation_*.txt
+backfill_*.txt
+*_analysis_*.txt
 
 # Python cache
 __pycache__/
