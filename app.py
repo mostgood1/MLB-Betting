@@ -50,6 +50,25 @@ def get_team_assets():
         logger.error(f"Error loading team assets: {e}")
         return None
 
+def get_live_status_for_game(away_team, home_team, date=None):
+    """Get live status for a specific game using real MLB data"""
+    try:
+        # Import live MLB data functions
+        live_status_path = 'MLB-Betting/live_mlb_data.py'
+        if os.path.exists(live_status_path):
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("live_mlb_data", live_status_path)
+            live_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(live_module)
+            
+            # Call the actual get_live_game_status function
+            live_status = live_module.get_live_game_status(away_team, home_team, date)
+            return live_status
+        return None
+    except Exception as e:
+        logger.error(f"Error getting live status for {away_team} @ {home_team}: {e}")
+        return None
+
 def calculate_expected_value(win_probability, american_odds):
     """Calculate Expected Value for a bet"""
     try:
@@ -120,8 +139,24 @@ def index():
                     
                     game['betting_recommendations'] = {'value_bets': value_bets}
                 
-                # Add basic live status if missing
-                if 'live_status' not in game:
+                # Get real live status for each game
+                away_team = game.get('away_team', '')
+                home_team = game.get('home_team', '')
+                
+                if away_team and home_team:
+                    live_status = get_live_status_for_game(away_team, home_team, today_str)
+                    if live_status:
+                        game['live_status'] = live_status
+                    else:
+                        # Fallback to basic status
+                        game['live_status'] = {
+                            'status': 'Scheduled',
+                            'is_live': False,
+                            'is_final': False,
+                            'away_score': 0,
+                            'home_score': 0
+                        }
+                else:
                     game['live_status'] = {
                         'status': 'Scheduled',
                         'is_live': False,
@@ -156,7 +191,7 @@ def api_today_games():
         if cache_data and 'games' in cache_data:
             games = cache_data['games'].get(date_param, [])
             
-            # Add EV calculations to each game
+            # Add EV calculations and live status to each game
             for game in games:
                 if 'betting_recommendations' not in game:
                     predictions = game.get('predictions', {})
@@ -171,6 +206,15 @@ def api_today_games():
                     }]
                     
                     game['betting_recommendations'] = {'value_bets': value_bets}
+                
+                # Add real live status
+                away_team = game.get('away_team', '')
+                home_team = game.get('home_team', '')
+                
+                if away_team and home_team:
+                    live_status = get_live_status_for_game(away_team, home_team, date_param)
+                    if live_status:
+                        game['live_status'] = live_status
         
         return jsonify({
             'games': games,
@@ -185,9 +229,9 @@ def api_today_games():
 
 @app.route('/api/live-status')
 def api_live_status():
-    """Live status API using real data"""
+    """Live status API using real MLB data"""
     try:
-        # Try to import and use real live status function
+        # Import live MLB data functions
         live_status_path = 'MLB-Betting/live_mlb_data.py'
         if os.path.exists(live_status_path):
             import importlib.util
@@ -195,23 +239,53 @@ def api_live_status():
             live_module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(live_module)
             
-            # Get live status for games (this would need team names)
+            # Get today's enhanced games data
+            live_mlb_instance = live_module.LiveMLBData()
+            enhanced_games = live_mlb_instance.get_enhanced_games_data()
+            
+            # Filter for live and final games
+            live_games = []
+            final_games = []
+            
+            for game in enhanced_games:
+                if game.get('is_live'):
+                    live_games.append({
+                        'away_team': game.get('away_team'),
+                        'home_team': game.get('home_team'),
+                        'away_score': game.get('away_score', 0),
+                        'home_score': game.get('home_score', 0),
+                        'status': game.get('status', 'Live'),
+                        'inning': game.get('inning_state', ''),
+                        'is_live': True
+                    })
+                elif game.get('is_final'):
+                    final_games.append({
+                        'away_team': game.get('away_team'),
+                        'home_team': game.get('home_team'),
+                        'away_score': game.get('away_score', 0),
+                        'home_score': game.get('home_score', 0),
+                        'status': 'Final',
+                        'is_final': True
+                    })
+            
             return jsonify({
-                'live_games': [],
-                'total_live': 0,
-                'message': 'Live status module loaded',
+                'live_games': live_games,
+                'final_games': final_games,
+                'total_live': len(live_games),
+                'total_final': len(final_games),
                 'last_updated': datetime.now().isoformat()
             })
         else:
             return jsonify({
                 'live_games': [],
                 'total_live': 0,
-                'message': 'Live status not available',
+                'message': 'Live status module not found',
                 'last_updated': datetime.now().isoformat()
             })
     
     except Exception as e:
-        return jsonify({'error': str(e), 'live_games': []})
+        logger.error(f"Error in live status API: {e}")
+        return jsonify({'error': str(e), 'live_games': [], 'total_live': 0})
 
 @app.route('/health')
 def health():
