@@ -3151,6 +3151,31 @@ def health_check():
         'version': '1.0.0'
     })
 
+@app.route('/debug-files')
+def debug_files():
+    """Debug route to check what files are available on Render"""
+    import os
+    today = datetime.now().strftime('%Y_%m_%d')
+    
+    debug_info = {
+        'current_date': datetime.now().strftime('%Y-%m-%d'),
+        'app_directory': os.path.dirname(os.path.abspath(__file__)),
+        'data_directory_exists': os.path.exists('data'),
+        'today_recommendations_file': f'betting_recommendations_{today}.json',
+        'today_file_exists': os.path.exists(f'data/betting_recommendations_{today}.json'),
+        'unified_cache_exists': os.path.exists('data/unified_predictions_cache.json'),
+        'data_files': []
+    }
+    
+    if os.path.exists('data'):
+        try:
+            data_files = [f for f in os.listdir('data') if f.endswith('.json')]
+            debug_info['data_files'] = data_files[:20]  # First 20 files
+        except Exception as e:
+            debug_info['data_files_error'] = str(e)
+    
+    return jsonify(debug_info)
+
 @app.route('/api/error-details')
 def error_details():
     """Debugging endpoint to check system status"""
