@@ -26,12 +26,30 @@ def load_cache_data():
     """Load real predictions from cache"""
     try:
         cache_path = 'MLB-Betting/data/unified_predictions_cache.json'
+        logger.info(f"🔍 Looking for cache file at: {cache_path}")
+        logger.info(f"🔍 Current working directory: {os.getcwd()}")
+        
+        # Check if file exists
         if os.path.exists(cache_path):
+            logger.info(f"✅ Cache file found!")
             with open(cache_path, 'r') as f:
-                return json.load(f)
+                data = json.load(f)
+                logger.info(f"🎯 Cache loaded successfully. Top-level keys: {list(data.keys())}")
+                return data
+        else:
+            logger.error(f"❌ Cache file not found at {cache_path}")
+            # Try to list what files do exist
+            try:
+                if os.path.exists('MLB-Betting/data'):
+                    files = os.listdir('MLB-Betting/data')
+                    logger.info(f"📁 Files in MLB-Betting/data: {files}")
+                else:
+                    logger.error("❌ MLB-Betting/data directory doesn't exist")
+            except Exception as e:
+                logger.error(f"❌ Error listing directory: {e}")
         return None
     except Exception as e:
-        logger.error(f"Error loading cache: {e}")
+        logger.error(f"❌ Error loading cache: {e}")
         return None
 
 def get_team_assets():
@@ -89,13 +107,17 @@ def index():
         # Load real cache data
         cache_data = load_cache_data()
         today_str = datetime.now().strftime('%Y-%m-%d')
+        logger.info(f"🎯 Looking for games for date: {today_str}")
         
         games = []
         if cache_data:
+            logger.info(f"📊 Cache data loaded. Top-level keys: {list(cache_data.keys())}")
             # Check if data is in the new format: cache_data["2025-08-16"]["games"]
             if today_str in cache_data and 'games' in cache_data[today_str]:
+                logger.info(f"✅ Found new format data for {today_str}")
                 # New format: date -> games -> individual games
                 games_data = cache_data[today_str]['games']
+                logger.info(f"🎮 Number of games found: {len(games_data)}")
                 # Convert from object format to list format
                 for game_key, game_data in games_data.items():
                     game = {
@@ -108,9 +130,38 @@ def index():
                         'betting_recommendations': game_data.get('betting_recommendations', {'value_bets': []})
                     }
                     games.append(game)
+                logger.info(f"✅ Converted {len(games)} games to list format")
             elif 'games' in cache_data and today_str in cache_data['games']:
+                logger.info(f"✅ Found old format data for {today_str}")
                 # Old format: games -> date -> list of games
                 games = cache_data['games'][today_str]
+                logger.info(f"🎮 Number of games found: {len(games)}")
+            else:
+                logger.warning(f"❌ No games found for {today_str} in either format")
+                logger.info(f"🔍 Available dates in cache: {list(cache_data.keys()) if cache_data else 'None'}")
+                
+                # Try yesterday as fallback
+                yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+                logger.info(f"🔄 Trying fallback to yesterday: {yesterday}")
+                
+                if yesterday in cache_data and 'games' in cache_data[yesterday]:
+                    logger.info(f"✅ Found fallback data for {yesterday}")
+                    games_data = cache_data[yesterday]['games']
+                    logger.info(f"🎮 Number of fallback games found: {len(games_data)}")
+                    for game_key, game_data in games_data.items():
+                        game = {
+                            'game_id': game_key,
+                            'away_team': game_data.get('away_team', ''),
+                            'home_team': game_data.get('home_team', ''),
+                            'game_time': game_data.get('game_time', 'TBD'),
+                            'date': game_data.get('game_date', yesterday),
+                            'predictions': game_data.get('predictions', {}),
+                            'betting_recommendations': game_data.get('betting_recommendations', {'value_bets': []})
+                        }
+                        games.append(game)
+                    logger.info(f"✅ Using {len(games)} games from {yesterday} as fallback")
+        else:
+            logger.error("❌ No cache data loaded!")
             
             # Add betting recommendations with EV calculations for games that need them
             for game in games:
