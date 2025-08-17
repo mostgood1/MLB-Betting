@@ -86,70 +86,44 @@ def calculate_expected_value(win_probability, american_odds):
         return 0
 
 def get_todays_games_direct():
-    """Get today's games directly from MLB API with predictions"""
+    """Get today's games from data files (Render-compatible)"""
     try:
-        # Import live MLB data functions
-        live_status_path = 'MLB-Betting/live_mlb_data.py'
-        if os.path.exists(live_status_path):
-            import importlib.util
-            spec = importlib.util.spec_from_file_location("live_mlb_data", live_status_path)
-            live_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(live_module)
-            
-            # Get actual games from MLB API
-            actual_games = live_module.live_mlb_data.get_enhanced_games_data()
-            
-            # Convert to our format with predictions
-            todays_games = []
-            for game in actual_games:
-                # Generate realistic predictions based on game data
-                import hashlib
-                game_hash = hashlib.md5(f"{game['away_team']}{game['home_team']}".encode()).hexdigest()
-                hash_int = int(game_hash[:8], 16)
-                
-                # Generate win probabilities (40-60% range for realism)
-                away_prob = 0.4 + (hash_int % 21) / 100  # 0.40 to 0.60
-                home_prob = 1.0 - away_prob
-                
-                # Generate predicted scores (2-9 runs typical)
-                away_score = 2 + (hash_int % 8)
-                home_score = 2 + ((hash_int // 10) % 8)
-                total_runs = away_score + home_score
-                
-                game_data = {
-                    'game_id': f"{game['away_team']} @ {game['home_team']}",
-                    'away_team': game['away_team'],
-                    'home_team': game['home_team'],
-                    'game_time': game.get('game_time', 'TBD'),
-                    'date': datetime.now().strftime('%Y-%m-%d'),
-                    'predictions': {
-                        'home_win_prob': round(home_prob, 3),
-                        'away_win_prob': round(away_prob, 3),
-                        'predicted_home_score': float(home_score),
-                        'predicted_away_score': float(away_score),
-                        'predicted_total_runs': float(total_runs)
-                    },
-                    'betting_recommendations': {'value_bets': []},
-                    # Include live status directly
-                    'status': game.get('status', 'Scheduled'),
-                    'away_score': game.get('away_score'),
-                    'home_score': game.get('home_score'),
-                    'is_live': game.get('is_live', False),
-                    'is_final': game.get('is_final', False),
-                    'inning': game.get('inning'),
-                    'inning_state': game.get('inning_state')
-                }
-                
-                todays_games.append(game_data)
-            
-            logger.info(f"✅ Loaded {len(todays_games)} real MLB games from API")
-            return todays_games
+        today = datetime.now().strftime('%Y_%m_%d')
+        
+        # Try to load from MLB-Betting data directory first
+        data_file_path = f'MLB-Betting/data/betting_recommendations_{today}.json'
+        if os.path.exists(data_file_path):
+            with open(data_file_path, 'r') as f:
+                data = json.load(f)
+                if 'games' in data and data['games']:
+                    logger.info(f"✅ Loaded {len(data['games'])} games from {data_file_path}")
+                    return data['games']
+        
+        # Fallback: try the exact filename from debug info
+        today_alt = datetime.now().strftime('%Y-%m-%d')
+        alt_file_path = f'MLB-Betting/data/betting_recommendations_{today_alt}.json'
+        if os.path.exists(alt_file_path):
+            with open(alt_file_path, 'r') as f:
+                data = json.load(f)
+                if 'games' in data and data['games']:
+                    logger.info(f"✅ Loaded {len(data['games'])} games from {alt_file_path}")
+                    return data['games']
+        
+        # Try direct data loading from root directory (fallback)
+        root_file_path = f'betting_recommendations_{today_alt}.json'
+        if os.path.exists(root_file_path):
+            with open(root_file_path, 'r') as f:
+                data = json.load(f)
+                if 'games' in data and data['games']:
+                    logger.info(f"✅ Loaded {len(data['games'])} games from root {root_file_path}")
+                    return data['games']
+        
+        logger.warning(f"No games file found for today ({today} or {today_alt})")
+        return []
             
     except Exception as e:
-        logger.error(f"Error loading real games: {e}")
-    
-    # Fallback: return empty list if API fails
-    return []
+        logger.error(f"Error loading games data: {e}")
+        return []
 
 @app.route('/')
 def index():
