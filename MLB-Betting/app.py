@@ -22,30 +22,46 @@ import subprocess
 from collections import defaultdict, Counter
 
 # Try to import optional modules with fallbacks for Render deployment
-try:
-    from engines.ultra_fast_engine import UltraFastSimEngine
-    ULTRA_FAST_ENGINE_AVAILABLE = True
-except ImportError as e:
-    logging.warning(f"Ultra fast engine not available: {e}")
+# For Render deployment, disable problematic modules temporarily
+RENDER_DEPLOYMENT = os.environ.get('RENDER') is not None
+
+if not RENDER_DEPLOYMENT:
+    try:
+        from engines.ultra_fast_engine import UltraFastSimEngine
+        ULTRA_FAST_ENGINE_AVAILABLE = True
+        
+        # Only import admin_tuning if the engine is available
+        try:
+            from admin_tuning import admin_bp
+            ADMIN_TUNING_AVAILABLE = True
+        except ImportError as e:
+            logging.warning(f"Admin tuning not available: {e}")
+            ADMIN_TUNING_AVAILABLE = False
+            admin_bp = None
+            
+    except ImportError as e:
+        logging.warning(f"Ultra fast engine not available: {e}")
+        ULTRA_FAST_ENGINE_AVAILABLE = False
+        ADMIN_TUNING_AVAILABLE = False
+        admin_bp = None
+else:
+    # On Render, disable advanced features temporarily
+    logging.info("🌐 Render deployment detected - using minimal feature set")
     ULTRA_FAST_ENGINE_AVAILABLE = False
-
-import schedule
-
-# Optional admin module
-try:
-    from admin_tuning import admin_bp
-    ADMIN_TUNING_AVAILABLE = True
-except ImportError as e:
-    logging.warning(f"Admin tuning not available: {e}")
     ADMIN_TUNING_AVAILABLE = False
     admin_bp = None
 
+import schedule
+
 # Optional auto tuning module  
-try:
-    from continuous_auto_tuning import ContinuousAutoTuner
-    AUTO_TUNING_AVAILABLE = True
-except ImportError as e:
-    logging.warning(f"Auto tuning not available: {e}")
+if not RENDER_DEPLOYMENT:
+    try:
+        from continuous_auto_tuning import ContinuousAutoTuner
+        AUTO_TUNING_AVAILABLE = True
+    except ImportError as e:
+        logging.warning(f"Auto tuning not available: {e}")
+        AUTO_TUNING_AVAILABLE = False
+else:
     AUTO_TUNING_AVAILABLE = False
 
 # Import team assets for colors and logos
