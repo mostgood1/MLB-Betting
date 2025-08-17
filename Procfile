@@ -1,1 +1,1 @@
-web: cd MLB-Betting && python app.py
+web: cd MLB-Betting && python render_app.py
