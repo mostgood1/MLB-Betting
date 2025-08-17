@@ -101,48 +101,290 @@ def index():
         
         html_template = """
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
         <head>
-            <title>MLB Betting Analysis</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>MLB-Betting Prediction System</title>
             <style>
-                body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-                .container { max-width: 1200px; margin: 0 auto; }
-                .header { text-align: center; margin-bottom: 30px; }
-                .game-card { background: white; margin: 15px 0; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-                .teams { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
-                .pitchers { color: #666; margin-bottom: 10px; }
-                .probabilities { display: flex; justify-content: space-between; margin-bottom: 10px; }
-                .prob { padding: 5px 10px; border-radius: 4px; }
-                .away-prob { background: #e3f2fd; }
-                .home-prob { background: #f3e5f5; }
-                .total-runs { color: #333; }
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+                    color: white;
+                    min-height: 100vh;
+                }
+
+                .container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    padding: 20px;
+                }
+
+                .header {
+                    text-align: center;
+                    margin-bottom: 30px;
+                }
+
+                .header h1 {
+                    font-size: 3rem;
+                    margin-bottom: 10px;
+                    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                }
+
+                .header p {
+                    font-size: 1.2rem;
+                    opacity: 0.9;
+                }
+
+                .stats-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 20px;
+                    margin-bottom: 30px;
+                }
+
+                .stat-card {
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 15px;
+                    padding: 20px;
+                    text-align: center;
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    transition: all 0.3s ease;
+                }
+
+                .stat-card:hover {
+                    transform: translateY(-5px);
+                    background: rgba(255, 255, 255, 0.15);
+                    border-color: #4fd1c7;
+                    box-shadow: 0 10px 25px rgba(79, 209, 199, 0.3);
+                }
+
+                .stat-card h3 {
+                    font-size: 2rem;
+                    margin-bottom: 5px;
+                    color: #4fd1c7;
+                }
+
+                .stat-card p {
+                    opacity: 0.8;
+                }
+
+                .games-section {
+                    margin-top: 30px;
+                }
+
+                .games-header {
+                    text-align: center;
+                    margin-bottom: 30px;
+                }
+
+                .games-header h2 {
+                    font-size: 2.5rem;
+                    margin-bottom: 10px;
+                    color: #4fd1c7;
+                }
+
+                .game-card {
+                    background: rgba(255, 255, 255, 0.1);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    margin: 20px 0;
+                    padding: 25px;
+                    border-radius: 15px;
+                    transition: all 0.3s ease;
+                }
+
+                .game-card:hover {
+                    transform: translateY(-3px);
+                    background: rgba(255, 255, 255, 0.15);
+                    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+                }
+
+                .matchup {
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+
+                .teams {
+                    font-size: 1.8rem;
+                    font-weight: bold;
+                    margin-bottom: 8px;
+                    color: #ffffff;
+                }
+
+                .pitchers {
+                    color: #b8d4f0;
+                    font-size: 1.1rem;
+                    margin-bottom: 15px;
+                }
+
+                .game-details {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 20px;
+                    margin-top: 15px;
+                }
+
+                .probabilities {
+                    background: rgba(255, 255, 255, 0.05);
+                    border-radius: 10px;
+                    padding: 15px;
+                }
+
+                .probabilities h4 {
+                    color: #4fd1c7;
+                    margin-bottom: 10px;
+                    text-align: center;
+                }
+
+                .prob-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin: 8px 0;
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                    background: rgba(255, 255, 255, 0.05);
+                }
+
+                .team-name {
+                    font-weight: bold;
+                    color: #ffffff;
+                }
+
+                .prob-value {
+                    font-weight: bold;
+                    color: #4fd1c7;
+                    font-size: 1.1rem;
+                }
+
+                .predictions {
+                    background: rgba(255, 255, 255, 0.05);
+                    border-radius: 10px;
+                    padding: 15px;
+                }
+
+                .predictions h4 {
+                    color: #4fd1c7;
+                    margin-bottom: 10px;
+                    text-align: center;
+                }
+
+                .prediction-item {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin: 8px 0;
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                    background: rgba(255, 255, 255, 0.05);
+                }
+
+                .prediction-label {
+                    color: #b8d4f0;
+                }
+
+                .prediction-value {
+                    font-weight: bold;
+                    color: #ffffff;
+                }
+
+                .footer {
+                    text-align: center;
+                    margin-top: 40px;
+                    padding: 20px;
+                    border-top: 1px solid rgba(255, 255, 255, 0.1);
+                    opacity: 0.7;
+                }
+
+                @media (max-width: 768px) {
+                    .header h1 { font-size: 2rem; }
+                    .games-header h2 { font-size: 1.8rem; }
+                    .teams { font-size: 1.4rem; }
+                    .game-details { grid-template-columns: 1fr; }
+                    .container { padding: 15px; }
+                }
             </style>
         </head>
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>⚾ MLB Betting Analysis</h1>
-                    <h2>Today's Games - {{ today }}</h2>
-                    <p>{{ games|length }} games found</p>
+                    <h1>⚾ MLB Betting Prediction System</h1>
+                    <p>Professional Baseball Analytics & Predictions</p>
                 </div>
                 
-                {% for game in games %}
-                <div class="game-card">
-                    <div class="teams">{{ game.away_team }} @ {{ game.home_team }}</div>
-                    <div class="pitchers">Pitchers: {{ game.away_pitcher }} vs {{ game.home_pitcher }}</div>
-                    <div class="probabilities">
-                        <div class="prob away-prob">
-                            <strong>{{ game.away_team }}:</strong> {{ "%.1f"|format(game.win_probabilities.away_prob * 100) }}%
-                        </div>
-                        <div class="prob home-prob">
-                            <strong>{{ game.home_team }}:</strong> {{ "%.1f"|format(game.win_probabilities.home_prob * 100) }}%
-                        </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>{{ games|length }}</h3>
+                        <p>Games Today</p>
                     </div>
-                    <div class="total-runs">
-                        <strong>Total Runs:</strong> {{ game.predicted_total_runs }} projected
+                    <div class="stat-card">
+                        <h3>{{ today }}</h3>
+                        <p>Current Date</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Live</h3>
+                        <p>System Status</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Pro</h3>
+                        <p>Analytics Level</p>
                     </div>
                 </div>
-                {% endfor %}
+                
+                <div class="games-section">
+                    <div class="games-header">
+                        <h2>Today's Game Predictions</h2>
+                        <p>Advanced machine learning predictions with win probabilities</p>
+                    </div>
+                    
+                    {% for game in games %}
+                    <div class="game-card">
+                        <div class="matchup">
+                            <div class="teams">{{ game.away_team }} @ {{ game.home_team }}</div>
+                            <div class="pitchers">{{ game.away_pitcher }} vs {{ game.home_pitcher }}</div>
+                        </div>
+                        
+                        <div class="game-details">
+                            <div class="probabilities">
+                                <h4>Win Probabilities</h4>
+                                <div class="prob-row">
+                                    <span class="team-name">{{ game.away_team }}</span>
+                                    <span class="prob-value">{{ "%.1f"|format(game.win_probabilities.away_prob * 100) }}%</span>
+                                </div>
+                                <div class="prob-row">
+                                    <span class="team-name">{{ game.home_team }}</span>
+                                    <span class="prob-value">{{ "%.1f"|format(game.win_probabilities.home_prob * 100) }}%</span>
+                                </div>
+                            </div>
+                            
+                            <div class="predictions">
+                                <h4>Game Predictions</h4>
+                                <div class="prediction-item">
+                                    <span class="prediction-label">Total Runs</span>
+                                    <span class="prediction-value">{{ game.predicted_total_runs }}</span>
+                                </div>
+                                <div class="prediction-item">
+                                    <span class="prediction-label">Confidence</span>
+                                    <span class="prediction-value">High</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="footer">
+                    <p>MLB Betting Prediction System - Powered by Advanced Analytics</p>
+                    <p>Last Updated: {{ timestamp }}</p>
+                </div>
             </div>
         </body>
         </html>
@@ -150,7 +392,8 @@ def index():
         
         return render_template_string(html_template, 
                                     games=games, 
-                                    today=datetime.now().strftime('%B %d, %Y'))
+                                    today=datetime.now().strftime('%B %d, %Y'),
+                                    timestamp=datetime.now().strftime('%I:%M %p'))
         
     except Exception as e:
         logger.error(f"Error in index route: {e}")
@@ -180,12 +423,38 @@ def api_games():
             "timestamp": datetime.now().isoformat()
         })
 
+@app.route('/api/status')
+def api_status():
+    """Enhanced status endpoint with system info"""
+    try:
+        games = load_today_games_safe()
+        return jsonify({
+            "status": "healthy",
+            "system": "MLB Betting Prediction System",
+            "version": "Render-Optimized v1.0",
+            "games_today": len(games),
+            "environment": "cloud",
+            "features": [
+                "Real-time predictions",
+                "Win probability analysis", 
+                "Total runs forecasting",
+                "Professional UI"
+            ],
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        })
+
 @app.route('/health')
 def health():
-    """Health check endpoint"""
+    """Simple health check endpoint"""
     return jsonify({
         "status": "healthy",
-        "message": "Render MLB Betting App Running",
+        "message": "MLB Betting System Running",
         "timestamp": datetime.now().isoformat()
     })
 
