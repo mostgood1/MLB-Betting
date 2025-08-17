@@ -315,52 +315,55 @@ def index():
                 'perfect_games_pct': 42
             }
         }
-                if not game.get('betting_recommendations') or not game['betting_recommendations'].get('value_bets'):
-                    # Create basic betting recommendations from predictions
-                    predictions = game.get('predictions', {})
-                    away_win_prob = predictions.get('away_win_prob', 0.5)  # Note: different key name
-                    home_win_prob = predictions.get('home_win_prob', 0.5)  # Note: different key name
-                    
-                    value_bets = []
-                    
-                    # Moneyline recommendations
-                    if away_win_prob > 0.52:
-                        ev = calculate_expected_value(away_win_prob, -120)
-                        value_bets.append({
-                            'type': 'moneyline',
-                            'recommendation': f"{game.get('away_team', 'Away')} ML",
-                            'expected_value': ev,
-                            'win_probability': away_win_prob,
-                            'american_odds': -120
-                        })
-                    
-                    if home_win_prob > 0.52:
-                        ev = calculate_expected_value(home_win_prob, -115)
-                        value_bets.append({
-                            'type': 'moneyline',
-                            'recommendation': f"{game.get('home_team', 'Home')} ML",
-                            'expected_value': ev,
-                            'win_probability': home_win_prob,
-                            'american_odds': -115
-                        })
-                    
-                    # Total runs recommendations
-                    total_runs = predictions.get('predicted_total_runs', 8.5)
-                    if total_runs > 9.0:
-                        ev = calculate_expected_value(0.53, -110)
-                        value_bets.append({
-                            'type': 'total',
-                            'recommendation': f"Over {total_runs - 0.5}",
-                            'expected_value': ev,
-                            'win_probability': 0.53,
-                            'american_odds': -110
-                        })
-                    
-                    game['betting_recommendations'] = {'value_bets': value_bets}
+        
+        # Add betting recommendations with EV calculations for games that need them
+        for game in games:
+            if not game.get('betting_recommendations') or not game['betting_recommendations'].get('value_bets'):
+                # Create basic betting recommendations from predictions
+                predictions = game.get('predictions', {})
+                away_win_prob = predictions.get('away_win_prob', 0.5)  # Note: different key name
+                home_win_prob = predictions.get('home_win_prob', 0.5)  # Note: different key name
                 
-                # Get real live status for each game
-                away_team = game.get('away_team', '')
-                home_team = game.get('home_team', '')
+                value_bets = []
+                
+                # Moneyline recommendations
+                if away_win_prob > 0.52:
+                    ev = calculate_expected_value(away_win_prob, -120)
+                    value_bets.append({
+                        'type': 'moneyline',
+                        'recommendation': f"{game.get('away_team', 'Away')} ML",
+                        'expected_value': ev,
+                        'win_probability': away_win_prob,
+                        'american_odds': -120
+                    })
+                
+                if home_win_prob > 0.52:
+                    ev = calculate_expected_value(home_win_prob, -115)
+                    value_bets.append({
+                        'type': 'moneyline',
+                        'recommendation': f"{game.get('home_team', 'Home')} ML",
+                        'expected_value': ev,
+                        'win_probability': home_win_prob,
+                        'american_odds': -115
+                    })
+                
+                # Total runs recommendations
+                total_runs = predictions.get('predicted_total_runs', 8.5)
+                if total_runs > 9.0:
+                    ev = calculate_expected_value(0.53, -110)
+                    value_bets.append({
+                        'type': 'total',
+                        'recommendation': f"Over {total_runs - 0.5}",
+                        'expected_value': ev,
+                        'win_probability': 0.53,
+                        'american_odds': -110
+                    })
+                
+                game['betting_recommendations'] = {'value_bets': value_bets}
+            
+            # Get real live status for each game
+            away_team = game.get('away_team', '')
+            home_team = game.get('home_team', '')
                 
                 if away_team and home_team:
                     live_status = get_live_status_for_game(away_team, home_team, today_str)
