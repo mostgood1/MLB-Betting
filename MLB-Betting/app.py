@@ -325,16 +325,31 @@ def load_unified_cache():
 
     # Get the directory where app.py is located
     app_dir = os.path.dirname(os.path.abspath(__file__))
+    logger.info(f"🔍 App directory: {app_dir}")
+    
     # Try data directory first (the correct one)
     cache_path = os.path.join(app_dir, 'data', 'unified_predictions_cache.json')
+    logger.info(f"🔍 Trying cache path: {cache_path}")
+    logger.info(f"🔍 Cache file exists: {os.path.exists(cache_path)}")
+    
     if not os.path.exists(cache_path):
         # Fallback to relative path
         cache_path = 'data/unified_predictions_cache.json'
+        logger.info(f"🔍 Fallback cache path: {cache_path}")
+        logger.info(f"🔍 Fallback cache exists: {os.path.exists(cache_path)}")
     
     try:
         with open(cache_path, 'r') as f:
             data = json.load(f)
             logger.info(f"🔄 FRESH RELOAD: Loaded unified cache from {cache_path} with {len(data)} entries")
+            
+            # Log today's data availability
+            today = datetime.now().strftime('%Y-%m-%d')
+            predictions_by_date = data.get('predictions_by_date', {})
+            today_data = predictions_by_date.get(today, {})
+            games_count = len(today_data.get('games', {}))
+            logger.info(f"🎯 Today's games in cache: {games_count}")
+            
             # Cache the result
             _unified_cache = data
             _unified_cache_time = current_time
