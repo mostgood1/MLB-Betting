@@ -10,16 +10,36 @@ import sys
 from datetime import datetime, timedelta
 import logging
 
+# Configure logging first
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Add MLB-Betting directory to path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'MLB-Betting'))
 
-# Import admin tuning blueprint
+# Import admin tuning blueprint - disabled for Render deployment
 try:
-    from admin_tuning import admin_bp
-    admin_available = True
-except ImportError:
+    # Check if we're on Render
+    is_render = (
+        os.environ.get('RENDER') is not None or 
+        os.environ.get('RENDER_SERVICE_ID') is not None or
+        '/opt/render' in os.path.abspath(__file__)
+    )
+    
+    if is_render:
+        logger.info("🌐 Render deployment detected - skipping admin tuning")
+        admin_available = False
+        admin_bp = None
+    else:
+        from admin_tuning import admin_bp
+        admin_available = True
+        logger.info("✅ Admin tuning module loaded successfully")
+except ImportError as e:
     admin_available = False
-    logging.warning("Admin tuning module not available")
+    logger.warning(f"⚠️ Admin tuning module not available: {e}")
+except Exception as e:
+    admin_available = False
+    logger.error(f"❌ Error loading admin tuning module: {e}")
 
 # Create Flask app with proper template and static paths
 app = Flask(__name__, 
@@ -29,10 +49,9 @@ app = Flask(__name__,
 # Register admin blueprint if available
 if admin_available:
     app.register_blueprint(admin_bp)
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+    logger.info("✅ Admin blueprint registered")
+else:
+    logger.info("ℹ️ Running without admin features")
 
 def get_live_status_for_game(away_team, home_team, date=None):
     """Get live status for a specific game using real MLB data"""
@@ -216,10 +235,10 @@ def index():
                         game['inning'] = live_status.get('inning')
                         game['inning_state'] = live_status.get('inning_state')
             
-            # Ensure fallback values exist
-            if not game.get('away_score'):
+            # Ensure fallback values exist only if they're truly missing
+            if game.get('away_score') is None:
                 game['away_score'] = 0
-            if not game.get('home_score'):
+            if game.get('home_score') is None:
                 game['home_score'] = 0
             if not game.get('status'):
                 game['status'] = 'Scheduled'
@@ -288,6 +307,7 @@ def api_today_games():
                     game['inning_state'] = live_status.get('inning_state')
         
         return jsonify({
+            'success': True,
             'games': games,
             'date': datetime.now().strftime('%Y-%m-%d'),
             'total_games': len(games),
@@ -296,7 +316,7 @@ def api_today_games():
     
     except Exception as e:
         logger.error(f"Error in API: {e}")
-        return jsonify({'error': str(e), 'games': []})
+        return jsonify({'success': False, 'error': str(e), 'games': []})
 
 @app.route('/health')
 def health():
