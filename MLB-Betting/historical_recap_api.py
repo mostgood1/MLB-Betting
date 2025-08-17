@@ -47,9 +47,9 @@ def add_historical_recap_endpoints(app: Flask, prediction_engine=None):
             script_dir = os.path.dirname(os.path.abspath(__file__))
             print(f"Script directory: {script_dir}")
             
-            game_scores_path = os.path.join(script_dir, '..', 'game_scores_cache.json')
+            game_scores_path = os.path.join(script_dir, 'data', 'game_scores_cache.json')
             daily_predictions_path = os.path.join(script_dir, 'data', 'daily_predictions_cache.json')
-            historical_predictions_path = os.path.join(script_dir, '..', 'historical_predictions_cache.json')
+            historical_predictions_path = os.path.join(script_dir, 'data', 'historical_predictions_cache.json')
             
             print(f"Game scores path: {game_scores_path} (exists: {os.path.exists(game_scores_path)})")
             print(f"Daily predictions path: {daily_predictions_path} (exists: {os.path.exists(daily_predictions_path)})")
@@ -67,7 +67,7 @@ def add_historical_recap_endpoints(app: Flask, prediction_engine=None):
             
             # Load predictions - prioritize unified cache
             game_predictions = {}
-            unified_predictions_path = os.path.join(script_dir, '..', 'unified_predictions_cache.json')
+            unified_predictions_path = os.path.join(script_dir, 'data', 'unified_predictions_cache.json')
             
             # Try unified cache first
             if os.path.exists(unified_predictions_path):

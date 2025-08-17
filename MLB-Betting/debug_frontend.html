@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .game-card { border: 1px solid #333; margin: 10px 0; padding: 15px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Frontend Debug Page</h1>
+    
+    <div class="debug-section">
+        <h2>API Response Test</h2>
+        <div id="api-test"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Game Cards Test</h2>
+        <div id="games-container"></div>
+    </div>
+    
+    <script>
+        async function testAPI() {
+            try {
+                const response = await fetch('/api/today-games');
+                const data = await response.json();
+                
+                console.log('Full API Response:', data);
+                
+                document.getElementById('api-test').innerHTML = `
+                    <div class="success">✅ API Response Success</div>
+                    <p><strong>Games Count:</strong> ${data.games.length}</p>
+                    <p><strong>First Game:</strong></p>
+                    <pre>${JSON.stringify(data.games[0], null, 2)}</pre>
+                `;
+                
+                // Test creating game cards
+                const container = document.getElementById('games-container');
+                data.games.slice(0, 3).forEach((game, index) => {
+                    const card = createTestGameCard(game, index);
+                    container.appendChild(card);
+                });
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                document.getElementById('api-test').innerHTML = `
+                    <div class="error">❌ API Error: ${error.message}</div>
+                `;
+            }
+        }
+        
+        function createTestGameCard(game, index) {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            
+            // Test prediction data extraction
+            const predictedAwayScore = game.predicted_away_score || 0;
+            const predictedHomeScore = game.predicted_home_score || 0;
+            const awayWinProb = game.away_win_probability || 0;
+            const homeWinProb = game.home_win_probability || 0;
+            
+            card.innerHTML = `
+                <h3>Game ${index + 1}: ${game.away_team} @ ${game.home_team}</h3>
+                <p><strong>Pitchers:</strong> ${game.away_pitcher || 'TBD'} vs ${game.home_pitcher || 'TBD'}</p>
+                <p><strong>Predicted Scores:</strong> ${predictedAwayScore} - ${predictedHomeScore}</p>
+                <p><strong>Win Probabilities:</strong> Away ${awayWinProb}% - Home ${homeWinProb}%</p>
+                <p><strong>Betting Recommendations:</strong> ${game.betting_recommendations || 'None'}</p>
+                <p><strong>Data Check:</strong> 
+                    Scores: ${predictedAwayScore > 0 ? '✅' : '❌'} | 
+                    Probabilities: ${awayWinProb > 0 ? '✅' : '❌'} | 
+                    Pitchers: ${game.away_pitcher !== 'TBD' ? '✅' : '❌'}
+                </p>
+            `;
+            
+            return card;
+        }
+        
+        // Run test when page loads
+        testAPI();
+    </script>
+</body>
+</html>

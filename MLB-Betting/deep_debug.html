@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend Deep Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .error { color: red; }
+        .success { color: green; }
+        .warning { color: orange; }
+        pre { background: #f5f5f5; padding: 10px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>Frontend Deep Debug</h1>
+    
+    <div class="debug-section">
+        <h2>1. API Raw Response</h2>
+        <div id="raw-response"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>2. Game Card Creation Test</h2>
+        <div id="card-test"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>3. Prediction Summary Test</h2>
+        <div id="prediction-test"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>4. Betting Recommendations Test</h2>
+        <div id="betting-test"></div>
+    </div>
+    
+    <script>
+        async function runDeepDebug() {
+            try {
+                // 1. Test API Response
+                console.log('=== DEEP DEBUG START ===');
+                const response = await fetch('/api/today-games');
+                const data = await response.json();
+                
+                document.getElementById('raw-response').innerHTML = `
+                    <div class="success">✅ API Response Received</div>
+                    <p><strong>Success:</strong> ${data.success}</p>
+                    <p><strong>Games Count:</strong> ${data.games.length}</p>
+                    <h4>First Game Raw Data:</h4>
+                    <pre>${JSON.stringify(data.games[0], null, 2)}</pre>
+                `;
+                
+                const firstGame = data.games[0];
+                
+                // 2. Test prediction data extraction
+                const predictedAwayScore = firstGame.predicted_away_score || 0;
+                const predictedHomeScore = firstGame.predicted_home_score || 0;
+                const awayWinProb = firstGame.away_win_probability || 0;
+                const homeWinProb = firstGame.home_win_probability || 0;
+                
+                document.getElementById('prediction-test').innerHTML = `
+                    <h4>Prediction Data Extraction:</h4>
+                    <p><strong>Away Score:</strong> ${predictedAwayScore} (${typeof predictedAwayScore})</p>
+                    <p><strong>Home Score:</strong> ${predictedHomeScore} (${typeof predictedHomeScore})</p>
+                    <p><strong>Away Win Prob:</strong> ${awayWinProb}% (${typeof awayWinProb})</p>
+                    <p><strong>Home Win Prob:</strong> ${homeWinProb}% (${typeof homeWinProb})</p>
+                    <p><strong>Data Valid:</strong> ${predictedAwayScore > 0 && predictedHomeScore > 0 ? '✅' : '❌'}</p>
+                `;
+                
+                // 3. Test betting recommendations
+                const bettingRecs = firstGame.betting_recommendations;
+                document.getElementById('betting-test').innerHTML = `
+                    <h4>Betting Recommendations:</h4>
+                    <p><strong>Exists:</strong> ${bettingRecs ? '✅' : '❌'}</p>
+                    <p><strong>Type:</strong> ${typeof bettingRecs}</p>
+                    <pre>${JSON.stringify(bettingRecs, null, 2)}</pre>
+                `;
+                
+                // 4. Test createPredictionSummaryHtml function
+                console.log('Testing createPredictionSummaryHtml with game:', firstGame);
+                const predictionHtml = createPredictionSummaryHtml(firstGame);
+                
+                document.getElementById('card-test').innerHTML = `
+                    <h4>Prediction Summary HTML:</h4>
+                    <div style="border: 1px solid #333; padding: 10px; background: #f9f9f9;">
+                        ${predictionHtml}
+                    </div>
+                    <h4>HTML Source:</h4>
+                    <pre>${predictionHtml}</pre>
+                `;
+                
+                console.log('Generated prediction HTML:', predictionHtml);
+                
+            } catch (error) {
+                console.error('Deep Debug Error:', error);
+                document.getElementById('raw-response').innerHTML = `
+                    <div class="error">❌ Error: ${error.message}</div>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        }
+        
+        // Copy the createPredictionSummaryHtml function from main page
+        function createPredictionSummaryHtml(game) {
+            // Use prediction data directly from the game object
+            const predictedAwayScore = game.predicted_away_score || 0;
+            const predictedHomeScore = game.predicted_home_score || 0;
+            const awayWinProb = game.away_win_probability || 0;
+            const homeWinProb = game.home_win_probability || 0;
+            const predictedWinner = game.predicted_winner || '';
+            
+            console.log('Creating prediction summary for:', game.away_team, '@', game.home_team);
+            console.log('Prediction data:', { predictedAwayScore, predictedHomeScore, awayWinProb, homeWinProb });
+            
+            // If no prediction data, show placeholder
+            if (!predictedAwayScore && !predictedHomeScore) {
+                console.log('No prediction data found, showing placeholder');
+                return `
+                    <div class="prediction-item">
+                        <div class="value">--</div>
+                        <div class="label">No Prediction</div>
+                    </div>
+                `;
+            }
+            
+            console.log('Creating prediction summary with data');
+            return `
+                <div class="prediction-item">
+                    <div class="value">${predictedAwayScore}</div>
+                    <div class="label">${game.away_team.split(' ').pop()}</div>
+                </div>
+                <div class="prediction-item">
+                    <div class="value">${predictedHomeScore}</div>
+                    <div class="label">${game.home_team.split(' ').pop()}</div>
+                </div>
+                <div class="prediction-item">
+                    <div class="value">${homeWinProb.toFixed(0)}%</div>
+                    <div class="label">Home Win</div>
+                </div>
+            `;
+        }
+        
+        // Run debug when page loads
+        runDeepDebug();
+    </script>
+</body>
+</html>

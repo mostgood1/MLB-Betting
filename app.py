@@ -332,6 +332,68 @@ def index():
             "timestamp": datetime.now().isoformat()
         })
 
+@app.route('/debug/cache-info')
+def debug_cache_info():
+    """Debug endpoint to check cache file details"""
+    try:
+        import hashlib
+        import os
+        
+        cache_path = 'MLB-Betting/data/unified_predictions_cache.json'
+        info = {
+            "cache_file_path": cache_path,
+            "file_exists": os.path.exists(cache_path),
+            "current_time": datetime.now().isoformat(),
+            "looking_for_date": datetime.now().strftime('%Y-%m-%d')
+        }
+        
+        if os.path.exists(cache_path):
+            # Get file stats
+            stat = os.stat(cache_path)
+            info["file_size"] = stat.st_size
+            info["file_modified"] = datetime.fromtimestamp(stat.st_mtime).isoformat()
+            
+            # Get file hash
+            with open(cache_path, 'rb') as f:
+                file_hash = hashlib.md5(f.read()).hexdigest()
+            info["file_md5"] = file_hash.upper()
+            
+            # Try to load and check structure
+            try:
+                with open(cache_path, 'r') as f:
+                    cache_data = json.load(f)
+                
+                info["json_loaded"] = True
+                info["top_level_keys"] = list(cache_data.keys())
+                
+                # Check for our target date
+                target_date = datetime.now().strftime('%Y-%m-%d')
+                info["target_date_found"] = target_date in cache_data
+                
+                # Check all possible locations for 2025-08-16
+                locations_found = {}
+                test_date = "2025-08-16"
+                
+                if test_date in cache_data:
+                    locations_found["direct_key"] = True
+                    if isinstance(cache_data[test_date], dict) and 'games' in cache_data[test_date]:
+                        locations_found["direct_key_games"] = len(cache_data[test_date]['games'])
+                
+                if 'predictions_by_date' in cache_data and test_date in cache_data['predictions_by_date']:
+                    locations_found["predictions_by_date"] = True
+                
+                if 'games' in cache_data and test_date in cache_data['games']:
+                    locations_found["games_structure"] = True
+                
+                info["august_16_locations"] = locations_found
+                
+            except Exception as e:
+                info["json_error"] = str(e)
+        
+        return jsonify(info)
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
 @app.route('/debug/cache')
 def debug_cache():
     """Debug endpoint to see what's in the cache"""

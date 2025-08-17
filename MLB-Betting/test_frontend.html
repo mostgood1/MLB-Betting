@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend Test</title>
+</head>
+<body>
+    <div id="test-result"></div>
+    
+    <script>
+        // Test the API endpoint
+        fetch('/api/today-games')
+            .then(response => response.json())
+            .then(data => {
+                console.log('API Response:', data);
+                const firstGame = data.games[0];
+                document.getElementById('test-result').innerHTML = `
+                    <h3>API Test Results:</h3>
+                    <p><strong>Game:</strong> ${firstGame.away_team} @ ${firstGame.home_team}</p>
+                    <p><strong>Predicted Scores:</strong> ${firstGame.predicted_away_score} - ${firstGame.predicted_home_score}</p>
+                    <p><strong>Win Probabilities:</strong> Away ${firstGame.away_win_probability}% - Home ${firstGame.home_win_probability}%</p>
+                    <p><strong>Predicted Winner:</strong> ${firstGame.predicted_winner}</p>
+                `;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('test-result').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            });
+    </script>
+</body>
+</html>

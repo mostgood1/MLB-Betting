@@ -474,7 +474,7 @@ class MLBClosingLinesManager:
 
 if __name__ == "__main__":
     # Initialize the manager
-    data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
+    data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
     manager = MLBClosingLinesManager(data_dir)
     
     print("🎯 MLB Closing Lines Manager")

@@ -178,67 +178,36 @@ class DailyNewDayAutomation:
             logger.error(f"❌ STEP 4 FAILED: Error updating betting lines: {e}")
             return False
     
-    def step5_run_5000_simulations(self) -> bool:
-        """Step 5: Run 5000 simulations for each game using batch simulator"""
+    def step5_run_simulations(self) -> bool:
+        """Step 5: Run simulations for each game using the new ultra-fast engine runner."""
         try:
-            logger.info("🎰 STEP 5: Running 5000 simulations for each game")
+            logger.info("🎰 STEP 5: Running simulations using Ultra-Fast Engine")
             
-            # Use the existing batch simulation system
-            batch_sim_script = self.root_dir / "MLBBatchSim" / "MLBBatchSimWebInterface.py"
-            if not batch_sim_script.exists():
-                logger.warning("Batch simulator not found, running enhanced automation instead")
-                return self._run_enhanced_automation()
+            # Path to the new simulation runner script
+            sim_runner_script = self.root_dir / "run_ultrafast_simulations.py"
             
-            # Run batch simulations for today with 5000 simulations
-            try:
-                logger.info(f"   Running batch simulations for {self.today_str}")
-                
-                # Change to batch sim directory and run simulations
-                original_cwd = os.getcwd()
-                os.chdir(self.root_dir / "MLBBatchSim")
-                
-                # Import and run batch simulation
-                sys.path.append(str(self.root_dir / "MLBBatchSim"))
-                from MLBBatchSimWebInterface import batch_simulate
-                
-                # Run 5000 simulations for today
-                results = batch_simulate(self.today_str, 5000)
-                
-                os.chdir(original_cwd)
-                
-                if results:
-                    logger.info("✅ Batch simulations completed successfully")
-                    
-                    # Update predictions cache with simulation results
-                    predictions_cache = self._load_predictions_cache()
-                    if self.today_str not in predictions_cache:
-                        predictions_cache[self.today_str] = []
-                    
-                    # Convert batch results to prediction format
-                    for game_key, game_results in results.items():
-                        if isinstance(game_results, dict) and 'predictions' in game_results:
-                            enhanced_prediction = {
-                                'game_id': game_key,
-                                'date': self.today_str,
-                                'simulation_count': 5000,
-                                'locked_at': datetime.now().isoformat(),
-                                **game_results['predictions']
-                            }
-                            predictions_cache[self.today_str].append(enhanced_prediction)
-                    
-                    self._save_predictions_cache(predictions_cache)
-                    return True
-                else:
-                    logger.warning("Batch simulation returned no results")
-                    return self._run_enhanced_automation()
-                    
-            except Exception as e:
-                logger.error(f"Batch simulation failed: {e}")
-                os.chdir(original_cwd)
-                return self._run_enhanced_automation()
+            if not sim_runner_script.exists():
+                logger.error(f"❌ Simulation runner script not found at {sim_runner_script}")
+                return False
+
+            # Execute the new simulation runner for today's date
+            result = subprocess.run(
+                [sys.executable, str(sim_runner_script), self.today_str],
+                capture_output=True, text=True, timeout=600, check=True, encoding='utf-8'
+            )
             
+            logger.info("✅ Simulations completed successfully.")
+            logger.info(f"   Output: {result.stdout}")
+            
+            return True
+            
+        except subprocess.CalledProcessError as e:
+            logger.error(f"❌ STEP 5 FAILED: Simulation runner script failed with return code {e.returncode}")
+            logger.error(f"   Stderr: {e.stderr}")
+            logger.error(f"   Stdout: {e.stdout}")
+            return False
         except Exception as e:
-            logger.error(f"❌ STEP 5 FAILED: Error running simulations: {e}")
+            logger.error(f"❌ STEP 5 FAILED: An unexpected error occurred: {e}")
             return False
     
     def _run_enhanced_automation(self) -> bool:
@@ -263,7 +232,9 @@ class DailyNewDayAutomation:
             
             # Load predictions for today
             predictions_cache = self._load_predictions_cache()
-            todays_predictions = predictions_cache.get(self.today_str, [])
+            predictions_by_date = predictions_cache.get('predictions_by_date', {})
+            todays_data = predictions_by_date.get(self.today_str, {})
+            todays_predictions = todays_data.get('games', {})
             
             if not todays_predictions:
                 logger.warning("No predictions found for betting analysis")
@@ -323,7 +294,7 @@ class DailyNewDayAutomation:
             ("2. Fetch Projected Starters", self.step2_fetch_projected_starters),
             ("3. Update Pitcher & Team Stats", self.step3_update_pitcher_and_team_stats),
             ("4. Update Betting Lines", self.step4_update_betting_lines),
-            ("5. Run 5000 Simulations", self.step5_run_5000_simulations),
+            ("5. Run Simulations", self.step5_run_simulations),
             ("6. Generate Betting Recommendations", self.step6_generate_betting_recommendations),
             ("7. Update Frontend", self.step7_update_frontend)
         ]

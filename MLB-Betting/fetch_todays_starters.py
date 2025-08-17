@@ -65,7 +65,7 @@ def fetch_todays_starting_pitchers():
         
         logger.info(f"✅ Found {len(games_with_pitchers)} games with pitcher assignments")
         
-        # Save the pitcher data
+        # Save the pitcher data to data directory
         pitcher_data = {
             'date': today,
             'fetched_at': datetime.now().isoformat(),
@@ -93,8 +93,8 @@ def update_predictions_with_real_pitchers(pitcher_data):
     logger.info("🔄 Updating predictions with real starting pitchers...")
     
     try:
-        # Load current predictions
-        with open('unified_predictions_cache.json', 'r') as f:
+        # Load current predictions from data directory
+        with open('data/unified_predictions_cache.json', 'r') as f:
             predictions_data = json.load(f)
         
         today = datetime.now().strftime('%Y-%m-%d')
@@ -149,8 +149,8 @@ def update_predictions_with_real_pitchers(pitcher_data):
         predictions_data['metadata']['pitcher_update_date'] = today
         predictions_data['metadata']['pitchers_updated_count'] = updated_count
         
-        # Save updated predictions
-        with open('unified_predictions_cache.json', 'w') as f:
+        # Save updated predictions to data directory
+        with open('data/unified_predictions_cache.json', 'w') as f:
             json.dump(predictions_data, f, indent=2)
         
         logger.info(f"✅ Updated {updated_count} games with real starting pitchers")

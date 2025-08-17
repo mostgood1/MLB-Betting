@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Section Display Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 2px solid #333; }
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .game-card { border: 1px solid #666; padding: 10px; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>Section Display Test</h1>
+    
+    <div class="section">
+        <h2>Live Games Section Test</h2>
+        <div id="live-games-section" style="border: 2px solid red;">
+            <h3>🔴 Live Games</h3>
+            <div id="live-games-container" class="games-grid"></div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>Upcoming Games Section Test</h2>
+        <div id="upcoming-games-section" style="border: 2px solid blue;">
+            <h3>⏰ Upcoming Games</h3>
+            <div id="upcoming-games-container" class="games-grid"></div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>API Test Results</h2>
+        <div id="api-results"></div>
+    </div>
+    
+    <script>
+        async function testSections() {
+            try {
+                const response = await fetch('/api/today-games');
+                const data = await response.json();
+                
+                document.getElementById('api-results').innerHTML = `
+                    <p><strong>API Success:</strong> ${data.success}</p>
+                    <p><strong>Games Count:</strong> ${data.games.length}</p>
+                `;
+                
+                // Manually categorize and display games
+                const liveGames = [];
+                const upcomingGames = [];
+                const completedGames = [];
+                
+                for (const game of data.games) {
+                    const liveStatus = game.live_status || {};
+                    console.log(`Game: ${game.away_team} @ ${game.home_team}, Status:`, liveStatus);
+                    
+                    if (liveStatus.is_live) {
+                        liveGames.push(game);
+                    } else if (liveStatus.is_final) {
+                        completedGames.push(game);
+                    } else {
+                        upcomingGames.push(game);
+                    }
+                }
+                
+                console.log(`Categorized: ${liveGames.length} live, ${upcomingGames.length} upcoming, ${completedGames.length} completed`);
+                
+                // Display upcoming games (should be all of them)
+                const upcomingContainer = document.getElementById('upcoming-games-container');
+                const upcomingSection = document.getElementById('upcoming-games-section');
+                
+                if (upcomingGames.length > 0) {
+                    upcomingSection.style.display = 'block';
+                    upcomingContainer.innerHTML = '';
+                    
+                    upcomingGames.slice(0, 3).forEach((game, index) => {
+                        const card = document.createElement('div');
+                        card.className = 'game-card';
+                        card.innerHTML = `
+                            <h4>Game ${index + 1}: ${game.away_team} @ ${game.home_team}</h4>
+                            <p>Pitchers: ${game.away_pitcher} vs ${game.home_pitcher}</p>
+                            <p>Scores: ${game.predicted_away_score} - ${game.predicted_home_score}</p>
+                            <p>Win Prob: ${game.away_win_probability}% - ${game.home_win_probability}%</p>
+                        `;
+                        upcomingContainer.appendChild(card);
+                    });
+                    
+                    console.log(`Added ${upcomingGames.slice(0, 3).length} cards to upcoming container`);
+                } else {
+                    upcomingSection.style.display = 'none';
+                    console.log('No upcoming games to display');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('api-results').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+        
+        testSections();
+    </script>
+</body>
+</html>
