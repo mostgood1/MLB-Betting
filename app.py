@@ -328,6 +328,46 @@ def health():
         "games_count": len(get_todays_games_direct())
     })
 
+@app.route('/debug-files')
+def debug_files():
+    """Debug route to check what files are available on Render"""
+    import os
+    today = datetime.now().strftime('%Y_%m_%d')
+    
+    debug_info = {
+        'current_date': datetime.now().strftime('%Y-%m-%d'),
+        'app_directory': os.path.dirname(os.path.abspath(__file__)),
+        'mlb_betting_dir_exists': os.path.exists('MLB-Betting'),
+        'mlb_betting_data_exists': os.path.exists('MLB-Betting/data'),
+        'today_recommendations_file': f'betting_recommendations_{today}.json',
+        'today_file_exists_mlb_betting': os.path.exists(f'MLB-Betting/data/betting_recommendations_{today}.json'),
+        'unified_cache_exists_mlb_betting': os.path.exists('MLB-Betting/data/unified_predictions_cache.json'),
+        'environment_vars': {
+            'RENDER': os.environ.get('RENDER'),
+            'RENDER_SERVICE_ID': os.environ.get('RENDER_SERVICE_ID'),
+            'PORT': os.environ.get('PORT')
+        },
+        'data_files': []
+    }
+    
+    # Check MLB-Betting data directory
+    if os.path.exists('MLB-Betting/data'):
+        try:
+            data_files = [f for f in os.listdir('MLB-Betting/data') if f.endswith('.json')]
+            debug_info['data_files'] = data_files[:20]
+        except Exception as e:
+            debug_info['data_files_error'] = str(e)
+    
+    # Check current directory for any data
+    if os.path.exists('data'):
+        try:
+            root_data_files = [f for f in os.listdir('data') if f.endswith('.json')]
+            debug_info['root_data_files'] = root_data_files[:10]
+        except Exception as e:
+            debug_info['root_data_files_error'] = str(e)
+    
+    return jsonify(debug_info)
+
 if __name__ == '__main__':
     logger.info("🚀 Starting Real MLB Betting System on port 5000")
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
