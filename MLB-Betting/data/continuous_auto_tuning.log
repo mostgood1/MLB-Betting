@@ -1,0 +1,16 @@
+2025-08-15 23:03:22,157 - INFO - QUICK-CHECK: Performing optimization check...
+2025-08-15 23:03:22,160 - INFO - PERFORMANCE: 37 games - Winner: 54.1%, Total: 40.5%
+2025-08-15 23:03:22,162 - INFO - STATUS: Performance stable, no changes needed
+2025-08-15 23:06:29,185 - INFO - STARTUP: Continuous auto-tuning started
+2025-08-15 23:06:29,185 - INFO - SCHEDULE: Setting up optimization schedule...
+2025-08-15 23:06:29,187 - INFO - SCHEDULE: Configured:
+2025-08-15 23:06:29,187 - INFO -   - 06:00: Daily full optimization
+2025-08-15 23:06:29,187 - INFO -   - Every 4 hours: Quick performance check
+2025-08-15 23:06:29,189 - INFO -   - 23:30: End-of-day check
+2025-08-15 23:06:29,189 - INFO - INITIAL: Running startup optimization check...
+2025-08-15 23:06:29,189 - INFO - QUICK-CHECK: Performing optimization check...
+2025-08-15 23:06:29,191 - INFO - PERFORMANCE: 37 games - Winner: 54.1%, Total: 40.5%
+2025-08-15 23:06:29,191 - INFO - STATUS: Performance stable, no changes needed
+2025-08-15 23:06:29,191 - INFO - RUNNING: Continuous optimization active (Ctrl+C to stop)
+2025-08-15 23:09:26,499 - INFO - SHUTDOWN: Received signal 2, shutting down gracefully...
+2025-08-15 23:09:29,195 - INFO - SHUTDOWN: Continuous auto-tuning stopped

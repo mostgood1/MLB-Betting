@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Prediction Engine Tuning Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .panel h3 {
+            margin-top: 0;
+            color: #4fd1c7;
+            border-bottom: 2px solid #4fd1c7;
+            padding-bottom: 10px;
+        }
+
+        .param-group {
+            margin-bottom: 25px;
+        }
+
+        .param-group h4 {
+            color: #FFD700;
+            margin-bottom: 15px;
+            border-left: 4px solid #FFD700;
+            padding-left: 10px;
+        }
+
+        .param-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .param-label {
+            font-weight: 500;
+            min-width: 200px;
+        }
+
+        .param-input {
+            width: 100px;
+            padding: 5px 10px;
+            border: 1px solid #4fd1c7;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-align: center;
+        }
+
+        .param-input:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        }
+
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4fd1c7;
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4fd1c7, #36b3a8);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #1e3c72;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status-optimized {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+        }
+
+        .status-default {
+            background: rgba(255, 193, 7, 0.3);
+            color: #FFC107;
+            border: 1px solid #FFC107;
+        }
+
+        .test-results {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #4fd1c7;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #4fd1c7;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .auto-optimize-panel {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.1));
+            border: 2px solid #FFD700;
+        }
+
+        .schedule-info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #4fd1c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Prediction Engine Tuning Dashboard</h1>
+            <p>Fine-tune your MLB prediction engine for optimal performance</p>
+            <div id="current-status">
+                <span>Current Status: </span>
+                <span id="status-indicator" class="status-indicator status-default">Loading...</span>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Performance Overview -->
+            <div class="panel">
+                <h3>📊 Current Performance</h3>
+                <div class="performance-metrics">
+                    <div class="metric-card">
+                        <div class="metric-value" id="accuracy-score">--</div>
+                        <div class="metric-label">Accuracy</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="confidence-score">--</div>
+                        <div class="metric-label">Confidence</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="betting-value">--</div>
+                        <div class="metric-label">Betting Edge</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="prediction-speed">--</div>
+                        <div class="metric-label">Speed (ms)</div>
+                    </div>
+                </div>
+                <div id="test-results" class="test-results" style="display: none;">
+                    <h4>🧪 Last Test Results</h4>
+                    <div id="test-details"></div>
+                </div>
+            </div>
+
+            <!-- Automated Optimization -->
+            <div class="panel auto-optimize-panel">
+                <h3>🤖 Automated Daily Optimization</h3>
+                <p>Let the system automatically optimize parameters based on recent performance</p>
+                
+                <div class="schedule-info">
+                    <strong>📅 Daily Schedule:</strong><br>
+                    • Morning: 6:00 AM - Pre-game optimization<br>
+                    • Evening: 11:00 PM - Post-game analysis<br>
+                    • Real-time: Continuous monitoring
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="triggerAutoOptimization()">
+                        🚀 Run Auto-Optimization Now
+                    </button>
+                    <button class="btn btn-secondary" onclick="toggleAutoSchedule()">
+                        ⏰ Toggle Daily Schedule
+                    </button>
+                </div>
+
+                <div id="auto-optimize-status" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+
+        <!-- Manual Parameter Tuning -->
+        <div class="dashboard-grid">
+            <div class="panel">
+                <h3>⚙️ Pitcher Parameters</h3>
+                <div class="param-group">
+                    <h4>Quality Weights</h4>
+                    <div class="param-item">
+                        <span class="param-label">ERA Weight</span>
+                        <input type="number" class="param-input" id="era_weight" step="0.05" min="0" max="1">
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label">WHIP Weight</span>
+                        <input type="number" class="param-input" id="whip_weight" step="0.05" min="0" max="1">
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label">Recent Form Weight</span>
+                        <input type="number" class="param-input" id="pitcher_recent_form_weight" step="0.05" min="0" max="1">
+                    </div>
+                </div>
+                <div class="param-group">
+                    <h4>Impact Factors</h4>
+                    <div class="param-item">
+                        <span class="param-label">Ace Run Impact</span>
+                        <input type="number" class="param-input" id="ace_run_impact" step="0.1" min="-2" max="0">
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label">Good Run Impact</span>
+                        <input type="number" class="param-input" id="good_run_impact" step="0.1" min="-1.5" max="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>⚾ Team Parameters</h3>
+                <div class="param-group">
+                    <h4>Offensive Factors</h4>
+                    <div class="param-item">
+                        <span class="param-label">Offensive Runs Weight</span>
+                        <input type="number" class="param-input" id="offensive_runs_weight" step="0.05" min="0" max="1">
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label">Recent Form Weight</span>
+                        <input type="number" class="param-input" id="team_recent_form_weight" step="0.05" min="0" max="1">
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label">Home Field Advantage</span>
+                        <input type="number" class="param-input" id="home_field_advantage" step="0.05" min="0" max="0.5">
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label">Head-to-Head Weight</span>
+                        <input type="number" class="param-input" id="h2h_weight" step="0.05" min="0" max="0.5">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="panel">
+                <h3>💰 Betting Parameters</h3>
+                <div class="param-group">
+                    <h4>Confidence Thresholds</h4>
+                    <div class="param-item">
+                        <span class="param-label">High Confidence</span>
+                        <input type="number" class="param-input" id="high_confidence_threshold" step="0.05" min="0.5" max="1">
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label">Medium Confidence</span>
+                        <input type="number" class="param-input" id="medium_confidence_threshold" step="0.05" min="0.3" max="0.8">
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label">Value Bet Threshold</span>
+                        <input type="number" class="param-input" id="value_bet_threshold" step="0.01" min="0" max="0.2">
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label">Kelly Multiplier</span>
+                        <input type="number" class="param-input" id="kelly_multiplier" step="0.05" min="0.1" max="0.5">
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>🎲 Simulation Parameters</h3>
+                <div class="param-group">
+                    <h4>Simulation Counts</h4>
+                    <div class="param-item">
+                        <span class="param-label">Default Simulations</span>
+                        <input type="number" class="param-input" id="default_sim_count" step="1000" min="1000" max="20000">
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label">Fast Simulations</span>
+                        <input type="number" class="param-input" id="fast_sim_count" step="500" min="500" max="10000">
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label">Accuracy Simulations</span>
+                        <input type="number" class="param-input" id="accuracy_sim_count" step="2000" min="5000" max="50000">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Panel -->
+        <div class="panel full-width">
+            <h3>🔧 Actions</h3>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="testConfiguration()">🧪 Test Configuration</button>
+                <button class="btn btn-secondary" onclick="saveConfiguration()">💾 Save Configuration</button>
+                <button class="btn btn-danger" onclick="resetToDefaults()">🔄 Reset to Defaults</button>
+            </div>
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <div>Processing...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentConfig = {};
+
+        // Load initial configuration on page load
+        window.onload = function() {
+            loadCurrentConfiguration();
+        };
+
+        async function loadCurrentConfiguration() {
+            try {
+                const response = await fetch('/admin/api/current-config');
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentConfig = data.config;
+                    populateForm(currentConfig);
+                    updatePerformanceMetrics(data.recent_performance);
+                    updateStatusIndicator(currentConfig.performance_grade);
+                }
+            } catch (error) {
+                console.error('Failed to load configuration:', error);
+            }
+        }
+
+        function populateForm(config) {
+            // Pitcher parameters
+            document.getElementById('era_weight').value = config.pitcher_parameters.era_weight;
+            document.getElementById('whip_weight').value = config.pitcher_parameters.whip_weight;
+            document.getElementById('pitcher_recent_form_weight').value = config.pitcher_parameters.recent_form_weight;
+            document.getElementById('ace_run_impact').value = config.pitcher_parameters.ace_run_impact;
+            document.getElementById('good_run_impact').value = config.pitcher_parameters.good_run_impact;
+
+            // Team parameters
+            document.getElementById('offensive_runs_weight').value = config.team_parameters.offensive_runs_weight;
+            document.getElementById('team_recent_form_weight').value = config.team_parameters.recent_form_weight;
+            document.getElementById('home_field_advantage').value = config.team_parameters.home_field_advantage;
+            document.getElementById('h2h_weight').value = config.team_parameters.h2h_weight;
+
+            // Betting parameters
+            document.getElementById('high_confidence_threshold').value = config.betting_parameters.high_confidence_threshold;
+            document.getElementById('medium_confidence_threshold').value = config.betting_parameters.medium_confidence_threshold;
+            document.getElementById('value_bet_threshold').value = config.betting_parameters.value_bet_threshold;
+            document.getElementById('kelly_multiplier').value = config.betting_parameters.kelly_multiplier;
+
+            // Simulation parameters
+            document.getElementById('default_sim_count').value = config.simulation_parameters.default_sim_count;
+            document.getElementById('fast_sim_count').value = config.simulation_parameters.fast_sim_count;
+            document.getElementById('accuracy_sim_count').value = config.simulation_parameters.accuracy_sim_count;
+        }
+
+        function collectFormData() {
+            return {
+                pitcher_parameters: {
+                    era_weight: parseFloat(document.getElementById('era_weight').value),
+                    whip_weight: parseFloat(document.getElementById('whip_weight').value),
+                    recent_form_weight: parseFloat(document.getElementById('pitcher_recent_form_weight').value),
+                    ace_run_impact: parseFloat(document.getElementById('ace_run_impact').value),
+                    good_run_impact: parseFloat(document.getElementById('good_run_impact').value)
+                },
+                team_parameters: {
+                    offensive_runs_weight: parseFloat(document.getElementById('offensive_runs_weight').value),
+                    recent_form_weight: parseFloat(document.getElementById('team_recent_form_weight').value),
+                    home_field_advantage: parseFloat(document.getElementById('home_field_advantage').value),
+                    h2h_weight: parseFloat(document.getElementById('h2h_weight').value)
+                },
+                betting_parameters: {
+                    high_confidence_threshold: parseFloat(document.getElementById('high_confidence_threshold').value),
+                    medium_confidence_threshold: parseFloat(document.getElementById('medium_confidence_threshold').value),
+                    value_bet_threshold: parseFloat(document.getElementById('value_bet_threshold').value),
+                    kelly_multiplier: parseFloat(document.getElementById('kelly_multiplier').value)
+                },
+                simulation_parameters: {
+                    default_sim_count: parseInt(document.getElementById('default_sim_count').value),
+                    fast_sim_count: parseInt(document.getElementById('fast_sim_count').value),
+                    accuracy_sim_count: parseInt(document.getElementById('accuracy_sim_count').value)
+                }
+            };
+        }
+
+        async function testConfiguration() {
+            showLoading(true);
+            try {
+                const config = collectFormData();
+                const response = await fetch('/admin/api/test-config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    displayTestResults(data.test_result);
+                } else {
+                    alert('Test failed: ' + data.error);
+                }
+            } catch (error) {
+                alert('Test failed: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function saveConfiguration() {
+            showLoading(true);
+            try {
+                const config = collectFormData();
+                const response = await fetch('/admin/api/update-config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('Configuration saved successfully!');
+                    displayTestResults(data.test_result);
+                    loadCurrentConfiguration(); // Reload to get updated status
+                } else {
+                    alert('Save failed: ' + data.error);
+                }
+            } catch (error) {
+                alert('Save failed: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function resetToDefaults() {
+            if (confirm('Are you sure you want to reset all parameters to defaults?')) {
+                showLoading(true);
+                try {
+                    const response = await fetch('/admin/api/reset-config', {
+                        method: 'POST'
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        alert('Configuration reset to defaults!');
+                        populateForm(data.config);
+                        updateStatusIndicator('DEFAULT');
+                    } else {
+                        alert('Reset failed: ' + data.error);
+                    }
+                } catch (error) {
+                    alert('Reset failed: ' + error.message);
+                } finally {
+                    showLoading(false);
+                }
+            }
+        }
+
+        async function triggerAutoOptimization() {
+            showLoading(true);
+            try {
+                const response = await fetch('/admin/api/auto-optimize', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('auto-optimize-status').innerHTML = `
+                        <div style="color: #4fd1c7; font-weight: bold;">
+                            ✅ ${data.message}
+                        </div>
+                    `;
+                } else {
+                    alert('Auto-optimization failed: ' + data.error);
+                }
+            } catch (error) {
+                alert('Auto-optimization failed: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function toggleAutoSchedule() {
+            // This would toggle the automated daily schedule
+            alert('Auto-schedule toggling not yet implemented');
+        }
+
+        function displayTestResults(testResult) {
+            if (!testResult) return;
+            
+            document.getElementById('test-results').style.display = 'block';
+            document.getElementById('test-details').innerHTML = `
+                <strong>Accuracy Score:</strong> ${(testResult.accuracy_score * 100).toFixed(1)}%<br>
+                <strong>Confidence Score:</strong> ${(testResult.confidence_score * 100).toFixed(1)}%<br>
+                <strong>Betting Value:</strong> ${(testResult.betting_value * 100).toFixed(1)}% edge<br>
+                <strong>Prediction Speed:</strong> ${testResult.avg_prediction_time.toFixed(1)}ms<br>
+                <strong>Test Games:</strong> ${testResult.test_games_count}
+            `;
+        }
+
+        function updatePerformanceMetrics(recentPerformance) {
+            if (recentPerformance && recentPerformance.length > 0) {
+                const latest = recentPerformance[recentPerformance.length - 1];
+                document.getElementById('accuracy-score').textContent = 
+                    (latest.accuracy_score * 100).toFixed(0) + '%';
+                document.getElementById('confidence-score').textContent = 
+                    (latest.confidence_score * 100).toFixed(0) + '%';
+                document.getElementById('betting-value').textContent = 
+                    (latest.betting_value * 100).toFixed(1) + '%';
+                document.getElementById('prediction-speed').textContent = 
+                    latest.avg_prediction_time.toFixed(0);
+            }
+        }
+
+        function updateStatusIndicator(grade) {
+            const indicator = document.getElementById('status-indicator');
+            indicator.textContent = grade;
+            
+            if (grade.includes('OPTIMIZED')) {
+                indicator.className = 'status-indicator status-optimized';
+            } else {
+                indicator.className = 'status-indicator status-default';
+            }
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>

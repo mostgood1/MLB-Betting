@@ -1,0 +1,22 @@
+2025-08-15 22:53:48,804 - __main__ - INFO -   - Winner Accuracy: 53.8%
+2025-08-15 22:53:48,804 - __main__ - INFO -   - Total Accuracy: 43.0%
+2025-08-15 22:53:48,805 - __main__ - INFO -   - Perfect Game Rate: 19.4%
+2025-08-15 22:53:48,805 - __main__ - INFO -   - Games Analyzed: 93
+2025-08-15 22:53:48,810 - __main__ - INFO -   - engine_parameters.base_lambda: 4.3999999999999995
+2025-08-15 22:53:48,810 - __main__ - INFO -   - simulation_parameters.default_sim_count: 4000
+2025-08-15 22:59:49,394 - __main__ - INFO - TEST: Running one-time auto-tuning...
+2025-08-15 22:59:49,395 - __main__ - INFO - AUTO-TUNE: Starting daily auto-tuning process...
+2025-08-15 22:59:49,395 - __main__ - INFO - ANALYZE: Analyzing recent performance against real MLB results...
+2025-08-15 22:59:49,397 - __main__ - INFO - PERFORMANCE: Current Performance:
+2025-08-15 22:59:49,397 - __main__ - INFO -   - Winner Accuracy: 53.8%
+2025-08-15 22:59:49,397 - __main__ - INFO -   - Total Accuracy: 43.0%
+2025-08-15 22:59:49,397 - __main__ - INFO -   - Perfect Game Rate: 19.4%
+2025-08-15 22:59:49,397 - __main__ - INFO -   - Games Analyzed: 93
+2025-08-15 22:59:49,397 - __main__ - INFO - OPTIMIZE: Getting optimization suggestions...
+2025-08-15 22:59:49,400 - __main__ - INFO - SUGGESTIONS: Parameter adjustments suggested (HIGH confidence):
+2025-08-15 22:59:49,400 - __main__ - INFO -   - engine_parameters.base_lambda: 4.499999999999999
+2025-08-15 22:59:49,400 - __main__ - INFO -   - simulation_parameters.default_sim_count: 5000
+2025-08-15 22:59:49,400 - __main__ - INFO - APPLY: Applying optimizations (HIGH confidence)...
+2025-08-15 22:59:49,430 - __main__ - INFO - SUCCESS: Auto-tuning successful - parameters optimized
+2025-08-15 22:59:49,430 - __main__ - INFO - REASON: Adjust base lambda from 4.3999999999999995 to 4.499999999999999 to reduce total prediction error
+2025-08-15 22:59:49,430 - __main__ - INFO - REASON: Increase simulation count from 4000 to 5000 for more stable predictions

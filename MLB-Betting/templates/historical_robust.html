@@ -407,6 +407,86 @@
             color: #ffffff;
         }
 
+        /* Comprehensive Betting Performance Styles */
+        .comprehensive-betting-performance {
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 107, 107, 0.05));
+            border-radius: 12px;
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+
+        .comprehensive-betting-performance h3 {
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.4rem;
+        }
+
+        .betting-type-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .tab-button.active {
+            background: #ff6b6b;
+            border-color: #ff6b6b;
+            color: white;
+        }
+
+        .betting-type-section {
+            display: none;
+        }
+
+        .betting-type-section.active {
+            display: block;
+        }
+
+        .betting-type-section h4 {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .betting-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .betting-metrics .metric-group {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .betting-metrics .metric-group h5 {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
         @media (max-width: 768px) {
             .controls {
                 flex-direction: column;
@@ -419,6 +499,32 @@
             
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .betting-type-tabs {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .tab-button {
+                text-align: center;
+            }
+            
+            .betting-metrics {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .tab-button {
+                font-size: 0.8rem;
+                padding: 8px 12px;
+            }
+            
+            .comprehensive-betting-performance {
+                margin: 15px 0;
+                padding: 15px;
             }
         }
     </style>
@@ -529,6 +635,142 @@
                 <div id="grade-distribution" class="grade-distribution">
                     <h4>Grade Distribution</h4>
                     <div id="grade-chart" class="grade-chart"></div>
+                </div>
+            </div>
+            
+            <!-- Comprehensive Betting Performance Section -->
+            <div id="comprehensive-betting-performance" class="comprehensive-betting-performance" style="display: none;">
+                <h3>🎯 Comprehensive Betting Performance</h3>
+                
+                <!-- Betting Type Tabs -->
+                <div class="betting-type-tabs">
+                    <button class="tab-button active" onclick="showBettingType('moneyline')">💰 Moneyline</button>
+                    <button class="tab-button" onclick="showBettingType('totals')">📊 Totals</button>
+                    <button class="tab-button" onclick="showBettingType('run_line')">⚾ Run Line</button>
+                    <button class="tab-button" onclick="showBettingType('perfect_games')">💎 Perfect Games</button>
+                </div>
+                
+                <!-- Moneyline Performance -->
+                <div id="moneyline-performance" class="betting-type-section active">
+                    <h4>💰 Moneyline Betting Performance</h4>
+                    <div class="betting-metrics">
+                        <div class="metric-group">
+                            <h5>30-Day Performance</h5>
+                            <div class="metric-stats">
+                                <div class="metric-item">
+                                    <span id="ml-total-bets" class="metric-value">-</span>
+                                    <div class="metric-label">Total Bets</div>
+                                </div>
+                                <div class="metric-item">
+                                    <span id="ml-win-rate" class="metric-value">-</span>
+                                    <div class="metric-label">Win Rate</div>
+                                </div>
+                                <div class="metric-item">
+                                    <span id="ml-roi" class="metric-value">-</span>
+                                    <div class="metric-label">ROI</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-group">
+                            <h5>Profitability</h5>
+                            <div class="metric-stats">
+                                <div class="metric-item">
+                                    <span id="ml-total-profit" class="metric-value">-</span>
+                                    <div class="metric-label">Net Profit</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Totals Performance -->
+                <div id="totals-performance" class="betting-type-section">
+                    <h4>📊 Over/Under Totals Performance</h4>
+                    <div class="betting-metrics">
+                        <div class="metric-group">
+                            <h5>30-Day Performance</h5>
+                            <div class="metric-stats">
+                                <div class="metric-item">
+                                    <span id="totals-total-bets" class="metric-value">-</span>
+                                    <div class="metric-label">Total Bets</div>
+                                </div>
+                                <div class="metric-item">
+                                    <span id="totals-win-rate" class="metric-value">-</span>
+                                    <div class="metric-label">Win Rate</div>
+                                </div>
+                                <div class="metric-item">
+                                    <span id="totals-roi" class="metric-value">-</span>
+                                    <div class="metric-label">ROI</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-group">
+                            <h5>Profitability</h5>
+                            <div class="metric-stats">
+                                <div class="metric-item">
+                                    <span id="totals-total-profit" class="metric-value">-</span>
+                                    <div class="metric-label">Net Profit</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Run Line Performance -->
+                <div id="run_line-performance" class="betting-type-section">
+                    <h4>⚾ Run Line Performance</h4>
+                    <div class="betting-metrics">
+                        <div class="metric-group">
+                            <h5>30-Day Performance</h5>
+                            <div class="metric-stats">
+                                <div class="metric-item">
+                                    <span id="rl-total-bets" class="metric-value">-</span>
+                                    <div class="metric-label">Total Bets</div>
+                                </div>
+                                <div class="metric-item">
+                                    <span id="rl-win-rate" class="metric-value">-</span>
+                                    <div class="metric-label">Win Rate</div>
+                                </div>
+                                <div class="metric-item">
+                                    <span id="rl-roi" class="metric-value">-</span>
+                                    <div class="metric-label">ROI</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-group">
+                            <h5>Profitability</h5>
+                            <div class="metric-stats">
+                                <div class="metric-item">
+                                    <span id="rl-total-profit" class="metric-value">-</span>
+                                    <div class="metric-label">Net Profit</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Perfect Games Performance -->
+                <div id="perfect_games-performance" class="betting-type-section">
+                    <h4>💎 Perfect Games Performance</h4>
+                    <div class="betting-metrics">
+                        <div class="metric-group">
+                            <h5>Perfect Game Success</h5>
+                            <div class="metric-stats">
+                                <div class="metric-item">
+                                    <span id="perfect-opportunities" class="metric-value">-</span>
+                                    <div class="metric-label">Opportunities</div>
+                                </div>
+                                <div class="metric-item">
+                                    <span id="perfect-hits" class="metric-value">-</span>
+                                    <div class="metric-label">Perfect Hits</div>
+                                </div>
+                                <div class="metric-item">
+                                    <span id="perfect-success-rate" class="metric-value">-</span>
+                                    <div class="metric-label">Success Rate</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1089,6 +1331,7 @@
                 
                 // Load performance analytics
                 loadPerformanceAnalytics(date);
+                loadComprehensiveBettingPerformance();
 
             } catch (error) {
                 console.error('Error in displayRecap:', error);
@@ -1415,6 +1658,95 @@
             updateDebugInfo('Performance analytics displayed successfully');
         }
 
+        // Comprehensive Betting Performance Functions
+        function loadComprehensiveBettingPerformance() {
+            console.log('Loading comprehensive betting performance data');
+            updateDebugInfo('Loading comprehensive betting performance data');
+            
+            fetch('/api/comprehensive-betting-performance')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Comprehensive betting performance response:', data);
+                    if (data.success && data.performance) {
+                        displayComprehensiveBettingPerformance(data.performance);
+                    } else {
+                        console.error('Comprehensive betting performance failed:', data.error || 'No performance data');
+                        updateDebugInfo('Comprehensive betting performance failed: ' + (data.error || 'No performance data'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading comprehensive betting performance:', error);
+                    updateDebugInfo('Error loading comprehensive betting performance: ' + error.message);
+                });
+        }
+
+        function displayComprehensiveBettingPerformance(performance) {
+            console.log('Displaying comprehensive betting performance:', performance);
+            
+            // Show the comprehensive betting performance section
+            document.getElementById('comprehensive-betting-performance').style.display = 'block';
+            
+            const overall = performance.overall || {};
+            
+            // Moneyline Performance
+            const moneyline = overall.moneyline || {};
+            document.getElementById('ml-total-bets').textContent = moneyline.total_bets || '0';
+            document.getElementById('ml-win-rate').textContent = (moneyline.win_rate || 0).toFixed(1) + '%';
+            document.getElementById('ml-roi').textContent = (moneyline.roi || 0).toFixed(1) + '%';
+            const mlProfit = moneyline.total_profit || 0;
+            const mlProfitElement = document.getElementById('ml-total-profit');
+            mlProfitElement.textContent = (mlProfit >= 0 ? '+' : '') + '$' + mlProfit.toFixed(0);
+            mlProfitElement.style.color = mlProfit >= 0 ? '#4ade80' : '#f87171';
+            
+            // Totals Performance
+            const totals = overall.totals || {};
+            document.getElementById('totals-total-bets').textContent = totals.total_bets || '0';
+            document.getElementById('totals-win-rate').textContent = (totals.win_rate || 0).toFixed(1) + '%';
+            document.getElementById('totals-roi').textContent = (totals.roi || 0).toFixed(1) + '%';
+            const totalsProfit = totals.total_profit || 0;
+            const totalsProfitElement = document.getElementById('totals-total-profit');
+            totalsProfitElement.textContent = (totalsProfit >= 0 ? '+' : '') + '$' + totalsProfit.toFixed(0);
+            totalsProfitElement.style.color = totalsProfit >= 0 ? '#4ade80' : '#f87171';
+            
+            // Run Line Performance
+            const runLine = overall.run_line || {};
+            document.getElementById('rl-total-bets').textContent = runLine.total_bets || '0';
+            document.getElementById('rl-win-rate').textContent = (runLine.win_rate || 0).toFixed(1) + '%';
+            document.getElementById('rl-roi').textContent = (runLine.roi || 0).toFixed(1) + '%';
+            const rlProfit = runLine.total_profit || 0;
+            const rlProfitElement = document.getElementById('rl-total-profit');
+            rlProfitElement.textContent = (rlProfit >= 0 ? '+' : '') + '$' + rlProfit.toFixed(0);
+            rlProfitElement.style.color = rlProfit >= 0 ? '#4ade80' : '#f87171';
+            
+            // Perfect Games Performance
+            const perfectGames = overall.perfect_games || {};
+            document.getElementById('perfect-opportunities').textContent = perfectGames.total_bets || '0';
+            document.getElementById('perfect-hits').textContent = perfectGames.total_wins || '0';
+            document.getElementById('perfect-success-rate').textContent = (perfectGames.win_rate || 0).toFixed(1) + '%';
+            
+            updateDebugInfo('Comprehensive betting performance displayed successfully');
+        }
+
+        function showBettingType(bettingType) {
+            // Hide all betting type sections
+            const sections = document.querySelectorAll('.betting-type-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab-button');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected betting type section
+            const targetSection = document.getElementById(bettingType + '-performance');
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            // Add active class to clicked tab
+            const clickedTab = event.target;
+            clickedTab.classList.add('active');
+        }
+
         function displayGradeDistribution(gradeDistribution) {
             const gradeChart = document.getElementById('grade-chart');
             gradeChart.innerHTML = '';
@@ -1461,6 +1793,7 @@
                         
                         // Load performance analytics
                         loadPerformanceAnalytics(date);
+                        loadComprehensiveBettingPerformance();
                     } else {
                         updateDebugInfo('No games found for ' + date);
                         document.getElementById('games-container').innerHTML = '<div class="status error">No games found for ' + date + '</div>';
