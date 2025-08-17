@@ -13,10 +13,22 @@ import logging
 # Add MLB-Betting directory to path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'MLB-Betting'))
 
+# Import admin tuning blueprint
+try:
+    from admin_tuning import admin_bp
+    admin_available = True
+except ImportError:
+    admin_available = False
+    logging.warning("Admin tuning module not available")
+
 # Create Flask app with proper template and static paths
 app = Flask(__name__, 
            template_folder='MLB-Betting/templates',
            static_folder='MLB-Betting/static')
+
+# Register admin blueprint if available
+if admin_available:
+    app.register_blueprint(admin_bp)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

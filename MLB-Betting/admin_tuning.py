@@ -197,7 +197,11 @@ def get_current_config():
 def update_config():
     """Update configuration parameters"""
     try:
-        new_config = request.json
+        # Handle both JSON and form data
+        if request.is_json and request.json:
+            new_config = request.json
+        else:
+            return jsonify({'success': False, 'error': 'JSON data required for config update'})
         
         # Validate configuration
         if not new_config or 'pitcher_parameters' not in new_config:
@@ -225,7 +229,12 @@ def update_config():
 def test_config():
     """Test a configuration without saving"""
     try:
-        test_config = request.json
+        # Handle both JSON and form data
+        if request.is_json and request.json:
+            test_config = request.json
+        else:
+            return jsonify({'success': False, 'error': 'JSON data required for config test'})
+            
         test_result = tuner.test_configuration(test_config)
         
         return jsonify({
@@ -267,7 +276,18 @@ def get_performance_history():
 def trigger_auto_optimization():
     """Trigger automated optimization using real game results"""
     try:
-        days = request.json.get('days', 7) if request.json else 7
+        # Handle both JSON and form data
+        data = {}
+        if request.is_json and request.json:
+            data = request.json
+        elif request.form:
+            # Convert form data to dict
+            data = {
+                'days': int(request.form.get('days', 7)),
+                'apply_changes': request.form.get('apply_changes', 'false').lower() == 'true'
+            }
+        
+        days = data.get('days', 7)
         
         if not performance_tracker:
             return jsonify({'success': False, 'error': 'Performance tracker not available'})
@@ -279,7 +299,7 @@ def trigger_auto_optimization():
             return jsonify({'success': False, 'error': suggestions['error']})
         
         # Apply suggestions if requested
-        apply_changes = request.json.get('apply_changes', False) if request.json else False
+        apply_changes = data.get('apply_changes', False)
         
         if apply_changes and suggestions.get('parameter_adjustments'):
             result = performance_tracker.apply_parameter_adjustments(
