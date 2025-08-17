@@ -113,13 +113,32 @@ def index():
         if cache_data:
             logger.info(f"📊 Cache data loaded. Top-level keys: {list(cache_data.keys())}")
             
-            # Find the most recent date with games
-            available_dates = [key for key in cache_data.keys() if key.startswith('2025-')]
+            # Find the most recent date with games - check multiple possible locations
+            available_dates = []
+            
+            # Check direct date keys (e.g., "2025-08-16")
+            date_keys = [key for key in cache_data.keys() if key.startswith('2025-')]
+            available_dates.extend(date_keys)
+            
+            # Check predictions_by_date structure
+            if 'predictions_by_date' in cache_data:
+                pred_dates = [key for key in cache_data['predictions_by_date'].keys() if key.startswith('2025-')]
+                available_dates.extend(pred_dates)
+                logger.info(f"📅 Found dates in predictions_by_date: {pred_dates}")
+            
+            # Check games structure (old format)
+            if 'games' in cache_data:
+                game_dates = [key for key in cache_data['games'].keys() if key.startswith('2025-')]
+                available_dates.extend(game_dates)
+                logger.info(f"📅 Found dates in games: {game_dates}")
+            
+            # Remove duplicates and sort
+            available_dates = list(set(available_dates))
             available_dates.sort(reverse=True)  # Most recent first
-            logger.info(f"📅 Available dates: {available_dates}")
+            logger.info(f"📅 All available dates: {available_dates}")
             
             target_date = today_str
-            if today_str not in cache_data:
+            if today_str not in available_dates:
                 logger.warning(f"❌ No data for {today_str}, looking for most recent date")
                 if available_dates:
                     target_date = available_dates[0]  # Use most recent available
@@ -128,36 +147,55 @@ def index():
                     logger.error("❌ No game dates found in cache")
                     target_date = None
             
-            if target_date and target_date in cache_data and 'games' in cache_data[target_date]:
-                logger.info(f"✅ Found data for {target_date}")
-                # New format: date -> games -> individual games
-                games_data = cache_data[target_date]['games']
-                logger.info(f"🎮 Number of games found: {len(games_data)}")
-                # Convert from object format to list format
-                for game_key, game_data in games_data.items():
-                    game = {
-                        'game_id': game_key,
-                        'away_team': game_data.get('away_team', ''),
-                        'home_team': game_data.get('home_team', ''),
-                        'game_time': game_data.get('game_time', 'TBD'),
-                        'date': game_data.get('game_date', target_date),
-                        'predictions': game_data.get('predictions', {}),
-                        'betting_recommendations': game_data.get('betting_recommendations', {'value_bets': []})
-                    }
-                    games.append(game)
-                logger.info(f"✅ Converted {len(games)} games from {target_date}")
+            if target_date:
+                # Try multiple possible locations for the data
+                games_data = None
                 
-                # Update today_str to reflect what we're actually showing
-                today_str = target_date
+                # Try direct date key with games
+                if target_date in cache_data and isinstance(cache_data[target_date], dict) and 'games' in cache_data[target_date]:
+                    logger.info(f"✅ Found data in direct date key: {target_date}")
+                    games_data = cache_data[target_date]['games']
+                    
+                # Try predictions_by_date structure
+                elif 'predictions_by_date' in cache_data and target_date in cache_data['predictions_by_date']:
+                    logger.info(f"✅ Found data in predictions_by_date: {target_date}")
+                    pred_data = cache_data['predictions_by_date'][target_date]
+                    if isinstance(pred_data, dict) and 'games' in pred_data:
+                        games_data = pred_data['games']
+                    else:
+                        games_data = pred_data  # Might be games directly
+                        
+                # Try old games structure
+                elif 'games' in cache_data and target_date in cache_data['games']:
+                    logger.info(f"✅ Found data in games structure: {target_date}")
+                    games_data = cache_data['games'][target_date]
                 
-            elif 'games' in cache_data and today_str in cache_data['games']:
-                logger.info(f"✅ Found old format data for {today_str}")
-                # Old format: games -> date -> list of games
-                games = cache_data['games'][today_str]
-                logger.info(f"🎮 Number of games found: {len(games)}")
+                if games_data:
+                    logger.info(f"🎮 Number of games found: {len(games_data)}")
+                    
+                    # Convert from object format to list format if needed
+                    if isinstance(games_data, dict):
+                        for game_key, game_data in games_data.items():
+                            game = {
+                                'game_id': game_key,
+                                'away_team': game_data.get('away_team', ''),
+                                'home_team': game_data.get('home_team', ''),
+                                'game_time': game_data.get('game_time', 'TBD'),
+                                'date': game_data.get('game_date', target_date),
+                                'predictions': game_data.get('predictions', {}),
+                                'betting_recommendations': game_data.get('betting_recommendations', {'value_bets': []})
+                            }
+                            games.append(game)
+                    elif isinstance(games_data, list):
+                        games = games_data
+                    
+                    logger.info(f"✅ Converted {len(games)} games from {target_date}")
+                    # Update today_str to reflect what we're actually showing
+                    today_str = target_date
+                else:
+                    logger.warning(f"❌ No games data found for {target_date}")
             else:
-                logger.warning(f"❌ No games found for any available date")
-                logger.info(f"🔍 Available dates in cache: {list(cache_data.keys()) if cache_data else 'None'}")
+                logger.warning(f"❌ No suitable date found")
         else:
             logger.error("❌ No cache data loaded!")
             
