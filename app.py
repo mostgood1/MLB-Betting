@@ -112,11 +112,26 @@ def index():
         games = []
         if cache_data:
             logger.info(f"📊 Cache data loaded. Top-level keys: {list(cache_data.keys())}")
-            # Check if data is in the new format: cache_data["2025-08-16"]["games"]
-            if today_str in cache_data and 'games' in cache_data[today_str]:
-                logger.info(f"✅ Found new format data for {today_str}")
+            
+            # Find the most recent date with games
+            available_dates = [key for key in cache_data.keys() if key.startswith('2025-')]
+            available_dates.sort(reverse=True)  # Most recent first
+            logger.info(f"📅 Available dates: {available_dates}")
+            
+            target_date = today_str
+            if today_str not in cache_data:
+                logger.warning(f"❌ No data for {today_str}, looking for most recent date")
+                if available_dates:
+                    target_date = available_dates[0]  # Use most recent available
+                    logger.info(f"🔄 Using most recent available date: {target_date}")
+                else:
+                    logger.error("❌ No game dates found in cache")
+                    target_date = None
+            
+            if target_date and target_date in cache_data and 'games' in cache_data[target_date]:
+                logger.info(f"✅ Found data for {target_date}")
                 # New format: date -> games -> individual games
-                games_data = cache_data[today_str]['games']
+                games_data = cache_data[target_date]['games']
                 logger.info(f"🎮 Number of games found: {len(games_data)}")
                 # Convert from object format to list format
                 for game_key, game_data in games_data.items():
@@ -125,41 +140,24 @@ def index():
                         'away_team': game_data.get('away_team', ''),
                         'home_team': game_data.get('home_team', ''),
                         'game_time': game_data.get('game_time', 'TBD'),
-                        'date': game_data.get('game_date', today_str),
+                        'date': game_data.get('game_date', target_date),
                         'predictions': game_data.get('predictions', {}),
                         'betting_recommendations': game_data.get('betting_recommendations', {'value_bets': []})
                     }
                     games.append(game)
-                logger.info(f"✅ Converted {len(games)} games to list format")
+                logger.info(f"✅ Converted {len(games)} games from {target_date}")
+                
+                # Update today_str to reflect what we're actually showing
+                today_str = target_date
+                
             elif 'games' in cache_data and today_str in cache_data['games']:
                 logger.info(f"✅ Found old format data for {today_str}")
                 # Old format: games -> date -> list of games
                 games = cache_data['games'][today_str]
                 logger.info(f"🎮 Number of games found: {len(games)}")
             else:
-                logger.warning(f"❌ No games found for {today_str} in either format")
+                logger.warning(f"❌ No games found for any available date")
                 logger.info(f"🔍 Available dates in cache: {list(cache_data.keys()) if cache_data else 'None'}")
-                
-                # Try yesterday as fallback
-                yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-                logger.info(f"🔄 Trying fallback to yesterday: {yesterday}")
-                
-                if yesterday in cache_data and 'games' in cache_data[yesterday]:
-                    logger.info(f"✅ Found fallback data for {yesterday}")
-                    games_data = cache_data[yesterday]['games']
-                    logger.info(f"🎮 Number of fallback games found: {len(games_data)}")
-                    for game_key, game_data in games_data.items():
-                        game = {
-                            'game_id': game_key,
-                            'away_team': game_data.get('away_team', ''),
-                            'home_team': game_data.get('home_team', ''),
-                            'game_time': game_data.get('game_time', 'TBD'),
-                            'date': game_data.get('game_date', yesterday),
-                            'predictions': game_data.get('predictions', {}),
-                            'betting_recommendations': game_data.get('betting_recommendations', {'value_bets': []})
-                        }
-                        games.append(game)
-                    logger.info(f"✅ Using {len(games)} games from {yesterday} as fallback")
         else:
             logger.error("❌ No cache data loaded!")
             
@@ -281,9 +279,10 @@ def index():
         
         return render_template('index.html', 
                              games=games,
-                             date=today_str,
+                             date=today_str,  # This now reflects the actual date being shown
                              comprehensive_stats=comprehensive_stats,
-                             last_updated=datetime.now().strftime('%Y-%m-%d %H:%M'))
+                             last_updated=datetime.now().strftime('%Y-%m-%d %H:%M'),
+                             is_using_fallback_date=(today_str != datetime.now().strftime('%Y-%m-%d')))
     
     except Exception as e:
         logger.error(f"Error in index route: {e}")
