@@ -295,6 +295,47 @@ def index():
             "timestamp": datetime.now().isoformat()
         })
 
+@app.route('/debug/cache')
+def debug_cache():
+    """Debug endpoint to see what's in the cache"""
+    try:
+        import os
+        debug_info = {
+            "current_directory": os.getcwd(),
+            "files_in_root": os.listdir('.') if os.path.exists('.') else "Directory not found",
+            "mlb_betting_exists": os.path.exists('MLB-Betting'),
+            "data_dir_exists": os.path.exists('MLB-Betting/data'),
+            "cache_file_exists": os.path.exists('MLB-Betting/data/unified_predictions_cache.json'),
+            "today": datetime.now().strftime('%Y-%m-%d'),
+            "cache_data": None,
+            "error": None
+        }
+        
+        if os.path.exists('MLB-Betting/data'):
+            debug_info["files_in_data_dir"] = os.listdir('MLB-Betting/data')
+        
+        # Try to load cache
+        try:
+            cache_data = load_cache_data()
+            if cache_data:
+                debug_info["cache_loaded"] = True
+                debug_info["cache_top_level_keys"] = list(cache_data.keys())
+                today_str = datetime.now().strftime('%Y-%m-%d')
+                debug_info["today_in_cache"] = today_str in cache_data
+                if today_str in cache_data:
+                    debug_info["today_data_structure"] = list(cache_data[today_str].keys()) if isinstance(cache_data[today_str], dict) else "Not a dict"
+                    if 'games' in cache_data[today_str]:
+                        debug_info["games_count"] = len(cache_data[today_str]['games'])
+                        debug_info["game_keys"] = list(cache_data[today_str]['games'].keys())[:5]  # First 5 games
+            else:
+                debug_info["cache_loaded"] = False
+        except Exception as e:
+            debug_info["cache_error"] = str(e)
+        
+        return jsonify(debug_info)
+    except Exception as e:
+        return jsonify({"debug_error": str(e)})
+
 @app.route('/api/today-games')
 def api_today_games():
     """API endpoint for today's games with real data"""
