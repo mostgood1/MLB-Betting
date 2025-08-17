@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 # Sample betting data optimized for Render
 GAMES_DATA = {
-    "2025-08-16": [
+    "2025-08-17": [
         {
             "id": "nyy_bos_001",
             "away_team": "New York Yankees",
