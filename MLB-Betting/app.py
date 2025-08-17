@@ -22,47 +22,57 @@ import subprocess
 from collections import defaultdict, Counter
 
 # Try to import optional modules with fallbacks for Render deployment
-# For Render deployment, disable problematic modules temporarily
-RENDER_DEPLOYMENT = os.environ.get('RENDER') is not None
-
-if not RENDER_DEPLOYMENT:
-    try:
-        from engines.ultra_fast_engine import UltraFastSimEngine
-        ULTRA_FAST_ENGINE_AVAILABLE = True
-        
-        # Only import admin_tuning if the engine is available
-        try:
-            from admin_tuning import admin_bp
-            ADMIN_TUNING_AVAILABLE = True
-        except ImportError as e:
-            logging.warning(f"Admin tuning not available: {e}")
-            ADMIN_TUNING_AVAILABLE = False
-            admin_bp = None
-            
-    except ImportError as e:
-        logging.warning(f"Ultra fast engine not available: {e}")
+# Completely disable admin features for Render deployment to avoid engine dependency issues
+try:
+    # Check if we're on Render by looking for common Render environment indicators
+    is_render = (
+        os.environ.get('RENDER') is not None or 
+        os.environ.get('RENDER_SERVICE_ID') is not None or
+        '/opt/render' in os.path.abspath(__file__)
+    )
+    
+    if is_render:
+        logging.info("🌐 Render deployment detected - disabling admin features for stability")
         ULTRA_FAST_ENGINE_AVAILABLE = False
         ADMIN_TUNING_AVAILABLE = False
+        AUTO_TUNING_AVAILABLE = False
         admin_bp = None
-else:
-    # On Render, disable advanced features temporarily
-    logging.info("🌐 Render deployment detected - using minimal feature set")
+    else:
+        # Local development - try to import everything
+        try:
+            from engines.ultra_fast_engine import UltraFastSimEngine
+            ULTRA_FAST_ENGINE_AVAILABLE = True
+            
+            try:
+                from admin_tuning import admin_bp
+                ADMIN_TUNING_AVAILABLE = True
+            except ImportError as e:
+                logging.warning(f"Admin tuning not available: {e}")
+                ADMIN_TUNING_AVAILABLE = False
+                admin_bp = None
+                
+        except ImportError as e:
+            logging.warning(f"Ultra fast engine not available: {e}")
+            ULTRA_FAST_ENGINE_AVAILABLE = False
+            ADMIN_TUNING_AVAILABLE = False
+            admin_bp = None
+        
+        try:
+            from continuous_auto_tuning import ContinuousAutoTuner
+            AUTO_TUNING_AVAILABLE = True
+        except ImportError as e:
+            logging.warning(f"Auto tuning not available: {e}")
+            AUTO_TUNING_AVAILABLE = False
+
+except Exception as e:
+    # If anything goes wrong, disable everything
+    logging.warning(f"Error during module detection: {e}")
     ULTRA_FAST_ENGINE_AVAILABLE = False
     ADMIN_TUNING_AVAILABLE = False
+    AUTO_TUNING_AVAILABLE = False
     admin_bp = None
 
 import schedule
-
-# Optional auto tuning module  
-if not RENDER_DEPLOYMENT:
-    try:
-        from continuous_auto_tuning import ContinuousAutoTuner
-        AUTO_TUNING_AVAILABLE = True
-    except ImportError as e:
-        logging.warning(f"Auto tuning not available: {e}")
-        AUTO_TUNING_AVAILABLE = False
-else:
-    AUTO_TUNING_AVAILABLE = False
 
 # Import team assets for colors and logos
 import sys
