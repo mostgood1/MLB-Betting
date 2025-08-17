@@ -147,6 +147,14 @@ def index():
                     live_status = get_live_status_for_game(away_team, home_team, today_str)
                     if live_status:
                         game['live_status'] = live_status
+                        # Also add live status fields directly to game for JavaScript access
+                        game['away_score'] = live_status.get('away_score')
+                        game['home_score'] = live_status.get('home_score')
+                        game['status'] = live_status.get('status', 'Scheduled')
+                        game['is_live'] = live_status.get('is_live', False)
+                        game['is_final'] = live_status.get('is_final', False)
+                        game['inning'] = live_status.get('inning')
+                        game['inning_state'] = live_status.get('inning_state')
                     else:
                         # Fallback to basic status
                         game['live_status'] = {
@@ -156,6 +164,11 @@ def index():
                             'away_score': 0,
                             'home_score': 0
                         }
+                        game['away_score'] = 0
+                        game['home_score'] = 0
+                        game['status'] = 'Scheduled'
+                        game['is_live'] = False
+                        game['is_final'] = False
                 else:
                     game['live_status'] = {
                         'status': 'Scheduled',
@@ -164,6 +177,11 @@ def index():
                         'away_score': 0,
                         'home_score': 0
                     }
+                    game['away_score'] = 0
+                    game['home_score'] = 0
+                    game['status'] = 'Scheduled'
+                    game['is_live'] = False
+                    game['is_final'] = False
         
         return render_template('index.html', 
                              games=games,
@@ -215,6 +233,14 @@ def api_today_games():
                     live_status = get_live_status_for_game(away_team, home_team, date_param)
                     if live_status:
                         game['live_status'] = live_status
+                        # Also add live status fields directly to game for JavaScript access
+                        game['away_score'] = live_status.get('away_score')
+                        game['home_score'] = live_status.get('home_score')
+                        game['status'] = live_status.get('status', 'Scheduled')
+                        game['is_live'] = live_status.get('is_live', False)
+                        game['is_final'] = live_status.get('is_final', False)
+                        game['inning'] = live_status.get('inning')
+                        game['inning_state'] = live_status.get('inning_state')
         
         return jsonify({
             'games': games,
