@@ -1325,7 +1325,7 @@
                 document.getElementById('total-games').textContent = games.length;
                 document.getElementById('correct-predictions').textContent = correctWinners + '/' + gamesWithAnalysis.length;
                 document.getElementById('accuracy-rate').textContent = gamesWithAnalysis.length > 0 ? 
-                    Math.round((correctWinners / gamesWithAnalysis.length) * 100) + '%' : 'N/A';
+                    ((correctWinners / gamesWithAnalysis.length) * 100).toFixed(1) + '%' : 'N/A';
                 document.getElementById('average-grade').textContent = avgGrade > 0 ? avgGrade.toFixed(1) + '%' : 'N/A';
                 document.getElementById('best-predictions').textContent = aPlusCount;
                 
@@ -1636,10 +1636,10 @@
             
             // Update winner prediction metrics
             const winnerPerf = analytics.winner_performance || {};
-            document.getElementById('winner-accuracy').textContent = (winnerPerf.accuracy_rate || 0) + '%';
+            document.getElementById('winner-accuracy').textContent = (winnerPerf.accuracy_rate || 0).toFixed(1) + '%';
             
             const highConfidence = winnerPerf.by_confidence?.high || {};
-            document.getElementById('high-confidence-accuracy').textContent = (highConfidence.accuracy || 0) + '%';
+            document.getElementById('high-confidence-accuracy').textContent = (highConfidence.accuracy || 0).toFixed(1) + '%';
             
             // Update score prediction metrics
             const scorePerf = analytics.score_performance || {};

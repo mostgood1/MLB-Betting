@@ -1,0 +1,546 @@
+{
+  "date": "2025-08-11",
+  "generated_at": "2025-08-17T14:57:06.617344",
+  "betting_lines": {
+    "total_runs_line": 9.5,
+    "moneyline_threshold": 0.52,
+    "total_runs_threshold": 0.51
+  },
+  "games": {
+    "Philadelphia Phillies @ Cincinnati Reds": {
+      "away_team": "Philadelphia Phillies",
+      "home_team": "Cincinnati Reds",
+      "away_pitcher": "Taijuan Walker",
+      "home_pitcher": "Andrew Abbott",
+      "has_tbd_pitchers": false,
+      "predicted_score": "3.952-4.048",
+      "predicted_total_runs": 8.0,
+      "win_probabilities": {
+        "away_prob": 0.476,
+        "home_prob": 0.524
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "home",
+          "team": "Cincinnati Reds",
+          "confidence": 0.524
+        },
+        "total_runs": {
+          "line": 9.5,
+          "pick": "under",
+          "predicted_total": 8.0,
+          "confidence": 0.547
+        },
+        "value_bets": [
+          {
+            "type": "moneyline",
+            "recommendation": "Cincinnati Reds ML",
+            "expected_value": 0.048,
+            "win_probability": 0.524,
+            "american_odds": 110,
+            "confidence": "medium"
+          },
+          {
+            "type": "total",
+            "recommendation": "Under 9.5",
+            "expected_value": 0.095,
+            "win_probability": 0.5473684210526316,
+            "american_odds": -110,
+            "confidence": "medium",
+            "predicted_total": 8.0,
+            "betting_line": 9.5
+          }
+        ]
+      },
+      "overall_confidence": 0.547,
+      "recommendation_quality": "MEDIUM"
+    },
+    "Minnesota Twins @ New York Yankees": {
+      "away_team": "Minnesota Twins",
+      "home_team": "New York Yankees",
+      "away_pitcher": "Zebby Matthews",
+      "home_pitcher": "Will Warren",
+      "has_tbd_pitchers": false,
+      "predicted_score": "3.952-4.048",
+      "predicted_total_runs": 8.0,
+      "win_probabilities": {
+        "away_prob": 0.476,
+        "home_prob": 0.524
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "home",
+          "team": "New York Yankees",
+          "confidence": 0.524
+        },
+        "total_runs": {
+          "line": 9.5,
+          "pick": "under",
+          "predicted_total": 8.0,
+          "confidence": 0.547
+        },
+        "value_bets": [
+          {
+            "type": "moneyline",
+            "recommendation": "New York Yankees ML",
+            "expected_value": 0.048,
+            "win_probability": 0.524,
+            "american_odds": 110,
+            "confidence": "medium"
+          },
+          {
+            "type": "total",
+            "recommendation": "Under 9.5",
+            "expected_value": 0.095,
+            "win_probability": 0.5473684210526316,
+            "american_odds": -110,
+            "confidence": "medium",
+            "predicted_total": 8.0,
+            "betting_line": 9.5
+          }
+        ]
+      },
+      "overall_confidence": 0.547,
+      "recommendation_quality": "MEDIUM"
+    },
+    "Washington Nationals @ Kansas City Royals": {
+      "away_team": "Washington Nationals",
+      "home_team": "Kansas City Royals",
+      "away_pitcher": "Cade Cavalli",
+      "home_pitcher": "Bailey Falter",
+      "has_tbd_pitchers": false,
+      "predicted_score": "3.952-4.048",
+      "predicted_total_runs": 8.0,
+      "win_probabilities": {
+        "away_prob": 0.476,
+        "home_prob": 0.524
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "home",
+          "team": "Kansas City Royals",
+          "confidence": 0.524
+        },
+        "total_runs": {
+          "line": 9.5,
+          "pick": "under",
+          "predicted_total": 8.0,
+          "confidence": 0.547
+        },
+        "value_bets": [
+          {
+            "type": "moneyline",
+            "recommendation": "Kansas City Royals ML",
+            "expected_value": 0.048,
+            "win_probability": 0.524,
+            "american_odds": 110,
+            "confidence": "medium"
+          },
+          {
+            "type": "total",
+            "recommendation": "Under 9.5",
+            "expected_value": 0.095,
+            "win_probability": 0.5473684210526316,
+            "american_odds": -110,
+            "confidence": "medium",
+            "predicted_total": 8.0,
+            "betting_line": 9.5
+          }
+        ]
+      },
+      "overall_confidence": 0.547,
+      "recommendation_quality": "MEDIUM"
+    },
+    "Detroit Tigers @ Chicago White Sox": {
+      "away_team": "Detroit Tigers",
+      "home_team": "Chicago White Sox",
+      "away_pitcher": "Chris Paddack",
+      "home_pitcher": "Elvis Peguero",
+      "has_tbd_pitchers": false,
+      "predicted_score": "3.952-4.048",
+      "predicted_total_runs": 8.0,
+      "win_probabilities": {
+        "away_prob": 0.476,
+        "home_prob": 0.524
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "home",
+          "team": "Chicago White Sox",
+          "confidence": 0.524
+        },
+        "total_runs": {
+          "line": 9.5,
+          "pick": "under",
+          "predicted_total": 8.0,
+          "confidence": 0.547
+        },
+        "value_bets": [
+          {
+            "type": "moneyline",
+            "recommendation": "Chicago White Sox ML",
+            "expected_value": 0.048,
+            "win_probability": 0.524,
+            "american_odds": 110,
+            "confidence": "medium"
+          },
+          {
+            "type": "total",
+            "recommendation": "Under 9.5",
+            "expected_value": 0.095,
+            "win_probability": 0.5473684210526316,
+            "american_odds": -110,
+            "confidence": "medium",
+            "predicted_total": 8.0,
+            "betting_line": 9.5
+          }
+        ]
+      },
+      "overall_confidence": 0.547,
+      "recommendation_quality": "MEDIUM"
+    },
+    "Pittsburgh Pirates @ Milwaukee Brewers": {
+      "away_team": "Pittsburgh Pirates",
+      "home_team": "Milwaukee Brewers",
+      "away_pitcher": "Andrew Heaney",
+      "home_pitcher": "Jose Quintana",
+      "has_tbd_pitchers": false,
+      "predicted_score": "3.952-4.048",
+      "predicted_total_runs": 8.0,
+      "win_probabilities": {
+        "away_prob": 0.476,
+        "home_prob": 0.524
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "home",
+          "team": "Milwaukee Brewers",
+          "confidence": 0.524
+        },
+        "total_runs": {
+          "line": 9.5,
+          "pick": "under",
+          "predicted_total": 8.0,
+          "confidence": 0.547
+        },
+        "value_bets": [
+          {
+            "type": "moneyline",
+            "recommendation": "Milwaukee Brewers ML",
+            "expected_value": 0.048,
+            "win_probability": 0.524,
+            "american_odds": 110,
+            "confidence": "medium"
+          },
+          {
+            "type": "total",
+            "recommendation": "Under 9.5",
+            "expected_value": 0.095,
+            "win_probability": 0.5473684210526316,
+            "american_odds": -110,
+            "confidence": "medium",
+            "predicted_total": 8.0,
+            "betting_line": 9.5
+          }
+        ]
+      },
+      "overall_confidence": 0.547,
+      "recommendation_quality": "MEDIUM"
+    },
+    "Colorado Rockies @ St. Louis Cardinals": {
+      "away_team": "Colorado Rockies",
+      "home_team": "St. Louis Cardinals",
+      "away_pitcher": "Chase Dollander",
+      "home_pitcher": "Miles Mikolas",
+      "has_tbd_pitchers": false,
+      "predicted_score": "3.952-4.048",
+      "predicted_total_runs": 8.0,
+      "win_probabilities": {
+        "away_prob": 0.476,
+        "home_prob": 0.524
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "home",
+          "team": "St. Louis Cardinals",
+          "confidence": 0.524
+        },
+        "total_runs": {
+          "line": 9.5,
+          "pick": "under",
+          "predicted_total": 8.0,
+          "confidence": 0.547
+        },
+        "value_bets": [
+          {
+            "type": "moneyline",
+            "recommendation": "St. Louis Cardinals ML",
+            "expected_value": 0.048,
+            "win_probability": 0.524,
+            "american_odds": 110,
+            "confidence": "medium"
+          },
+          {
+            "type": "total",
+            "recommendation": "Under 9.5",
+            "expected_value": 0.095,
+            "win_probability": 0.5473684210526316,
+            "american_odds": -110,
+            "confidence": "medium",
+            "predicted_total": 8.0,
+            "betting_line": 9.5
+          }
+        ]
+      },
+      "overall_confidence": 0.547,
+      "recommendation_quality": "MEDIUM"
+    },
+    "Arizona Diamondbacks @ Texas Rangers": {
+      "away_team": "Arizona Diamondbacks",
+      "home_team": "Texas Rangers",
+      "away_pitcher": "Ryne Nelson",
+      "home_pitcher": "Nathan Eovaldi",
+      "has_tbd_pitchers": false,
+      "predicted_score": "3.952-4.048",
+      "predicted_total_runs": 8.0,
+      "win_probabilities": {
+        "away_prob": 0.476,
+        "home_prob": 0.524
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "home",
+          "team": "Texas Rangers",
+          "confidence": 0.524
+        },
+        "total_runs": {
+          "line": 9.5,
+          "pick": "under",
+          "predicted_total": 8.0,
+          "confidence": 0.547
+        },
+        "value_bets": [
+          {
+            "type": "moneyline",
+            "recommendation": "Texas Rangers ML",
+            "expected_value": 0.048,
+            "win_probability": 0.524,
+            "american_odds": 110,
+            "confidence": "medium"
+          },
+          {
+            "type": "total",
+            "recommendation": "Under 9.5",
+            "expected_value": 0.095,
+            "win_probability": 0.5473684210526316,
+            "american_odds": -110,
+            "confidence": "medium",
+            "predicted_total": 8.0,
+            "betting_line": 9.5
+          }
+        ]
+      },
+      "overall_confidence": 0.547,
+      "recommendation_quality": "MEDIUM"
+    },
+    "Boston Red Sox @ Houston Astros": {
+      "away_team": "Boston Red Sox",
+      "home_team": "Houston Astros",
+      "away_pitcher": "Garrett Crochet",
+      "home_pitcher": "Cristian Javier",
+      "has_tbd_pitchers": false,
+      "predicted_score": "3.952-4.048",
+      "predicted_total_runs": 8.0,
+      "win_probabilities": {
+        "away_prob": 0.476,
+        "home_prob": 0.524
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "home",
+          "team": "Houston Astros",
+          "confidence": 0.524
+        },
+        "total_runs": {
+          "line": 9.5,
+          "pick": "under",
+          "predicted_total": 8.0,
+          "confidence": 0.547
+        },
+        "value_bets": [
+          {
+            "type": "moneyline",
+            "recommendation": "Houston Astros ML",
+            "expected_value": 0.048,
+            "win_probability": 0.524,
+            "american_odds": 110,
+            "confidence": "medium"
+          },
+          {
+            "type": "total",
+            "recommendation": "Under 9.5",
+            "expected_value": 0.095,
+            "win_probability": 0.5473684210526316,
+            "american_odds": -110,
+            "confidence": "medium",
+            "predicted_total": 8.0,
+            "betting_line": 9.5
+          }
+        ]
+      },
+      "overall_confidence": 0.547,
+      "recommendation_quality": "MEDIUM"
+    },
+    "Los Angeles Dodgers @ Los Angeles Angels": {
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "Los Angeles Angels",
+      "away_pitcher": "Yoshinobu Yamamoto",
+      "home_pitcher": "Jos\u00c3\u00a9 Soriano",
+      "has_tbd_pitchers": false,
+      "predicted_score": "3.952-4.048",
+      "predicted_total_runs": 8.0,
+      "win_probabilities": {
+        "away_prob": 0.476,
+        "home_prob": 0.524
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "home",
+          "team": "Los Angeles Angels",
+          "confidence": 0.524
+        },
+        "total_runs": {
+          "line": 9.5,
+          "pick": "under",
+          "predicted_total": 8.0,
+          "confidence": 0.547
+        },
+        "value_bets": [
+          {
+            "type": "moneyline",
+            "recommendation": "Los Angeles Angels ML",
+            "expected_value": 0.048,
+            "win_probability": 0.524,
+            "american_odds": 110,
+            "confidence": "medium"
+          },
+          {
+            "type": "total",
+            "recommendation": "Under 9.5",
+            "expected_value": 0.095,
+            "win_probability": 0.5473684210526316,
+            "american_odds": -110,
+            "confidence": "medium",
+            "predicted_total": 8.0,
+            "betting_line": 9.5
+          }
+        ]
+      },
+      "overall_confidence": 0.547,
+      "recommendation_quality": "MEDIUM"
+    },
+    "San Diego Padres @ San Francisco Giants": {
+      "away_team": "San Diego Padres",
+      "home_team": "San Francisco Giants",
+      "away_pitcher": "Yu Darvish",
+      "home_pitcher": "Logan Webb",
+      "has_tbd_pitchers": false,
+      "predicted_score": "3.952-4.048",
+      "predicted_total_runs": 8.0,
+      "win_probabilities": {
+        "away_prob": 0.476,
+        "home_prob": 0.524
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "home",
+          "team": "San Francisco Giants",
+          "confidence": 0.524
+        },
+        "total_runs": {
+          "line": 9.5,
+          "pick": "under",
+          "predicted_total": 8.0,
+          "confidence": 0.547
+        },
+        "value_bets": [
+          {
+            "type": "moneyline",
+            "recommendation": "San Francisco Giants ML",
+            "expected_value": 0.048,
+            "win_probability": 0.524,
+            "american_odds": 110,
+            "confidence": "medium"
+          },
+          {
+            "type": "total",
+            "recommendation": "Under 9.5",
+            "expected_value": 0.095,
+            "win_probability": 0.5473684210526316,
+            "american_odds": -110,
+            "confidence": "medium",
+            "predicted_total": 8.0,
+            "betting_line": 9.5
+          }
+        ]
+      },
+      "overall_confidence": 0.547,
+      "recommendation_quality": "MEDIUM"
+    },
+    "Tampa Bay Rays @ Oakland Athletics": {
+      "away_team": "Tampa Bay Rays",
+      "home_team": "Oakland Athletics",
+      "away_pitcher": "Ryan Pepiot",
+      "home_pitcher": "Jeffrey Springs",
+      "has_tbd_pitchers": false,
+      "predicted_score": "3.952-4.048",
+      "predicted_total_runs": 8.0,
+      "win_probabilities": {
+        "away_prob": 0.476,
+        "home_prob": 0.524
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "home",
+          "team": "Oakland Athletics",
+          "confidence": 0.524
+        },
+        "total_runs": {
+          "line": 9.5,
+          "pick": "under",
+          "predicted_total": 8.0,
+          "confidence": 0.547
+        },
+        "value_bets": [
+          {
+            "type": "moneyline",
+            "recommendation": "Oakland Athletics ML",
+            "expected_value": 0.048,
+            "win_probability": 0.524,
+            "american_odds": 110,
+            "confidence": "medium"
+          },
+          {
+            "type": "total",
+            "recommendation": "Under 9.5",
+            "expected_value": 0.095,
+            "win_probability": 0.5473684210526316,
+            "american_odds": -110,
+            "confidence": "medium",
+            "predicted_total": 8.0,
+            "betting_line": 9.5
+          }
+        ]
+      },
+      "overall_confidence": 0.547,
+      "recommendation_quality": "MEDIUM"
+    }
+  },
+  "summary": {
+    "total_games": 11,
+    "moneyline_picks": 11,
+    "over_picks": 0,
+    "under_picks": 11,
+    "high_confidence_picks": 0
+  }
+}

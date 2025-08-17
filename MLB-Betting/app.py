@@ -426,7 +426,7 @@ def load_real_betting_lines():
 # Removed create_sample_betting_lines() function - NO FAKE DATA ALLOWED
 
 def load_betting_recommendations():
-    """Load betting recommendations from engine"""
+    """Load betting recommendations from engine with fallback mechanisms"""
     today = datetime.now().strftime('%Y_%m_%d')
     
     # Get the directory where app.py is located
@@ -540,11 +540,55 @@ def load_betting_recommendations():
             logger.warning("Betting recommendations file has unexpected format")
             return data
     except FileNotFoundError:
-        logger.error(f"❌ CRITICAL: Betting recommendations not found at {rec_path}")
-        raise FileNotFoundError(f"Real betting recommendations not found at {rec_path}")
+        logger.warning(f"❌ Betting recommendations not found at {rec_path}")
+        logger.info("🔄 Attempting to auto-generate betting recommendations...")
+        
+        # Try to auto-generate betting recommendations
+        try:
+            import subprocess
+            import sys
+            from pathlib import Path
+            
+            # Get the parent directory (MLBCompare root)
+            mlb_root = Path(app_dir).parent
+            betting_engine = mlb_root / "betting_recommendations_engine.py"
+            
+            if betting_engine.exists():
+                logger.info(f"🚀 Running betting recommendations engine: {betting_engine}")
+                result = subprocess.run([
+                    sys.executable, str(betting_engine)
+                ], capture_output=True, text=True, timeout=120)
+                
+                if result.returncode == 0:
+                    logger.info("✅ Successfully generated betting recommendations")
+                    
+                    # Copy the generated file to the correct location
+                    source_file = mlb_root / "data" / f"betting_recommendations_{today}.json"
+                    if source_file.exists():
+                        import shutil
+                        shutil.copy2(source_file, rec_path)
+                        logger.info(f"📋 Copied betting recommendations to {rec_path}")
+                        
+                        # Try to load the newly generated file
+                        return load_betting_recommendations()
+                    else:
+                        logger.warning("Generated betting recommendations file not found")
+                else:
+                    logger.error(f"Betting recommendations generation failed: {result.stderr}")
+            else:
+                logger.warning(f"Betting recommendations engine not found at {betting_engine}")
+                
+        except Exception as e:
+            logger.error(f"Error during auto-generation: {e}")
+        
+        # If auto-generation fails, return empty structure
+        logger.warning("Returning empty betting recommendations structure")
+        return {'games': {}}
+        
     except json.JSONDecodeError as e:
         logger.error(f"❌ CRITICAL: Error parsing betting recommendations: {e}")
-        raise json.JSONDecodeError(f"Invalid betting recommendations data: {e}")
+        logger.warning("Returning empty betting recommendations structure due to JSON error")
+        return {'games': {}}
 
 # Removed create_sample_betting_recommendations() function - NO FAKE DATA ALLOWED
 
@@ -754,7 +798,7 @@ def generate_comprehensive_dashboard_insights(unified_cache):
             'winner_predictions_correct': bp['winner_predictions_correct'],
             'total_predictions_correct': bp['total_predictions_correct'],
             'perfect_games': bp['perfect_games'],
-            'games_analyzed': real_betting_stats['total_predictions_analyzed'],
+            'games_analyzed': real_betting_stats['total_games_analyzed'],  # Fix: use correct key name
             'winner_accuracy_pct': bp['winner_accuracy_pct'],
             'total_accuracy_pct': bp['total_accuracy_pct'],
             'perfect_games_pct': bp['perfect_games_pct'],
@@ -1159,7 +1203,7 @@ def get_comprehensive_betting_recommendations(game_recommendations, real_lines, 
     
     # Start with converted recommendations if available
     if game_recommendations:
-        result = convert_betting_recommendations_to_frontend_format(game_recommendations, real_lines)
+        result = convert_betting_recommendations_to_frontend_format(game_recommendations, real_lines, predicted_total)
         if result:
             existing_types = [bet['type'] for bet in result['value_bets']]
             
@@ -1244,12 +1288,57 @@ def calculate_expected_value(win_probability, odds_american):
         logger.warning(f"Could not calculate EV for odds {odds_american}: {e}")
         return None
 
-def convert_betting_recommendations_to_frontend_format(game_recommendations, real_lines=None):
+def convert_betting_recommendations_to_frontend_format(game_recommendations, real_lines=None, current_predicted_total=None):
     """Convert betting recommendations to format expected by frontend template"""
     if not game_recommendations or 'betting_recommendations' not in game_recommendations:
         return None
     
     betting_recs = game_recommendations['betting_recommendations']
+    
+    # FIRST: Check if we already have value_bets array (new format from betting engine)
+    if 'value_bets' in betting_recs and betting_recs['value_bets']:
+        logger.info(f"✅ Using existing value_bets array with {len(betting_recs['value_bets'])} recommendations")
+        
+        # Process existing value_bets and ensure they have the correct format
+        processed_value_bets = []
+        for bet in betting_recs['value_bets']:
+            processed_bet = bet.copy()  # Start with existing bet
+            
+            # Standardize type names for frontend
+            if processed_bet.get('type') == 'total':
+                processed_bet['type'] = 'Total Runs'
+            elif processed_bet.get('type') == 'moneyline':
+                processed_bet['type'] = 'Moneyline'
+            
+            # Add edge_rating if missing
+            if 'edge_rating' not in processed_bet:
+                confidence = processed_bet.get('confidence', 'medium')
+                processed_bet['edge_rating'] = '🔥' if confidence == 'high' else '⚡' if confidence == 'medium' else '💡'
+            
+            # Add reasoning if missing
+            if 'reasoning' not in processed_bet:
+                if processed_bet['type'] == 'Total Runs':
+                    predicted = processed_bet.get('predicted_total', 'N/A')
+                    line = processed_bet.get('betting_line', 'N/A')
+                    processed_bet['reasoning'] = f"Predicted {predicted} vs market {line}"
+                elif processed_bet['type'] == 'Moneyline':
+                    prob = processed_bet.get('win_probability', 0.5)
+                    processed_bet['reasoning'] = f"Model projects {prob*100:.1f}% win probability"
+            
+            processed_value_bets.append(processed_bet)
+        
+        # Calculate summary stats
+        high_confidence_count = sum(1 for bet in processed_value_bets if bet.get('confidence') == 'high')
+        medium_confidence_count = sum(1 for bet in processed_value_bets if bet.get('confidence') == 'medium')
+        
+        return {
+            'value_bets': processed_value_bets,
+            'total_bets': len(processed_value_bets),
+            'summary': f"{high_confidence_count} high-confidence, {medium_confidence_count} medium-confidence opportunities",
+            'total_opportunities': len([bet for bet in processed_value_bets if bet.get('confidence') in ['high', 'medium']])
+        }
+    
+    # FALLBACK: Convert from old object format if no value_bets array
     value_bets = []
     
     # Convert moneyline recommendation
@@ -1311,28 +1400,38 @@ def convert_betting_recommendations_to_frontend_format(game_recommendations, rea
     # Convert total runs recommendation
     if 'total_runs' in betting_recs and betting_recs['total_runs'] and betting_recs['total_runs'].get('recommendation', 'PASS') != 'PASS':
         tr_rec = betting_recs['total_runs']
-        # Extract pick from recommendation (e.g., "OVER 9.0" -> "OVER")
-        recommendation = tr_rec.get('recommendation', '')
-        pick = recommendation.split()[0] if recommendation and ' ' in recommendation else ''
         
-        # Calculate edge from predicted vs market
-        predicted_total = tr_rec.get('predicted_total', 8.5)
+        # Get market line
         market_line = tr_rec.get('line', 8.5)
-        edge = abs(predicted_total - market_line)
+        
+        # Use current predicted total if available, otherwise fall back to cached value
+        cached_predicted_total = tr_rec.get('predicted_total', 8.5)
+        current_predicted_total_value = current_predicted_total if current_predicted_total is not None else cached_predicted_total
+        
+        # Recalculate recommendation based on current prediction
+        if current_predicted_total_value > market_line:
+            pick = 'OVER'
+            recommendation = f"Over {market_line}"
+        else:
+            pick = 'UNDER' 
+            recommendation = f"Under {market_line}"
+        
+        # Calculate edge from current predicted vs market
+        edge = abs(current_predicted_total_value - market_line)
         
         # Calculate win probability for totals bet
         if pick == 'OVER':
             # For OVER bets, probability = how much our prediction exceeds the line
-            if predicted_total > market_line:
+            if current_predicted_total_value > market_line:
                 # Use confidence percentage if available, otherwise estimate from edge
                 bet_win_probability = tr_rec.get('confidence', 0.5 + min(edge * 0.1, 0.25))
             else:
-                bet_win_probability = 0.5 - min((market_line - predicted_total) * 0.1, 0.25)
+                bet_win_probability = 0.5 - min((market_line - current_predicted_total_value) * 0.1, 0.25)
         else:  # UNDER
-            if predicted_total < market_line:
+            if current_predicted_total_value < market_line:
                 bet_win_probability = tr_rec.get('confidence', 0.5 + min(edge * 0.1, 0.25))
             else:
-                bet_win_probability = 0.5 - min((predicted_total - market_line) * 0.1, 0.25)
+                bet_win_probability = 0.5 - min((current_predicted_total_value - market_line) * 0.1, 0.25)
         
         confidence_level = 'HIGH' if edge > 1.0 else 'MEDIUM' if edge > 0.5 else 'LOW'
         
@@ -1358,16 +1457,19 @@ def convert_betting_recommendations_to_frontend_format(game_recommendations, rea
         # Get line for display (use market_line as fallback)
         display_line = tr_rec.get('line', market_line)
         
+        # Use current predicted total if available, otherwise fall back to cached value
+        display_predicted_total = current_predicted_total if current_predicted_total is not None else tr_rec.get('predicted_total', 8.5)
+        
         value_bets.append({
             'type': 'Total Runs',
-            'recommendation': f"{pick} {display_line}",
+            'recommendation': recommendation,  # Use the recalculated recommendation
             'confidence': confidence_level,
             'edge': edge * 10,  # Convert to percentage
             'edge_rating': '🔥' if confidence_level == 'HIGH' else '⚡' if confidence_level == 'MEDIUM' else '💡',
             'estimated_odds': odds,
             'expected_value': expected_value,
             'win_probability': bet_win_probability,
-            'reasoning': f"Predicted {tr_rec.get('predicted_total', 8.5):.1f} vs market {display_line}"
+            'reasoning': f"Predicted {display_predicted_total:.1f} vs market {display_line}"
         })
     
     # Convert run line recommendation
@@ -1498,17 +1600,91 @@ def betting_test():
     except Exception as e:
         return jsonify({'error': str(e), 'traceback': traceback.format_exc()})
 
+@app.route('/api/run-daily-automation', methods=['POST'])
+def run_daily_automation():
+    """Manually trigger the complete daily automation system"""
+    try:
+        import subprocess
+        import threading
+        from pathlib import Path
+        
+        # Path to the comprehensive daily automation script
+        automation_script = Path(__file__).parent.parent / "complete_daily_automation.py"
+        
+        if not automation_script.exists():
+            # Fallback to the original script
+            automation_script = Path(__file__).parent.parent / "daily_enhanced_automation_clean.py"
+            
+        if not automation_script.exists():
+            return jsonify({
+                'success': False,
+                'error': f'Automation script not found at {automation_script}'
+            })
+        
+        def run_automation():
+            """Run comprehensive automation in background"""
+            try:
+                logger.info("🚀 Starting complete daily automation...")
+                result = subprocess.run([
+                    sys.executable, str(automation_script)
+                ], capture_output=True, text=True, timeout=900)  # 15 minute timeout
+                
+                if result.returncode == 0:
+                    logger.info("✅ Complete daily automation completed successfully")
+                    # Reload caches after successful automation
+                    try:
+                        global unified_cache_data
+                        unified_cache_data = load_unified_cache()
+                        logger.info("🔄 Reloaded unified cache after automation")
+                    except Exception as e:
+                        logger.error(f"Error reloading cache: {e}")
+                else:
+                    logger.error(f"❌ Complete daily automation failed: {result.stderr}")
+                    
+            except subprocess.TimeoutExpired:
+                logger.error("❌ Complete daily automation timed out after 15 minutes")
+            except Exception as e:
+                logger.error(f"❌ Complete daily automation error: {e}")
+        
+        # Start automation in background thread
+        automation_thread = threading.Thread(target=run_automation)
+        automation_thread.daemon = True
+        automation_thread.start()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Complete daily automation started in background. This will fetch games, generate predictions, create betting recommendations, and set up all necessary files. Check logs for progress.',
+            'status': 'running',
+            'estimated_time': '5-10 minutes'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error starting complete daily automation: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
+
 @app.route('/')
 def home():
     """Enhanced home page with comprehensive archaeological data insights"""
+    # Get today's date first to ensure it's always available
+    today = datetime.now().strftime('%Y-%m-%d')
+    
     try:
         # Load our treasure trove of data
         unified_cache = load_unified_cache()
         real_betting_lines = load_real_betting_lines()
-        betting_recommendations = load_betting_recommendations()
         
-        # Get today's date for filtering
-        today = datetime.now().strftime('%Y-%m-%d')
+        # Try to load betting recommendations, but handle missing files gracefully
+        try:
+            betting_recommendations = load_betting_recommendations()
+        except FileNotFoundError as e:
+            logger.warning(f"No betting recommendations file found for today: {e}")
+            betting_recommendations = {'games': {}}  # Empty recommendations
+        except Exception as e:
+            logger.error(f"Error loading betting recommendations: {e}")
+            betting_recommendations = {'games': {}}  # Empty recommendations
         
         # Get today's games directly using the same logic as the API
         predictions_by_date = unified_cache.get('predictions_by_date', {})
@@ -1619,7 +1795,13 @@ def home():
             predictions = game_data.get('predictions', {})
             away_score_final = predictions.get('predicted_away_score', 0) or game_data.get('predicted_away_score', 0)
             home_score_final = predictions.get('predicted_home_score', 0) or game_data.get('predicted_home_score', 0)
-            predicted_total_final = predictions.get('predicted_total_runs', 0) or predicted_total or game_data.get('predicted_total_runs', 0)
+            # Fix: ensure we get predicted_total_runs from the correct source
+            predicted_total_final = (
+                game_data.get('predicted_total_runs', 0) or  # Primary source
+                predictions.get('predicted_total_runs', 0) or  # Secondary fallback
+                predicted_total or  # Calculated fallback
+                (away_score_final + home_score_final)  # Final fallback
+            )
             
             # Extract win probabilities from nested structure
             away_win_prob_final = predictions.get('away_win_prob', 0) or away_win_prob
@@ -1669,10 +1851,43 @@ def home():
     except Exception as e:
         logger.error(f"Error in home route: {e}")
         logger.error(traceback.format_exc())
+        
+        # Provide default comprehensive_stats structure to avoid template errors
+        default_comprehensive_stats = {
+            'total_games_analyzed': 0,
+            'total_dates_covered': 0,
+            'date_range': {
+                'start': '2025-08-07',
+                'end': '2025-08-07',
+                'days_of_data': 0
+            },
+            'betting_performance': {
+                'winner_predictions_correct': 0,
+                'total_predictions_correct': 0,
+                'perfect_games': 0,
+                'games_analyzed': 0,
+                'winner_accuracy_pct': 0,
+                'total_accuracy_pct': 0,
+                'perfect_games_pct': 0,
+                'using_real_data': False
+            },
+            'score_analysis': {
+                'avg_total_runs': 0,
+                'min_total_runs': 0,
+                'max_total_runs': 0,
+                'games_with_scores': 0
+            },
+            'data_sources': {
+                'total_teams': 0,
+                'unique_pitchers': 0,
+                'sources': {}
+            }
+        }
+        
         return render_template('index.html', 
                              predictions=[],
                              stats={'total_games': 0, 'premium_predictions': 0},
-                             comprehensive_stats={},
+                             comprehensive_stats=default_comprehensive_stats,
                              today_date=today,
                              games_count=0)
 
@@ -2309,7 +2524,17 @@ def api_today_games():
         # Load unified cache 
         unified_cache = load_unified_cache()
         real_betting_lines = load_real_betting_lines()
-        betting_recommendations = load_betting_recommendations()
+        
+        # Try to load betting recommendations, but handle missing files gracefully
+        try:
+            betting_recommendations = load_betting_recommendations()
+        except FileNotFoundError as e:
+            logger.warning(f"No betting recommendations file found for API call: {e}")
+            betting_recommendations = {'games': {}}  # Empty recommendations
+        except Exception as e:
+            logger.error(f"Error loading betting recommendations for API: {e}")
+            betting_recommendations = {'games': {}}  # Empty recommendations
+            
         logger.info(f"Loaded cache with keys: {list(unified_cache.keys())[:5]}...")  # Show first 5 keys
         
         # Access the predictions_by_date structure
@@ -2492,7 +2717,13 @@ def api_today_games():
             predictions = game_data.get('predictions', {})
             away_score_final = predictions.get('predicted_away_score', 0) or game_data.get('predicted_away_score', 0)
             home_score_final = predictions.get('predicted_home_score', 0) or game_data.get('predicted_home_score', 0)
-            predicted_total_final = predictions.get('predicted_total_runs', 0) or predicted_total or game_data.get('predicted_total_runs', 0)
+            # Fix: ensure we get predicted_total_runs from the correct source
+            predicted_total_final = (
+                game_data.get('predicted_total_runs', 0) or  # Primary source
+                predictions.get('predicted_total_runs', 0) or  # Secondary fallback
+                predicted_total or  # Calculated fallback
+                (away_score_final + home_score_final)  # Final fallback
+            )
             
             # Extract win probabilities from nested structure
             away_win_prob_final = predictions.get('away_win_prob', 0) or game_data.get('away_win_probability', 0.5)
@@ -2504,7 +2735,7 @@ def api_today_games():
             if home_win_prob_final <= 1:
                 home_win_prob_final *= 100
             
-            # Create enhanced game object
+            # Create enhanced game object with proper structure for template
             enhanced_game = {
                 'game_id': game_key,
                 'away_team': away_team,
@@ -2512,7 +2743,21 @@ def api_today_games():
                 'away_logo': get_team_logo_url(away_team),
                 'home_logo': get_team_logo_url(home_team),
                 
-                # Team colors and styling
+                # Team assets for template compatibility
+                'away_team_assets': {
+                    'logo_url': get_team_logo_url(away_team),
+                    'primary_color': away_team_assets.get('primary_color', '#333333'),
+                    'secondary_color': away_team_assets.get('secondary_color', '#666666'),
+                    'text_color': away_team_assets.get('text_color', '#FFFFFF')
+                },
+                'home_team_assets': {
+                    'logo_url': get_team_logo_url(home_team),
+                    'primary_color': home_team_assets.get('primary_color', '#333333'),
+                    'secondary_color': home_team_assets.get('secondary_color', '#666666'),
+                    'text_color': home_team_assets.get('text_color', '#FFFFFF')
+                },
+                
+                # Team colors and styling (duplicate for backward compatibility)
                 'away_team_colors': {
                     'primary': away_team_assets.get('primary_color', '#333333'),
                     'secondary': away_team_assets.get('secondary_color', '#666666'),
@@ -2545,6 +2790,14 @@ def api_today_games():
                 'away_win_probability': round(away_win_prob_final, 1),
                 'home_win_probability': round(home_win_prob_final, 1),
                 
+                # Scores and live status at top level for template compatibility
+                'away_score': live_status_data.get('away_score', 0),
+                'home_score': live_status_data.get('home_score', 0),
+                'is_live': live_status_data.get('is_live', False),
+                'is_final': live_status_data.get('is_final', False),
+                'inning': live_status_data.get('inning', ''),
+                'inning_state': live_status_data.get('inning_state', ''),
+                
                 # Betting recommendations
                 'confidence': round(max_confidence, 1),
                 'recommendation': recommendation,
@@ -2560,7 +2813,7 @@ def api_today_games():
                 'real_betting_lines': real_lines,
                 'betting_recommendations': get_comprehensive_betting_recommendations(game_recommendations, real_lines, away_team, home_team, away_win_prob_final, home_win_prob_final, predicted_total_final, real_over_under_total),
                 
-                # Live status with actual data from MLB API
+                # Live status object for template compatibility
                 'live_status': {
                     'is_live': live_status_data.get('is_live', False),
                     'is_final': live_status_data.get('is_final', False),
@@ -2568,7 +2821,9 @@ def api_today_games():
                     'home_score': live_status_data.get('home_score', 0),
                     'inning': live_status_data.get('inning', ''),
                     'inning_state': live_status_data.get('inning_state', ''),
-                    'status': live_status_data.get('status', 'Scheduled')
+                    'status': live_status_data.get('status', 'Scheduled'),
+                    'badge_class': live_status_data.get('badge_class', 'scheduled'),
+                    'game_time': live_status_data.get('game_time', game_data.get('game_time', 'TBD'))
                 },
                 
                 # Comprehensive details for modal
@@ -2720,7 +2975,12 @@ def api_single_prediction(away_team, home_team):
         predictions = matching_game.get('predictions', {})
         predicted_away_score = predictions.get('predicted_away_score', 0) or matching_game.get('predicted_away_score', 0)
         predicted_home_score = predictions.get('predicted_home_score', 0) or matching_game.get('predicted_home_score', 0)
-        predicted_total_runs = predictions.get('predicted_total_runs', 0) or matching_game.get('predicted_total_runs', 0)
+        # Fix: ensure we get predicted_total_runs from the correct source
+        predicted_total_runs = (
+            matching_game.get('predicted_total_runs', 0) or  # Primary source
+            predictions.get('predicted_total_runs', 0) or  # Secondary fallback
+            (predicted_away_score + predicted_home_score)  # Final fallback
+        )
         away_win_prob = predictions.get('away_win_prob', 0) or matching_game.get('away_win_probability', 0.5)
         home_win_prob = predictions.get('home_win_prob', 0) or matching_game.get('home_win_probability', 0.5)
         
@@ -2862,7 +3122,7 @@ def api_single_prediction(away_team, home_team):
                 'most_likely_range': total_runs_prediction.get('most_likely_range', 'Unknown'),
                 'over_under_analysis': total_runs_prediction.get('over_under_analysis', {})
             },
-            'betting_recommendations': convert_betting_recommendations_to_frontend_format(game_recommendations, real_lines) if game_recommendations else create_basic_betting_recommendations(
+            'betting_recommendations': convert_betting_recommendations_to_frontend_format(game_recommendations, real_lines, predicted_total_runs) if game_recommendations else create_basic_betting_recommendations(
                 away_team, home_team, away_win_prob, home_win_prob, predicted_total_runs, 
                 real_over_under_total
             ),

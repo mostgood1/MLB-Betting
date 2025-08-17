@@ -1,0 +1,210 @@
+{
+  "date": "2025-08-07",
+  "generated_at": "2025-08-17T13:51:28.429704",
+  "betting_lines": {
+    "total_runs_line": 9.5,
+    "moneyline_threshold": 0.52,
+    "total_runs_threshold": 0.51
+  },
+  "games": {
+    "Oakland Athletics @ Washington Nationals": {
+      "away_team": "Oakland Athletics",
+      "home_team": "Washington Nationals",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "has_tbd_pitchers": true,
+      "predicted_score": "3.0-3.3",
+      "predicted_total_runs": 6.3,
+      "win_probabilities": {
+        "away_prob": 0.463,
+        "home_prob": 0.537
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "home",
+          "team": "Washington Nationals",
+          "confidence": 0.537
+        },
+        "total_runs": {
+          "line": 9.5,
+          "pick": "under",
+          "predicted_total": 6.3,
+          "confidence": 0.601
+        },
+        "value_bets": [
+          {
+            "type": "moneyline",
+            "recommendation": "Washington Nationals ML",
+            "expected_value": 0.074,
+            "win_probability": 0.537,
+            "american_odds": 110,
+            "confidence": "medium"
+          },
+          {
+            "type": "total",
+            "recommendation": "Under 9.5",
+            "expected_value": 0.202,
+            "win_probability": 0.6010526315789474,
+            "american_odds": -110,
+            "confidence": "medium",
+            "predicted_total": 6.3,
+            "betting_line": 9.5
+          }
+        ]
+      },
+      "overall_confidence": 0.501,
+      "recommendation_quality": "MEDIUM"
+    },
+    "Chicago White Sox @ Seattle Mariners": {
+      "away_team": "Chicago White Sox",
+      "home_team": "Seattle Mariners",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "has_tbd_pitchers": true,
+      "predicted_score": "5.1-5.5",
+      "predicted_total_runs": 10.6,
+      "win_probabilities": {
+        "away_prob": 0.45,
+        "home_prob": 0.55
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "home",
+          "team": "Seattle Mariners",
+          "confidence": 0.55
+        },
+        "total_runs": {
+          "line": 9.5,
+          "pick": "over",
+          "predicted_total": 10.6,
+          "confidence": 0.535
+        },
+        "value_bets": [
+          {
+            "type": "moneyline",
+            "recommendation": "Seattle Mariners ML",
+            "expected_value": 0.1,
+            "win_probability": 0.55,
+            "american_odds": 110,
+            "confidence": "medium"
+          },
+          {
+            "type": "total",
+            "recommendation": "Over 9.5",
+            "expected_value": 0.069,
+            "win_probability": 0.5347368421052632,
+            "american_odds": -110,
+            "confidence": "medium",
+            "predicted_total": 10.6,
+            "betting_line": 9.5
+          }
+        ]
+      },
+      "overall_confidence": 0.45,
+      "recommendation_quality": "LOW"
+    },
+    "Cincinnati Reds @ Pittsburgh Pirates": {
+      "away_team": "Cincinnati Reds",
+      "home_team": "Pittsburgh Pirates",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "has_tbd_pitchers": true,
+      "predicted_score": "3.8-3.2",
+      "predicted_total_runs": 7.0,
+      "win_probabilities": {
+        "away_prob": 0.574,
+        "home_prob": 0.426
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "away",
+          "team": "Cincinnati Reds",
+          "confidence": 0.574
+        },
+        "total_runs": {
+          "line": 9.5,
+          "pick": "under",
+          "predicted_total": 7.0,
+          "confidence": 0.579
+        },
+        "value_bets": [
+          {
+            "type": "moneyline",
+            "recommendation": "Cincinnati Reds ML",
+            "expected_value": 0.148,
+            "win_probability": 0.574,
+            "american_odds": 110,
+            "confidence": "medium"
+          },
+          {
+            "type": "total",
+            "recommendation": "Under 9.5",
+            "expected_value": 0.158,
+            "win_probability": 0.5789473684210527,
+            "american_odds": -110,
+            "confidence": "medium",
+            "predicted_total": 7.0,
+            "betting_line": 9.5
+          }
+        ]
+      },
+      "overall_confidence": 0.479,
+      "recommendation_quality": "LOW"
+    },
+    "Miami Marlins @ Atlanta Braves": {
+      "away_team": "Miami Marlins",
+      "home_team": "Atlanta Braves",
+      "away_pitcher": "TBD",
+      "home_pitcher": "TBD",
+      "has_tbd_pitchers": true,
+      "predicted_score": "3.1-3.5",
+      "predicted_total_runs": 6.6,
+      "win_probabilities": {
+        "away_prob": 0.45,
+        "home_prob": 0.55
+      },
+      "betting_recommendations": {
+        "moneyline": {
+          "pick": "home",
+          "team": "Atlanta Braves",
+          "confidence": 0.55
+        },
+        "total_runs": {
+          "line": 9.5,
+          "pick": "under",
+          "predicted_total": 6.6,
+          "confidence": 0.592
+        },
+        "value_bets": [
+          {
+            "type": "moneyline",
+            "recommendation": "Atlanta Braves ML",
+            "expected_value": 0.1,
+            "win_probability": 0.55,
+            "american_odds": 110,
+            "confidence": "medium"
+          },
+          {
+            "type": "total",
+            "recommendation": "Under 9.5",
+            "expected_value": 0.183,
+            "win_probability": 0.5915789473684211,
+            "american_odds": -110,
+            "confidence": "medium",
+            "predicted_total": 6.6,
+            "betting_line": 9.5
+          }
+        ]
+      },
+      "overall_confidence": 0.492,
+      "recommendation_quality": "LOW"
+    }
+  },
+  "summary": {
+    "total_games": 4,
+    "moneyline_picks": 4,
+    "over_picks": 1,
+    "under_picks": 3,
+    "high_confidence_picks": 0
+  }
+}

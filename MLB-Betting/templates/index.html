@@ -667,12 +667,17 @@
             </p>
             
             <!-- Admin Navigation -->
-            <div style="margin-top: 15px;">
+            <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
                 <a href="/admin" style="display: inline-block; padding: 8px 16px; background: rgba(255, 215, 0, 0.2); color: #FFD700; text-decoration: none; border-radius: 8px; border: 1px solid #FFD700; font-size: 0.9rem; font-weight: bold; transition: all 0.3s ease;" 
                    onmouseover="this.style.background='rgba(255, 215, 0, 0.3)'; this.style.transform='translateY(-2px)'" 
                    onmouseout="this.style.background='rgba(255, 215, 0, 0.2)'; this.style.transform='translateY(0)'">
                     🎯 Tuning Dashboard
                 </a>
+                <button id="run-automation-btn" onclick="runDailyAutomation()" style="padding: 8px 16px; background: rgba(79, 209, 199, 0.2); color: #4fd1c7; border: 1px solid #4fd1c7; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease;" 
+                        onmouseover="this.style.background='rgba(79, 209, 199, 0.3)'; this.style.transform='translateY(-2px)'" 
+                        onmouseout="this.style.background='rgba(79, 209, 199, 0.2)'; this.style.transform='translateY(0)'">
+                    🚀 Run Daily Update
+                </button>
             </div>
         </div>
 
@@ -857,6 +862,45 @@
             } finally {
                 btn.textContent = originalText;
                 btn.disabled = false;
+            }
+        }
+
+        // Daily Automation Function
+        async function runDailyAutomation() {
+            const btn = document.getElementById('run-automation-btn');
+            const originalText = btn.textContent;
+            
+            try {
+                btn.textContent = '🔄 Starting...';
+                btn.disabled = true;
+                
+                const response = await fetch('/api/run-daily-automation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    btn.textContent = '✅ Running...';
+                    alert('Daily automation started! This will update all data including betting recommendations for today. Check the console logs for progress. The page will refresh in 30 seconds.');
+                    
+                    // Refresh the page after 30 seconds to show updated data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 30000);
+                } else {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    alert('Error starting automation: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error starting automation:', error);
+                btn.textContent = originalText;
+                btn.disabled = false;
+                alert('Error starting daily automation.');
             }
         }
 
@@ -1146,6 +1190,7 @@
             console.log('Prediction data:', {
                 predicted_away_score: game.predicted_away_score,
                 predicted_home_score: game.predicted_home_score,
+                predicted_total_runs: game.predicted_total_runs,
                 away_win_probability: game.away_win_probability,
                 home_win_probability: game.home_win_probability
             });
@@ -1384,6 +1429,14 @@
             const predictedAwayScore = game.predicted_away_score || 0;
             const predictedHomeScore = game.predicted_home_score || 0;
             const predictedTotalRuns = game.predicted_total_runs || (predictedAwayScore + predictedHomeScore);
+            
+            // Debug: Check what's happening with predicted total runs
+            console.log(`🐛 DEBUGGING Total Runs for ${game.away_team} @ ${game.home_team}:`);
+            console.log(`  - game.predicted_total_runs: ${game.predicted_total_runs}`);
+            console.log(`  - predictedAwayScore: ${predictedAwayScore}`);
+            console.log(`  - predictedHomeScore: ${predictedHomeScore}`);
+            console.log(`  - calculated predictedTotalRuns: ${predictedTotalRuns}`);
+            
             const actualAwayScore = liveStatus.away_score || 0;
             const actualHomeScore = liveStatus.home_score || 0;
             const actualTotalRuns = actualAwayScore + actualHomeScore;

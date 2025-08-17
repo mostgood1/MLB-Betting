@@ -1,12 +1,12 @@
 {
-  "version": "2.0_engine_aligned_auto_optimized_auto_optimized_auto_optimized",
-  "last_updated": "2025-08-15T22:59:49.429491",
+  "version": "2.0_engine_aligned_auto_optimized_auto_optimized_auto_optimized_auto_optimized_auto_optimized_auto_optimized",
+  "last_updated": "2025-08-17T15:22:56.588428",
   "performance_grade": "FUNCTIONAL",
   "engine_parameters": {
     "home_field_advantage": 0.15,
     "base_lambda": 4.499999999999999,
     "team_strength_multiplier": 0.2,
-    "pitcher_era_weight": 0.7,
+    "pitcher_era_weight": 0.85,
     "pitcher_whip_weight": 0.3,
     "game_chaos_variance": 0.42
   },

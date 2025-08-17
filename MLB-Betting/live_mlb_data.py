@@ -9,6 +9,199 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 import os
 
+def get_team_assets(team_abbreviation: str) -> Dict:
+    """Get team assets (logo, colors) based on team abbreviation"""
+    # MLB team logo URLs and colors
+    team_assets = {
+        'ARI': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/109.svg',
+            'primary': '#A71930',
+            'secondary': '#E3D4AD',
+            'text': '#FFFFFF'
+        },
+        'ATL': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/144.svg',
+            'primary': '#CE1141',
+            'secondary': '#13274F',
+            'text': '#FFFFFF'
+        },
+        'BAL': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/110.svg',
+            'primary': '#DF4601',
+            'secondary': '#000000',
+            'text': '#FFFFFF'
+        },
+        'BOS': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/111.svg',
+            'primary': '#BD3039',
+            'secondary': '#0C2340',
+            'text': '#FFFFFF'
+        },
+        'CHC': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/112.svg',
+            'primary': '#0E3386',
+            'secondary': '#CC3433',
+            'text': '#FFFFFF'
+        },
+        'CWS': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/145.svg',
+            'primary': '#27251F',
+            'secondary': '#C4CED4',
+            'text': '#FFFFFF'
+        },
+        'CIN': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/113.svg',
+            'primary': '#C6011F',
+            'secondary': '#000000',
+            'text': '#FFFFFF'
+        },
+        'CLE': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/114.svg',
+            'primary': '#E31937',
+            'secondary': '#0C2340',
+            'text': '#FFFFFF'
+        },
+        'COL': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/115.svg',
+            'primary': '#33006F',
+            'secondary': '#C4CED4',
+            'text': '#FFFFFF'
+        },
+        'DET': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/116.svg',
+            'primary': '#0C2340',
+            'secondary': '#FA4616',
+            'text': '#FFFFFF'
+        },
+        'HOU': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/117.svg',
+            'primary': '#002D62',
+            'secondary': '#EB6E1F',
+            'text': '#FFFFFF'
+        },
+        'KC': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/118.svg',
+            'primary': '#004687',
+            'secondary': '#BD9B60',
+            'text': '#FFFFFF'
+        },
+        'LAA': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/108.svg',
+            'primary': '#BA0021',
+            'secondary': '#003263',
+            'text': '#FFFFFF'
+        },
+        'LAD': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/119.svg',
+            'primary': '#005A9C',
+            'secondary': '#EF3E42',
+            'text': '#FFFFFF'
+        },
+        'MIA': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/146.svg',
+            'primary': '#00A3E0',
+            'secondary': '#EF3340',
+            'text': '#FFFFFF'
+        },
+        'MIL': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/158.svg',
+            'primary': '#12284B',
+            'secondary': '#FFC52F',
+            'text': '#FFFFFF'
+        },
+        'MIN': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/142.svg',
+            'primary': '#002B5C',
+            'secondary': '#D31145',
+            'text': '#FFFFFF'
+        },
+        'NYM': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/121.svg',
+            'primary': '#002D72',
+            'secondary': '#FF5910',
+            'text': '#FFFFFF'
+        },
+        'NYY': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/147.svg',
+            'primary': '#132448',
+            'secondary': '#C4CED4',
+            'text': '#FFFFFF'
+        },
+        'OAK': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/133.svg',
+            'primary': '#003831',
+            'secondary': '#EFB21E',
+            'text': '#FFFFFF'
+        },
+        'PHI': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/143.svg',
+            'primary': '#E81828',
+            'secondary': '#002D72',
+            'text': '#FFFFFF'
+        },
+        'PIT': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/134.svg',
+            'primary': '#FDB827',
+            'secondary': '#27251F',
+            'text': '#000000'
+        },
+        'SD': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/135.svg',
+            'primary': '#2F241D',
+            'secondary': '#FFC425',
+            'text': '#FFFFFF'
+        },
+        'SF': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/137.svg',
+            'primary': '#FD5A1E',
+            'secondary': '#27251F',
+            'text': '#FFFFFF'
+        },
+        'SEA': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/136.svg',
+            'primary': '#0C2C56',
+            'secondary': '#005C5C',
+            'text': '#FFFFFF'
+        },
+        'STL': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/138.svg',
+            'primary': '#C41E3A',
+            'secondary': '#FEDB00',
+            'text': '#FFFFFF'
+        },
+        'TB': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/139.svg',
+            'primary': '#092C5C',
+            'secondary': '#8FBCE6',
+            'text': '#FFFFFF'
+        },
+        'TEX': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/140.svg',
+            'primary': '#003278',
+            'secondary': '#C0111F',
+            'text': '#FFFFFF'
+        },
+        'TOR': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/141.svg',
+            'primary': '#134A8E',
+            'secondary': '#1D2D5C',
+            'text': '#FFFFFF'
+        },
+        'WSH': {
+            'logo_url': 'https://www.mlbstatic.com/team-logos/120.svg',
+            'primary': '#AB0003',
+            'secondary': '#14225A',
+            'text': '#FFFFFF'
+        }
+    }
+    
+    return team_assets.get(team_abbreviation, {
+        'logo_url': 'https://www.mlbstatic.com/team-logos/1.svg',  # Generic MLB logo
+        'primary': '#333333',
+        'secondary': '#666666',
+        'text': '#FFFFFF'
+    })
+
 class LiveMLBData:
     """
     Integration with MLB Stats API for live game data
@@ -25,8 +218,8 @@ class LiveMLBData:
             date = datetime.now().strftime('%Y-%m-%d')
             
         try:
-            # Use simpler API call that works reliably
-            url = f"{self.schedule_url}?sportId=1&date={date}&hydrate=linescore,team,game(content(summary),tickets)"
+            # Use API call with pitcher and team data hydration
+            url = f"{self.schedule_url}?sportId=1&date={date}&hydrate=probablePitcher,linescore,team,game(content(summary),tickets)"
             
             response = requests.get(url, timeout=10)
             response.raise_for_status()
@@ -81,6 +274,21 @@ class LiveMLBData:
             away_team = teams.get('away', {}).get('team', {}).get('name', '')
             home_team = teams.get('home', {}).get('team', {}).get('name', '')
             
+            # Pitcher info
+            away_pitcher_data = teams.get('away', {}).get('probablePitcher', {})
+            home_pitcher_data = teams.get('home', {}).get('probablePitcher', {})
+            
+            away_pitcher = away_pitcher_data.get('fullName', 'TBD')
+            home_pitcher = home_pitcher_data.get('fullName', 'TBD')
+            
+            # Team abbreviations for logo generation
+            away_abbreviation = teams.get('away', {}).get('team', {}).get('abbreviation', '')
+            home_abbreviation = teams.get('home', {}).get('team', {}).get('abbreviation', '')
+            
+            # Get team assets (logos and colors)
+            away_assets = get_team_assets(away_abbreviation)
+            home_assets = get_team_assets(home_abbreviation)
+            
             # Scores (if available)
             away_score = teams.get('away', {}).get('score')
             home_score = teams.get('home', {}).get('score')
@@ -129,6 +337,14 @@ class LiveMLBData:
                 'home_team': home_team,
                 'away_score': away_score,
                 'home_score': home_score,
+                'away_pitcher': away_pitcher,
+                'home_pitcher': home_pitcher,
+                'away_abbreviation': away_abbreviation,
+                'home_abbreviation': home_abbreviation,
+                'away_team_assets': away_assets,
+                'home_team_assets': home_assets,
+                'away_team_colors': away_assets,  # Same as assets for backward compatibility
+                'home_team_colors': home_assets,
                 'is_live': status_code in ['I', 'IH', 'IT', 'IR'],
                 'is_final': status_code in ['F', 'FT', 'FR'],
                 'inning': inning,
