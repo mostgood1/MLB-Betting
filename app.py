@@ -91,16 +91,34 @@ def index():
         today_str = datetime.now().strftime('%Y-%m-%d')
         
         games = []
-        if cache_data and 'games' in cache_data:
-            games = cache_data['games'].get(today_str, [])
+        if cache_data:
+            # Check if data is in the new format: cache_data["2025-08-16"]["games"]
+            if today_str in cache_data and 'games' in cache_data[today_str]:
+                # New format: date -> games -> individual games
+                games_data = cache_data[today_str]['games']
+                # Convert from object format to list format
+                for game_key, game_data in games_data.items():
+                    game = {
+                        'game_id': game_key,
+                        'away_team': game_data.get('away_team', ''),
+                        'home_team': game_data.get('home_team', ''),
+                        'game_time': game_data.get('game_time', 'TBD'),
+                        'date': game_data.get('game_date', today_str),
+                        'predictions': game_data.get('predictions', {}),
+                        'betting_recommendations': game_data.get('betting_recommendations', {'value_bets': []})
+                    }
+                    games.append(game)
+            elif 'games' in cache_data and today_str in cache_data['games']:
+                # Old format: games -> date -> list of games
+                games = cache_data['games'][today_str]
             
-            # Add betting recommendations with EV calculations
+            # Add betting recommendations with EV calculations for games that need them
             for game in games:
-                if 'betting_recommendations' not in game:
+                if not game.get('betting_recommendations') or not game['betting_recommendations'].get('value_bets'):
                     # Create basic betting recommendations from predictions
                     predictions = game.get('predictions', {})
-                    away_win_prob = predictions.get('away_win_probability', 0.5)
-                    home_win_prob = predictions.get('home_win_probability', 0.5)
+                    away_win_prob = predictions.get('away_win_prob', 0.5)  # Note: different key name
+                    home_win_prob = predictions.get('home_win_prob', 0.5)  # Note: different key name
                     
                     value_bets = []
                     
@@ -126,7 +144,7 @@ def index():
                         })
                     
                     # Total runs recommendations
-                    total_runs = predictions.get('total_runs', 8.5)
+                    total_runs = predictions.get('predicted_total_runs', 8.5)
                     if total_runs > 9.0:
                         ev = calculate_expected_value(0.53, -110)
                         value_bets.append({
@@ -234,8 +252,26 @@ def api_today_games():
         cache_data = load_cache_data()
         
         games = []
-        if cache_data and 'games' in cache_data:
-            games = cache_data['games'].get(date_param, [])
+        if cache_data:
+            # Check if data is in the new format: cache_data["2025-08-16"]["games"]
+            if date_param in cache_data and 'games' in cache_data[date_param]:
+                # New format: date -> games -> individual games
+                games_data = cache_data[date_param]['games']
+                # Convert from object format to list format
+                for game_key, game_data in games_data.items():
+                    game = {
+                        'game_id': game_key,
+                        'away_team': game_data.get('away_team', ''),
+                        'home_team': game_data.get('home_team', ''),
+                        'game_time': game_data.get('game_time', 'TBD'),
+                        'date': game_data.get('game_date', date_param),
+                        'predictions': game_data.get('predictions', {}),
+                        'betting_recommendations': game_data.get('betting_recommendations', {'value_bets': []})
+                    }
+                    games.append(game)
+            elif 'games' in cache_data and date_param in cache_data['games']:
+                # Old format: games -> date -> list of games
+                games = cache_data['games'][date_param]
             
             # Add EV calculations and live status to each game
             for game in games:
