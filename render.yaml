@@ -4,6 +4,9 @@ services:
     env: python
     plan: free
     runtime: python-3.11
+    repo: https://github.com/mostgood1/MLB-Betting.git
+    branch: main
+    autoDeploy: true
     buildCommand: pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
     startCommand: cd MLB-Betting && python app.py
     envVars:

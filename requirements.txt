@@ -1,7 +1,22 @@
-Flask
-requests
-numpy
-scipy
-python-dateutil
-gunicorn
-python-dotenv
+# Core Web Framework
+Flask==2.3.3
+Werkzeug==2.3.7
+
+# HTTP Requests
+requests==2.31.0
+
+# Data Processing & Scientific Computing
+numpy==1.24.3
+scipy==1.11.1
+
+# Date/Time Utilities
+python-dateutil==2.8.2
+
+# Task Scheduling
+schedule==1.2.0
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# Production Server
+gunicorn==21.2.0

@@ -1,0 +1,279 @@
+{
+  "metadata": {
+    "created": "2025-08-16T18:32:57.696246",
+    "last_updated": "2025-08-16T18:34:17.095459",
+    "version": "2.0",
+    "total_recommendations_tracked": 15
+  },
+  "betting_types": {
+    "moneyline": {
+      "total_bets": 0,
+      "total_wins": 0,
+      "total_losses": 0,
+      "win_rate": 0.0,
+      "roi": 0.0,
+      "total_profit": 0.0
+    },
+    "totals": {
+      "total_bets": 0,
+      "total_wins": 0,
+      "total_losses": 0,
+      "win_rate": 0.0,
+      "roi": 0.0,
+      "total_profit": 0.0
+    },
+    "run_line": {
+      "total_bets": 0,
+      "total_wins": 0,
+      "total_losses": 0,
+      "win_rate": 0.0,
+      "roi": 0.0,
+      "total_profit": 0.0
+    },
+    "perfect_games": {
+      "total_opportunities": 0,
+      "perfect_hits": 0,
+      "success_rate": 0.0,
+      "value_created": 0.0
+    }
+  },
+  "daily_performance": {
+    "2025-08-16": {
+      "date": "2025-08-16",
+      "moneyline": {
+        "recommendations": 0,
+        "pending": 0,
+        "completed": 0,
+        "wins": 0
+      },
+      "totals": {
+        "recommendations": 15,
+        "pending": 15,
+        "completed": 0,
+        "wins": 0
+      },
+      "run_line": {
+        "recommendations": 0,
+        "pending": 0,
+        "completed": 0,
+        "wins": 0
+      },
+      "perfect_games": {
+        "opportunities": 0,
+        "perfect_hits": 0
+      }
+    }
+  },
+  "bet_history": [
+    {
+      "date": "2025-08-16",
+      "game": "Pittsburgh Pirates @ Chicago Cubs",
+      "betting_type": "totals",
+      "recommendation": "Over 9.5",
+      "predicted_total": 10.7,
+      "betting_line": 9.5,
+      "confidence": "MEDIUM",
+      "reasoning": "Predicted 10.7 runs vs line of 9.5",
+      "odds": "-110",
+      "status": "pending",
+      "actual_result": null,
+      "recorded_at": "2025-08-16T18:34:17.095459"
+    },
+    {
+      "date": "2025-08-16",
+      "game": "Texas Rangers @ Toronto Blue Jays",
+      "betting_type": "totals",
+      "recommendation": "Under 9.5",
+      "predicted_total": 6.7,
+      "betting_line": 9.5,
+      "confidence": "MEDIUM",
+      "reasoning": "Predicted 6.7 runs vs line of 9.5",
+      "odds": "-110",
+      "status": "pending",
+      "actual_result": null,
+      "recorded_at": "2025-08-16T18:34:17.095459"
+    },
+    {
+      "date": "2025-08-16",
+      "game": "Philadelphia Phillies @ Washington Nationals",
+      "betting_type": "totals",
+      "recommendation": "Over 9.5",
+      "predicted_total": 10.8,
+      "betting_line": 9.5,
+      "confidence": "MEDIUM",
+      "reasoning": "Predicted 10.8 runs vs line of 9.5",
+      "odds": "-110",
+      "status": "pending",
+      "actual_result": null,
+      "recorded_at": "2025-08-16T18:34:17.095459"
+    },
+    {
+      "date": "2025-08-16",
+      "game": "Seattle Mariners @ New York Mets",
+      "betting_type": "totals",
+      "recommendation": "Over 9.5",
+      "predicted_total": 10.9,
+      "betting_line": 9.5,
+      "confidence": "MEDIUM",
+      "reasoning": "Predicted 10.9 runs vs line of 9.5",
+      "odds": "-110",
+      "status": "pending",
+      "actual_result": null,
+      "recorded_at": "2025-08-16T18:34:17.095459"
+    },
+    {
+      "date": "2025-08-16",
+      "game": "Miami Marlins @ Boston Red Sox",
+      "betting_type": "totals",
+      "recommendation": "Under 9.5",
+      "predicted_total": 6.7,
+      "betting_line": 9.5,
+      "confidence": "MEDIUM",
+      "reasoning": "Predicted 6.7 runs vs line of 9.5",
+      "odds": "-110",
+      "status": "pending",
+      "actual_result": null,
+      "recorded_at": "2025-08-16T18:34:17.095459"
+    },
+    {
+      "date": "2025-08-16",
+      "game": "Milwaukee Brewers @ Cincinnati Reds",
+      "betting_type": "totals",
+      "recommendation": "Under 9.5",
+      "predicted_total": 8.8,
+      "betting_line": 9.5,
+      "confidence": "MEDIUM",
+      "reasoning": "Predicted 8.8 runs vs line of 9.5",
+      "odds": "-110",
+      "status": "pending",
+      "actual_result": null,
+      "recorded_at": "2025-08-16T18:34:17.095459"
+    },
+    {
+      "date": "2025-08-16",
+      "game": "Baltimore Orioles @ Houston Astros",
+      "betting_type": "totals",
+      "recommendation": "Over 9.5",
+      "predicted_total": 10.8,
+      "betting_line": 9.5,
+      "confidence": "MEDIUM",
+      "reasoning": "Predicted 10.8 runs vs line of 9.5",
+      "odds": "-110",
+      "status": "pending",
+      "actual_result": null,
+      "recorded_at": "2025-08-16T18:34:17.095459"
+    },
+    {
+      "date": "2025-08-16",
+      "game": "Atlanta Braves @ Cleveland Guardians",
+      "betting_type": "totals",
+      "recommendation": "Over 9.5",
+      "predicted_total": 10.8,
+      "betting_line": 9.5,
+      "confidence": "MEDIUM",
+      "reasoning": "Predicted 10.8 runs vs line of 9.5",
+      "odds": "-110",
+      "status": "pending",
+      "actual_result": null,
+      "recorded_at": "2025-08-16T18:34:17.095459"
+    },
+    {
+      "date": "2025-08-16",
+      "game": "Chicago White Sox @ Kansas City Royals",
+      "betting_type": "totals",
+      "recommendation": "Over 9.5",
+      "predicted_total": 10.8,
+      "betting_line": 9.5,
+      "confidence": "MEDIUM",
+      "reasoning": "Predicted 10.8 runs vs line of 9.5",
+      "odds": "-110",
+      "status": "pending",
+      "actual_result": null,
+      "recorded_at": "2025-08-16T18:34:17.095459"
+    },
+    {
+      "date": "2025-08-16",
+      "game": "Detroit Tigers @ Minnesota Twins",
+      "betting_type": "totals",
+      "recommendation": "Over 9.5",
+      "predicted_total": 10.8,
+      "betting_line": 9.5,
+      "confidence": "MEDIUM",
+      "reasoning": "Predicted 10.8 runs vs line of 9.5",
+      "odds": "-110",
+      "status": "pending",
+      "actual_result": null,
+      "recorded_at": "2025-08-16T18:34:17.095459"
+    },
+    {
+      "date": "2025-08-16",
+      "game": "New York Yankees @ St. Louis Cardinals",
+      "betting_type": "totals",
+      "recommendation": "Under 9.5",
+      "predicted_total": 7.2,
+      "betting_line": 9.5,
+      "confidence": "MEDIUM",
+      "reasoning": "Predicted 7.2 runs vs line of 9.5",
+      "odds": "-110",
+      "status": "pending",
+      "actual_result": null,
+      "recorded_at": "2025-08-16T18:34:17.095459"
+    },
+    {
+      "date": "2025-08-16",
+      "game": "Arizona Diamondbacks @ Colorado Rockies",
+      "betting_type": "totals",
+      "recommendation": "Over 9.5",
+      "predicted_total": 10.8,
+      "betting_line": 9.5,
+      "confidence": "MEDIUM",
+      "reasoning": "Predicted 10.8 runs vs line of 9.5",
+      "odds": "-110",
+      "status": "pending",
+      "actual_result": null,
+      "recorded_at": "2025-08-16T18:34:17.095459"
+    },
+    {
+      "date": "2025-08-16",
+      "game": "Tampa Bay Rays @ San Francisco Giants",
+      "betting_type": "totals",
+      "recommendation": "Under 9.5",
+      "predicted_total": 6.7,
+      "betting_line": 9.5,
+      "confidence": "MEDIUM",
+      "reasoning": "Predicted 6.7 runs vs line of 9.5",
+      "odds": "-110",
+      "status": "pending",
+      "actual_result": null,
+      "recorded_at": "2025-08-16T18:34:17.095459"
+    },
+    {
+      "date": "2025-08-16",
+      "game": "San Diego Padres @ Los Angeles Dodgers",
+      "betting_type": "totals",
+      "recommendation": "Under 9.5",
+      "predicted_total": 6.7,
+      "betting_line": 9.5,
+      "confidence": "MEDIUM",
+      "reasoning": "Predicted 6.7 runs vs line of 9.5",
+      "odds": "-110",
+      "status": "pending",
+      "actual_result": null,
+      "recorded_at": "2025-08-16T18:34:17.095459"
+    },
+    {
+      "date": "2025-08-16",
+      "game": "Los Angeles Angels @ Athletics",
+      "betting_type": "totals",
+      "recommendation": "Under 9.5",
+      "predicted_total": 8.6,
+      "betting_line": 9.5,
+      "confidence": "MEDIUM",
+      "reasoning": "Predicted 8.6 runs vs line of 9.5",
+      "odds": "-110",
+      "status": "pending",
+      "actual_result": null,
+      "recorded_at": "2025-08-16T18:34:17.095459"
+    }
+  ]
+}

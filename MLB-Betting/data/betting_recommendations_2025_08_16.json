@@ -1,0 +1,130 @@
+{
+  "generation_date": "2025-08-16T17:57:12.244864",
+  "date": "2025-08-16",
+  "total_games": 15,
+  "betting_recommendations": {
+    "moneyline": [],
+    "total_runs": [
+      {
+        "game": "Pittsburgh Pirates @ Chicago Cubs",
+        "pick": "Over 9.0",
+        "predicted_total": 10.2,
+        "market_line": 9.0,
+        "edge": 1.1999999999999993,
+        "type": "Total"
+      },
+      {
+        "game": "Texas Rangers @ Toronto Blue Jays",
+        "pick": "Under 9.0",
+        "predicted_total": 7.5,
+        "market_line": 9.0,
+        "edge": 1.5,
+        "type": "Total"
+      },
+      {
+        "game": "Philadelphia Phillies @ Washington Nationals",
+        "pick": "Over 10.5",
+        "predicted_total": 11.5,
+        "market_line": 10.5,
+        "edge": 1.0,
+        "type": "Total"
+      },
+      {
+        "game": "Seattle Mariners @ New York Mets",
+        "pick": "Over 8.5",
+        "predicted_total": 11.5,
+        "market_line": 8.5,
+        "edge": 3.0,
+        "type": "Total"
+      },
+      {
+        "game": "Miami Marlins @ Boston Red Sox",
+        "pick": "Under 9.5",
+        "predicted_total": 7.1,
+        "market_line": 9.5,
+        "edge": 2.4000000000000004,
+        "type": "Total"
+      },
+      {
+        "game": "Milwaukee Brewers @ Cincinnati Reds",
+        "pick": "Over 9.5",
+        "predicted_total": 11.0,
+        "market_line": 9.5,
+        "edge": 1.5,
+        "type": "Total"
+      },
+      {
+        "game": "Baltimore Orioles @ Houston Astros",
+        "pick": "Over 8.5",
+        "predicted_total": 10.4,
+        "market_line": 8.5,
+        "edge": 1.9000000000000004,
+        "type": "Total"
+      },
+      {
+        "game": "Atlanta Braves @ Cleveland Guardians",
+        "pick": "Under 8.0",
+        "predicted_total": 7.2,
+        "market_line": 8.0,
+        "edge": 0.7999999999999998,
+        "type": "Total"
+      },
+      {
+        "game": "Chicago White Sox @ Kansas City Royals",
+        "pick": "Over 9.0",
+        "predicted_total": 11.5,
+        "market_line": 9.0,
+        "edge": 2.5,
+        "type": "Total"
+      },
+      {
+        "game": "Detroit Tigers @ Minnesota Twins",
+        "pick": "Over 8.0",
+        "predicted_total": 11.6,
+        "market_line": 8.0,
+        "edge": 3.5999999999999996,
+        "type": "Total"
+      },
+      {
+        "game": "New York Yankees @ St. Louis Cardinals",
+        "pick": "Over 9.5",
+        "predicted_total": 10.8,
+        "market_line": 9.5,
+        "edge": 1.3000000000000007,
+        "type": "Total"
+      },
+      {
+        "game": "Arizona Diamondbacks @ Colorado Rockies",
+        "pick": "Under 11.0",
+        "predicted_total": 9.0,
+        "market_line": 11.0,
+        "edge": 2.0,
+        "type": "Total"
+      },
+      {
+        "game": "Tampa Bay Rays @ San Francisco Giants",
+        "pick": "Over 7.5",
+        "predicted_total": 11.5,
+        "market_line": 7.5,
+        "edge": 4.0,
+        "type": "Total"
+      },
+      {
+        "game": "San Diego Padres @ Los Angeles Dodgers",
+        "pick": "Under 9.0",
+        "predicted_total": 8.3,
+        "market_line": 9.0,
+        "edge": 0.6999999999999993,
+        "type": "Total"
+      },
+      {
+        "game": "Los Angeles Angels @ Athletics",
+        "pick": "Under 8.5",
+        "predicted_total": 7.2,
+        "market_line": 8.5,
+        "edge": 1.2999999999999998,
+        "type": "Total"
+      }
+    ]
+  }
+}

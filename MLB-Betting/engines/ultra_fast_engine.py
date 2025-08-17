@@ -25,7 +25,7 @@ class UltraFastSimEngine:
     Adapted for MLB-Betting system with master data integration
     """
     
-    def __init__(self, data_dir: str = None):
+    def __init__(self, data_dir: str = None, config: dict = None):
         # Default to the data directory at the MLB-Betting root level
         if data_dir is None:
             # Get the parent directory of engines (MLB-Betting) and add data
@@ -33,6 +33,9 @@ class UltraFastSimEngine:
             self.data_dir = os.path.join(parent_dir, 'data')
         else:
             self.data_dir = data_dir
+        
+        # Load configuration or use defaults
+        self.config = config or self._get_default_config()
         
         # Pre-compute probability distributions for maximum speed
         self.setup_fast_distributions()
@@ -98,14 +101,60 @@ class UltraFastSimEngine:
             print(f"Warning: Could not load pitcher stats: {e}")
         return {}
     
+    def _get_default_config(self):
+        """Get default configuration parameters"""
+        return {
+            "engine_parameters": {
+                "home_field_advantage": 0.15,
+                "base_lambda": 4.2,
+                "team_strength_multiplier": 0.20,
+                "pitcher_era_weight": 0.70,
+                "pitcher_whip_weight": 0.30,
+                "game_chaos_variance": 0.42
+            },
+            "betting_parameters": {
+                "min_edge": 0.03,
+                "kelly_fraction": 0.25,
+                "high_confidence_ev": 0.10,
+                "medium_confidence_ev": 0.05
+            },
+            "simulation_parameters": {
+                "default_sim_count": 2000,
+                "quick_sim_count": 1000,
+                "detailed_sim_count": 5000,
+                "max_sim_count": 10000
+            },
+            "pitcher_quality_bounds": {
+                "min_quality_factor": 0.50,
+                "max_quality_factor": 1.60,
+                "ace_era_threshold": 2.75,
+                "good_era_threshold": 3.50,
+                "poor_era_threshold": 5.25,
+                "min_games_started": 5
+            }
+        }
+    
     def get_pitcher_quality_factor(self, pitcher_name: str) -> float:
         """
-        Get pitcher quality factor based on 2025 stats
+        Get pitcher quality factor based on 2025 stats with configurable weights
         Returns multiplier: <1.0 = good pitcher (allows fewer runs), >1.0 = poor pitcher
         """
         if not pitcher_name or not self.pitcher_stats:
             return 1.0
         
+        # Get configuration
+        pitcher_config = self.config.get('pitcher_quality_bounds', {})
+        engine_params = self.config.get('engine_parameters', {})
+        
+        era_weight = engine_params.get('pitcher_era_weight', 0.70)
+        whip_weight = engine_params.get('pitcher_whip_weight', 0.30)
+        ace_era_threshold = pitcher_config.get('ace_era_threshold', 2.75)
+        good_era_threshold = pitcher_config.get('good_era_threshold', 3.50)
+        poor_era_threshold = pitcher_config.get('poor_era_threshold', 5.25)
+        min_games_started = pitcher_config.get('min_games_started', 5)
+        min_quality_factor = pitcher_config.get('min_quality_factor', 0.50)
+        max_quality_factor = pitcher_config.get('max_quality_factor', 1.60)
+
         # Find pitcher by name match
         pitcher_data = None
         for pitcher_id, data in self.pitcher_stats.items():
@@ -125,26 +174,26 @@ class UltraFastSimEngine:
             return 1.0
         
         # Only apply to starting pitchers
-        if games_started < 5:
+        if games_started < min_games_started:
             return 1.0
         
-        # ERA-based adjustment
+        # Configurable ERA-based adjustment
         if era < 2.00:
             era_factor = 0.60
-        elif era < 2.75:
+        elif era < ace_era_threshold:
             era_factor = 0.70
-        elif era < 3.50:
+        elif era < good_era_threshold:
             era_factor = 0.85
         elif era < 4.25:
             era_factor = 0.95
-        elif era < 5.25:
+        elif era < poor_era_threshold:
             era_factor = 1.15
         elif era < 6.50:
             era_factor = 1.25
         else:
             era_factor = 1.40
         
-        # WHIP adjustment
+        # WHIP adjustment (unchanged logic but can be expanded)
         if whip < 1.00:
             whip_factor = 0.80
         elif whip < 1.15:
@@ -168,11 +217,11 @@ class UltraFastSimEngine:
         except:
             ip_factor = 0.5
         
-        # Combine factors
-        base_factor = (era_factor * 0.70) + (whip_factor * 0.30)
+        # Combine factors with configurable weights
+        base_factor = (era_factor * era_weight) + (whip_factor * whip_weight)
         quality_factor = 1.0 + ((base_factor - 1.0) * ip_factor)
         
-        return max(0.50, min(1.60, quality_factor))
+        return max(min_quality_factor, min(max_quality_factor, quality_factor))
     
     def get_matchup_starters(self, away_team: str, home_team: str, game_date: str = None) -> Tuple[Optional[str], Optional[str]]:
         """Get starting pitchers for this matchup from master games data"""
@@ -197,12 +246,16 @@ class UltraFastSimEngine:
         return None, None
     
     def _setup_speed_cache(self):
-        """Setup caching for maximum speed"""
-        self.home_field_advantage = 0.15
-        self.base_runs_per_team = 4.3
+        """Setup caching for maximum speed with configurable parameters"""
+        engine_params = self.config.get('engine_parameters', {})
+        self.home_field_advantage = engine_params.get('home_field_advantage', 0.15)
+        self.base_runs_per_team = 4.3  # Keep as constant
+        self.base_lambda = engine_params.get('base_lambda', 4.2)
+        self.team_strength_multiplier = engine_params.get('team_strength_multiplier', 0.20)
+        self.game_chaos_variance = engine_params.get('game_chaos_variance', 0.42)
     
     def get_team_multiplier_with_pitchers(self, away_team: str, home_team: str, game_date: str = None) -> Tuple[float, float]:
-        """Get run multipliers for both teams including pitcher quality"""
+        """Get run multipliers for both teams including pitcher quality with configurable parameters"""
         away_strength = self.team_strengths.get(away_team, 0.0)
         home_strength = self.team_strengths.get(home_team, 0.0) + self.home_field_advantage
         
@@ -213,9 +266,9 @@ class UltraFastSimEngine:
         away_pitcher_factor = self.get_pitcher_quality_factor(home_starter)  # Home pitcher affects away scoring
         home_pitcher_factor = self.get_pitcher_quality_factor(away_starter)  # Away pitcher affects home scoring
         
-        # Convert to multipliers
-        away_mult = 1.0 - (home_strength - away_strength) * 0.20
-        home_mult = 1.0 + (home_strength - away_strength) * 0.20
+        # Convert to multipliers using configurable team strength multiplier
+        away_mult = 1.0 - (home_strength - away_strength) * self.team_strength_multiplier
+        home_mult = 1.0 + (home_strength - away_strength) * self.team_strength_multiplier
         
         # Apply pitcher quality adjustments
         away_mult *= away_pitcher_factor
@@ -248,13 +301,12 @@ class UltraFastSimEngine:
         
         away_mult, home_mult = self.get_team_multiplier_with_pitchers(away_team, home_team, game_date)
         
-        # Poisson parameters
-        base_lambda = 4.2
-        away_lambda = base_lambda * away_mult
-        home_lambda = base_lambda * home_mult
+        # Poisson parameters using configurable base lambda
+        away_lambda = self.base_lambda * away_mult
+        home_lambda = self.base_lambda * home_mult
         
-        # Game-level variance
-        game_chaos_factor = np.random.normal(1.0, 0.42)
+        # Game-level variance using configurable chaos factor
+        game_chaos_factor = np.random.normal(1.0, self.game_chaos_variance)
         game_chaos_factor = max(0.75, min(1.25, game_chaos_factor))
         
         away_lambda *= game_chaos_factor
@@ -309,11 +361,15 @@ class UltraFastSimEngine:
         }
 
 class SmartBettingAnalyzer:
-    """Advanced betting analyzer with real-time recommendations"""
+    """Advanced betting analyzer with real-time recommendations and configurable parameters"""
     
-    def __init__(self):
-        self.min_edge = 0.03  # 3% minimum edge
-        self.kelly_fraction = 0.25  # Conservative Kelly sizing
+    def __init__(self, config: dict = None):
+        self.config = config or {}
+        betting_params = self.config.get('betting_parameters', {})
+        self.min_edge = betting_params.get('min_edge', 0.03)  # 3% minimum edge
+        self.kelly_fraction = betting_params.get('kelly_fraction', 0.25)  # Conservative Kelly sizing
+        self.high_confidence_ev = betting_params.get('high_confidence_ev', 0.10)
+        self.medium_confidence_ev = betting_params.get('medium_confidence_ev', 0.05)
         
     def analyze_moneyline_value(self, home_win_prob: float, away_win_prob: float,
                               home_odds: int, away_odds: int) -> List[Dict]:
@@ -338,7 +394,7 @@ class SmartBettingAnalyzer:
                 'expected_value': round(ev, 3),
                 'edge': round(home_win_prob - home_implied, 3),
                 'kelly_bet_size': round(kelly_size, 1),
-                'confidence': 'HIGH' if ev > 0.1 else 'MEDIUM',
+                'confidence': 'HIGH' if ev > self.high_confidence_ev else 'MEDIUM',
                 'reasoning': f"Model: {home_win_prob:.1%} vs Market: {home_implied:.1%}"
             })
         
@@ -427,9 +483,9 @@ class SmartBettingAnalyzer:
             return 100 / abs(odds)
 
 class FastPredictionEngine:
-    """Complete fast prediction engine for MLB-Betting system"""
+    """Complete fast prediction engine for MLB-Betting system with configurable parameters"""
     
-    def __init__(self, data_dir: str = None):
+    def __init__(self, data_dir: str = None, config: dict = None):
         # Default to the data directory at the MLB-Betting root level
         if data_dir is None:
             # Get the parent directory of engines (MLB-Betting) and add data
@@ -437,9 +493,23 @@ class FastPredictionEngine:
             self.data_dir = os.path.join(parent_dir, 'data')
         else:
             self.data_dir = data_dir
-        self.sim_engine = UltraFastSimEngine(self.data_dir)
-        self.betting_analyzer = SmartBettingAnalyzer()
+        
+        # Load configuration
+        self.config = config or self._load_config()
+        
+        # Initialize components with configuration
+        self.sim_engine = UltraFastSimEngine(self.data_dir, self.config)
+        self.betting_analyzer = SmartBettingAnalyzer(self.config)
         self._load_master_data()
+    
+    def _load_config(self):
+        """Load configuration from file"""
+        try:
+            config_file = os.path.join(self.data_dir, 'optimized_config.json')
+            with open(config_file, 'r') as f:
+                return json.load(f)
+        except:
+            return self.sim_engine._get_default_config()
     
     def _load_master_data(self):
         """Load master data files"""
@@ -489,7 +559,10 @@ class FastPredictionEngine:
         if historical_result:
             return historical_result
         
-        # Run simulations
+        # Run simulations with configurable count
+        sim_params = self.config.get('simulation_parameters', {})
+        default_sim_count = sim_params.get('default_sim_count', 2000)
+        sim_count = sim_count or default_sim_count
         results, pitcher_info = self.sim_engine.simulate_game_vectorized(
             away_team, home_team, sim_count, game_date, away_pitcher, home_pitcher
         )

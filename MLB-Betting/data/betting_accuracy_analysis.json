@@ -1,0 +1,19 @@
+{
+  "total_predictions_analyzed": 83,
+  "betting_performance": {
+    "winner_predictions_correct": 45,
+    "total_predictions_correct": 40,
+    "perfect_games": 26,
+    "games_analyzed": 83,
+    "winner_accuracy_pct": 54.3,
+    "total_accuracy_pct": 48.2,
+    "perfect_games_pct": 31.3,
+    "using_real_data": true
+  },
+  "analysis_date": "2025-08-15",
+  "date_range": {
+    "start": "2025-08-07",
+    "end": "2025-08-15"
+  },
+  "note": "Based on real game performance tracking data from performance_history.json"
+}

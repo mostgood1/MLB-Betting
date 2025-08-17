@@ -193,7 +193,7 @@ class MLBTeamAssets:
     def _load_assets(self):
         """Load team assets from JSON files"""
         # Look for team assets only within the MLB-Betting directory
-        asset_path = os.path.join(os.path.dirname(__file__), 'team_assets.json')
+        asset_path = os.path.join(os.path.dirname(__file__), 'data', 'team_assets.json')
         
         if os.path.exists(asset_path):
             try:
