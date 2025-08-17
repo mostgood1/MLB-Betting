@@ -20,27 +20,63 @@ import threading
 import time
 import subprocess
 from collections import defaultdict, Counter
-from engines.ultra_fast_engine import UltraFastSimEngine
+
+# Try to import optional modules with fallbacks for Render deployment
+try:
+    from engines.ultra_fast_engine import UltraFastSimEngine
+    ULTRA_FAST_ENGINE_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Ultra fast engine not available: {e}")
+    ULTRA_FAST_ENGINE_AVAILABLE = False
+
 import schedule
 
-# Import admin tuning blueprint
-from admin_tuning import admin_bp
+# Optional admin module
+try:
+    from admin_tuning import admin_bp
+    ADMIN_TUNING_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Admin tuning not available: {e}")
+    ADMIN_TUNING_AVAILABLE = False
+    admin_bp = None
 
-# Import auto-tuning system
-from continuous_auto_tuning import ContinuousAutoTuner
+# Optional auto tuning module  
+try:
+    from continuous_auto_tuning import ContinuousAutoTuner
+    AUTO_TUNING_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Auto tuning not available: {e}")
+    AUTO_TUNING_AVAILABLE = False
 
 # Import team assets for colors and logos
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from team_assets_utils import get_team_assets, get_team_primary_color, get_team_secondary_color
 
-# Import live status function
-from live_mlb_data import get_live_game_status
+try:
+    from team_assets_utils import get_team_assets, get_team_primary_color, get_team_secondary_color
+    TEAM_ASSETS_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Team assets not available: {e}")
+    TEAM_ASSETS_AVAILABLE = False
+    # Fallback functions
+    def get_team_assets(team): return {}
+    def get_team_primary_color(team): return "#666666"
+    def get_team_secondary_color(team): return "#333333"
+
+# Optional live data
+try:
+    from live_mlb_data import get_live_game_status
+    LIVE_DATA_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Live MLB data not available: {e}")
+    LIVE_DATA_AVAILABLE = False
+    def get_live_game_status(away_team, home_team): return "Pre-Game"
 
 app = Flask(__name__)
 
-# Register admin blueprint
-app.register_blueprint(admin_bp)
+# Register admin blueprint if available
+if ADMIN_TUNING_AVAILABLE and admin_bp:
+    app.register_blueprint(admin_bp)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -58,8 +94,12 @@ auto_tuner = None
 auto_tuner_thread = None
 
 def start_auto_tuning_background():
-    """Start auto-tuning in a background thread"""
+    """Start auto-tuning in a background thread if available"""
     global auto_tuner, auto_tuner_thread
+    
+    if not AUTO_TUNING_AVAILABLE:
+        logger.warning("⚠️ Auto-tuning not available on this deployment")
+        return False
     
     try:
         logger.info("🔄 Initializing integrated auto-tuning system...")
