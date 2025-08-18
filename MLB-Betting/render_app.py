@@ -38,126 +38,67 @@ def get_pacific_time():
     return datetime.now() - timedelta(hours=8)
 
 def load_today_games_safe():
-    """Load games with intelligent fallback to available data"""
+    """Load most recent games data available"""
     try:
-        pacific_now = get_pacific_time()
-        today = pacific_now.strftime('%Y_%m_%d')
-        today_dash = pacific_now.strftime('%Y-%m-%d')
+        logger.info("Loading games with fallback strategy")
         
-        logger.info(f"Pacific Time: {pacific_now}")
-        logger.info(f"Looking for: {today_dash}")
-        
-        # Smart approach: Get all available betting files and use the most recent
+        # First, just get the most recent betting file
         if os.path.exists('data'):
             data_files = os.listdir('data')
             
-            # Find all betting recommendation files and sort by date
+            # Find all betting recommendation files
             betting_files = []
             for f in data_files:
                 if f.startswith('betting_recommendations_2025') and f.endswith('.json'):
-                    # Extract date from filename
-                    try:
-                        date_part = f.replace('betting_recommendations_', '').replace('.json', '')
-                        if date_part.startswith('2025'):
-                            betting_files.append((f, date_part))
-                    except:
-                        continue
+                    betting_files.append(f)
             
-            # Sort by date (most recent first)
-            betting_files.sort(key=lambda x: x[1], reverse=True)
-            logger.info(f"Available betting files: {[f[0] for f in betting_files]}")
+            # Sort by filename (which includes date) to get most recent
+            betting_files.sort(reverse=True)
+            logger.info(f"Found betting files: {betting_files[:3]}")  # Log top 3
             
-            # Try files in order of preference
-            file_attempts = []
-            
-            # First priority: exact match for today
-            file_attempts.append(f'data/betting_recommendations_{today}.json')
-            file_attempts.append(f'data/betting_recommendations_{today_dash}.json')
-            
-            # Second priority: most recent files
-            for betting_file, _ in betting_files[:5]:  # Try top 5 recent files
-                file_attempts.append(f'data/{betting_file}')
-            
-            # Third priority: unified cache
-            file_attempts.append('data/unified_predictions_cache.json')
-            
-            for file_path in file_attempts:
-                logger.info(f"Trying: {file_path}")
-                if os.path.exists(file_path):
-                    try:
-                        with open(file_path, 'r') as f:
-                            data = json.load(f)
-                        
-                        games_data = []
-                        
-                        if isinstance(data, dict):
-                            # Handle direct games format
-                            if 'games' in data:
-                                games_dict = data['games']
-                                if isinstance(games_dict, dict):
-                                    for game_key, game_data in games_dict.items():
-                                        if isinstance(game_data, dict):
-                                            safe_game = {
-                                                'game_id': game_key,
-                                                'away_team': game_data.get('away_team', 'Team A'),
-                                                'home_team': game_data.get('home_team', 'Team B'),
-                                                'away_pitcher': game_data.get('away_pitcher', 'TBD'),
-                                                'home_pitcher': game_data.get('home_pitcher', 'TBD'),
-                                                'predicted_total_runs': game_data.get('predicted_total_runs', 8.5),
-                                                'win_probabilities': game_data.get('win_probabilities', {
-                                                    'away_prob': 0.5,
-                                                    'home_prob': 0.5
-                                                })
-                                            }
-                                            games_data.append(safe_game)
-                                
-                            # Handle unified cache format
-                            elif 'predictions_by_date' in data:
-                                # Try recent dates in order
-                                dates_to_try = []
-                                for i in range(5):  # Try 5 days back
-                                    date_attempt = (pacific_now - timedelta(days=i)).strftime('%Y-%m-%d')
-                                    dates_to_try.append(date_attempt)
-                                
-                                for date_attempt in dates_to_try:
-                                    date_data = data['predictions_by_date'].get(date_attempt, {})
-                                    if 'games' in date_data and isinstance(date_data['games'], dict):
-                                        for game_key, game_data in date_data['games'].items():
-                                            if isinstance(game_data, dict):
-                                                safe_game = {
-                                                    'game_id': game_key,
-                                                    'away_team': game_data.get('away_team', 'Team A'),
-                                                    'home_team': game_data.get('home_team', 'Team B'),
-                                                    'away_pitcher': game_data.get('away_pitcher', 'TBD'),
-                                                    'home_pitcher': game_data.get('home_pitcher', 'TBD'),
-                                                    'predicted_total_runs': game_data.get('predicted_total_runs', 8.5),
-                                                    'win_probabilities': game_data.get('win_probabilities', {
-                                                        'away_prob': 0.5,
-                                                        'home_prob': 0.5
-                                                    })
-                                                }
-                                                games_data.append(safe_game)
-                                        if games_data:
-                                            logger.info(f"Found games from date: {date_attempt}")
-                                            break
-                        
-                        if games_data:
-                            logger.info(f"SUCCESS: Loaded {len(games_data)} games from {file_path}")
-                            return games_data
-                        else:
-                            logger.warning(f"No games in {file_path}")
+            # Try the most recent files
+            for betting_file in betting_files[:3]:
+                file_path = f'data/{betting_file}'
+                logger.info(f"Trying to load: {file_path}")
+                
+                try:
+                    with open(file_path, 'r') as f:
+                        data = json.load(f)
+                    
+                    games_data = []
+                    
+                    if isinstance(data, dict) and 'games' in data:
+                        games_dict = data['games']
+                        if isinstance(games_dict, dict):
+                            for game_key, game_data in games_dict.items():
+                                if isinstance(game_data, dict):
+                                    safe_game = {
+                                        'game_id': game_key,
+                                        'away_team': game_data.get('away_team', 'Team A'),
+                                        'home_team': game_data.get('home_team', 'Team B'),
+                                        'away_pitcher': game_data.get('away_pitcher', 'TBD'),
+                                        'home_pitcher': game_data.get('home_pitcher', 'TBD'),
+                                        'predicted_total_runs': game_data.get('predicted_total_runs', 8.5),
+                                        'win_probabilities': game_data.get('win_probabilities', {
+                                            'away_prob': 0.5,
+                                            'home_prob': 0.5
+                                        })
+                                    }
+                                    games_data.append(safe_game)
                             
-                    except Exception as e:
-                        logger.error(f"Error reading {file_path}: {e}")
-                        continue
-                else:
-                    logger.info(f"Not found: {file_path}")
-        
-        logger.error("FAILED: No games data found anywhere")
+                            if games_data:
+                                logger.info(f"SUCCESS: Loaded {len(games_data)} games from {betting_file}")
+                                return games_data
+                    
+                except Exception as e:
+                    logger.error(f"Error loading {betting_file}: {e}")
+                    continue
+            
+        logger.warning("No games found in any betting files")
         return []
         
     except Exception as e:
-        logger.error(f"CRITICAL ERROR: {e}")
+        logger.error(f"Critical error in load_today_games_safe: {e}")
         return []
 
 @app.route('/')
