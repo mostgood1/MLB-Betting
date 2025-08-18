@@ -1,5 +1,5 @@
 """
-Render-Specific MLB Betting App
+Render-Specific MLB Betting App - Updated Aug 18
 Simple, stable version designed specifically for cloud deployment
 Does not interfere with the local robust app.py
 """
