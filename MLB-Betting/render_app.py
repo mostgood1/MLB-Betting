@@ -513,11 +513,24 @@ def api_status():
 
 @app.route('/health')
 def health():
-    """Simple health check endpoint"""
+    """Simple health check endpoint - DEPLOYMENT TEST"""
+    games = load_today_games_safe()
     return jsonify({
         "status": "healthy",
         "message": "MLB Betting System Running",
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
+        "games_count": len(games),
+        "deployment_test": "ACTIVE v2.2"
+    })
+
+@app.route('/deployment-test')
+def deployment_test():
+    """Test endpoint to verify deployments are working"""
+    return jsonify({
+        "message": "DEPLOYMENT WORKING",
+        "version": "2.2",
+        "timestamp": datetime.now().isoformat(),
+        "server_time": get_pacific_time().isoformat() if PYTZ_AVAILABLE else "UTC fallback"
     })
 
 @app.route('/debug-directory')
