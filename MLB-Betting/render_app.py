@@ -532,7 +532,8 @@ def api_games():
             "status": "success",
             "games_count": len(games),
             "games": games,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "debug": "API endpoint working"
         })
     except Exception as e:
         logger.error(f"Error in API route: {e}")
@@ -541,6 +542,11 @@ def api_games():
             "status": "error",
             "timestamp": datetime.now().isoformat()
         })
+
+@app.route('/test-api')
+def test_api():
+    """Simple test endpoint"""
+    return jsonify({"message": "Test API working", "timestamp": datetime.now().isoformat()})
 
 @app.route('/api/status')
 def api_status():
