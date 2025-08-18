@@ -56,27 +56,74 @@ def load_today_games_safe():
                 if os.path.exists(search_path):
                     files = os.listdir(search_path)
                     for f in files:
-                        if 'betting_recommendations' in f and f.endswith('.json'):
+                        if ('betting_recommendations' in f or 'unified_predictions_cache' in f) and f.endswith('.json'):
                             full_path = os.path.join(search_path, f)
                             found_files.append(full_path)
-                            logger.info(f"Found betting file: {full_path}")
+                            logger.info(f"Found data file: {full_path}")
             except Exception as e:
                 logger.info(f"Could not search {search_path}: {e}")
         
-        logger.info(f"Total betting files found: {len(found_files)}")
+        # Prioritize unified cache and recent betting files
+        prioritized_files = []
+        for f in found_files:
+            if 'unified_predictions_cache' in f:
+                prioritized_files.insert(0, f)  # Put unified cache first
+            else:
+                prioritized_files.append(f)
+        
+        logger.info(f"Total data files found: {len(found_files)}")
+        logger.info(f"File priority order: {[os.path.basename(f) for f in prioritized_files[:3]]}")
         
         # Try to load from each file until we get games
-        for file_path in found_files[:5]:  # Try first 5 files
+        for file_path in prioritized_files[:5]:  # Try first 5 files
             try:
                 logger.info(f"Attempting to load: {file_path}")
                 with open(file_path, 'r') as f:
                     data = json.load(f)
                 
-                if isinstance(data, dict) and 'games' in data:
+                games_data = []
+                
+                # Handle unified_predictions_cache.json format
+                if 'predictions_by_date' in data:
+                    logger.info("Found unified predictions cache format")
+                    predictions = data['predictions_by_date']
+                    
+                    # Try recent dates (current and previous days)
+                    dates_to_try = []
+                    pacific_now = get_pacific_time()
+                    for i in range(7):  # Try last 7 days
+                        date_str = (pacific_now - timedelta(days=i)).strftime('%Y-%m-%d')
+                        dates_to_try.append(date_str)
+                    
+                    for date_str in dates_to_try:
+                        if date_str in predictions:
+                            date_data = predictions[date_str]
+                            if 'games' in date_data and isinstance(date_data['games'], dict):
+                                logger.info(f"Found {len(date_data['games'])} games for {date_str}")
+                                for game_key, game_data in date_data['games'].items():
+                                    if isinstance(game_data, dict):
+                                        safe_game = {
+                                            'game_id': game_key,
+                                            'away_team': game_data.get('away_team', 'Away Team'),
+                                            'home_team': game_data.get('home_team', 'Home Team'),
+                                            'away_pitcher': game_data.get('away_pitcher', 'TBD'),
+                                            'home_pitcher': game_data.get('home_pitcher', 'TBD'),
+                                            'predicted_total_runs': game_data.get('predicted_total_runs', 8.5),
+                                            'win_probabilities': game_data.get('win_probabilities', {
+                                                'away_prob': 0.5,
+                                                'home_prob': 0.5
+                                            })
+                                        }
+                                        games_data.append(safe_game)
+                                if games_data:
+                                    logger.info(f"Using games from date: {date_str}")
+                                    break
+                
+                # Handle direct betting_recommendations format
+                elif isinstance(data, dict) and 'games' in data:
                     games_dict = data['games']
                     if isinstance(games_dict, dict) and len(games_dict) > 0:
-                        
-                        games_data = []
+                        logger.info(f"Found direct games format with {len(games_dict)} games")
                         for game_key, game_data in games_dict.items():
                             if isinstance(game_data, dict):
                                 safe_game = {
@@ -92,9 +139,10 @@ def load_today_games_safe():
                                     })
                                 }
                                 games_data.append(safe_game)
-                        
-                        logger.info(f"SUCCESS: Loaded {len(games_data)} games from {file_path}")
-                        return games_data
+                
+                if games_data:
+                    logger.info(f"SUCCESS: Loaded {len(games_data)} games from {file_path}")
+                    return games_data
                 
             except Exception as e:
                 logger.error(f"Error loading {file_path}: {e}")
