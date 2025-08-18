@@ -22,69 +22,103 @@ def load_today_games_safe():
         today = datetime.now().strftime('%Y_%m_%d')
         today_dash = datetime.now().strftime('%Y-%m-%d')
         
+        # Log environment info
+        logger.info(f"Current working directory: {os.getcwd()}")
+        logger.info(f"Looking for today's games: {today} / {today_dash}")
+        
+        # Check what files exist in data directory
+        if os.path.exists('data'):
+            data_files = os.listdir('data')
+            logger.info(f"Files in data directory: {data_files}")
+        else:
+            logger.warning("Data directory not found")
+        
         # Try different file patterns that exist on Render
         file_patterns = [
             f'data/betting_recommendations_{today}.json',
             f'data/betting_recommendations_{today_dash}.json',
-            'data/unified_predictions_cache.json'
+            'data/unified_predictions_cache.json',
+            # Try without data/ prefix in case files are in root
+            f'betting_recommendations_{today}.json',
+            f'betting_recommendations_{today_dash}.json',
+            'unified_predictions_cache.json'
         ]
         
         for file_path in file_patterns:
+            logger.info(f"Checking file: {file_path}")
             if os.path.exists(file_path):
                 logger.info(f"Found data file: {file_path}")
-                with open(file_path, 'r') as f:
-                    data = json.load(f)
+                try:
+                    with open(file_path, 'r') as f:
+                        data = json.load(f)
                     
-                # Handle different data structures safely
-                games_data = []
-                
-                if isinstance(data, dict):
-                    if 'games' in data:
-                        games_dict = data['games']
-                        if isinstance(games_dict, dict):
-                            # Convert dict to list of games
-                            for game_key, game_data in games_dict.items():
-                                if isinstance(game_data, dict):
-                                    # Ensure game has required fields
-                                    safe_game = {
-                                        'game_id': game_key,
-                                        'away_team': game_data.get('away_team', 'Team A'),
-                                        'home_team': game_data.get('home_team', 'Team B'),
-                                        'away_pitcher': game_data.get('away_pitcher', 'TBD'),
-                                        'home_pitcher': game_data.get('home_pitcher', 'TBD'),
-                                        'predicted_total_runs': game_data.get('predicted_total_runs', 8.5),
-                                        'win_probabilities': game_data.get('win_probabilities', {
-                                            'away_prob': 0.5,
-                                            'home_prob': 0.5
-                                        })
-                                    }
-                                    games_data.append(safe_game)
-                        elif isinstance(games_dict, list):
-                            games_data = games_dict
+                    # Handle different data structures safely
+                    games_data = []
                     
-                    elif 'predictions_by_date' in data:
-                        # Handle unified cache format
-                        today_data = data['predictions_by_date'].get(today_dash, {})
-                        if 'games' in today_data and isinstance(today_data['games'], dict):
-                            for game_key, game_data in today_data['games'].items():
-                                if isinstance(game_data, dict):
-                                    safe_game = {
-                                        'game_id': game_key,
-                                        'away_team': game_data.get('away_team', 'Team A'),
-                                        'home_team': game_data.get('home_team', 'Team B'),
-                                        'away_pitcher': game_data.get('away_pitcher', 'TBD'),
-                                        'home_pitcher': game_data.get('home_pitcher', 'TBD'),
-                                        'predicted_total_runs': game_data.get('predicted_total_runs', 8.5),
-                                        'win_probabilities': game_data.get('win_probabilities', {
-                                            'away_prob': 0.5,
-                                            'home_prob': 0.5
-                                        })
-                                    }
-                                    games_data.append(safe_game)
-                
-                if games_data:
-                    logger.info(f"Successfully loaded {len(games_data)} games from {file_path}")
-                    return games_data
+                    if isinstance(data, dict):
+                        logger.info(f"Data keys: {list(data.keys())}")
+                        
+                        if 'games' in data:
+                            games_dict = data['games']
+                            logger.info(f"Games type: {type(games_dict)}, count: {len(games_dict) if isinstance(games_dict, (dict, list)) else 'unknown'}")
+                            
+                            if isinstance(games_dict, dict):
+                                # Convert dict to list of games
+                                for game_key, game_data in games_dict.items():
+                                    if isinstance(game_data, dict):
+                                        # Ensure game has required fields
+                                        safe_game = {
+                                            'game_id': game_key,
+                                            'away_team': game_data.get('away_team', 'Team A'),
+                                            'home_team': game_data.get('home_team', 'Team B'),
+                                            'away_pitcher': game_data.get('away_pitcher', 'TBD'),
+                                            'home_pitcher': game_data.get('home_pitcher', 'TBD'),
+                                            'predicted_total_runs': game_data.get('predicted_total_runs', 8.5),
+                                            'win_probabilities': game_data.get('win_probabilities', {
+                                                'away_prob': 0.5,
+                                                'home_prob': 0.5
+                                            })
+                                        }
+                                        games_data.append(safe_game)
+                                        logger.info(f"Added game: {safe_game['away_team']} @ {safe_game['home_team']}")
+                            elif isinstance(games_dict, list):
+                                games_data = games_dict
+                                logger.info(f"Using list format with {len(games_data)} games")
+                        
+                        elif 'predictions_by_date' in data:
+                            # Handle unified cache format
+                            logger.info("Found predictions_by_date format")
+                            today_data = data['predictions_by_date'].get(today_dash, {})
+                            logger.info(f"Today data keys: {list(today_data.keys()) if today_data else 'No data for today'}")
+                            
+                            if 'games' in today_data and isinstance(today_data['games'], dict):
+                                for game_key, game_data in today_data['games'].items():
+                                    if isinstance(game_data, dict):
+                                        safe_game = {
+                                            'game_id': game_key,
+                                            'away_team': game_data.get('away_team', 'Team A'),
+                                            'home_team': game_data.get('home_team', 'Team B'),
+                                            'away_pitcher': game_data.get('away_pitcher', 'TBD'),
+                                            'home_pitcher': game_data.get('home_pitcher', 'TBD'),
+                                            'predicted_total_runs': game_data.get('predicted_total_runs', 8.5),
+                                            'win_probabilities': game_data.get('win_probabilities', {
+                                                'away_prob': 0.5,
+                                                'home_prob': 0.5
+                                            })
+                                        }
+                                        games_data.append(safe_game)
+                    
+                    if games_data:
+                        logger.info(f"Successfully loaded {len(games_data)} games from {file_path}")
+                        return games_data
+                    else:
+                        logger.warning(f"No games found in {file_path}")
+                        
+                except Exception as e:
+                    logger.error(f"Error reading {file_path}: {e}")
+                    continue
+            else:
+                logger.info(f"File not found: {file_path}")
                 
         logger.warning("No valid games data found")
         return []
@@ -403,6 +437,55 @@ def index():
             "status": "MLB Betting System Live",
             "timestamp": datetime.now().isoformat()
         })
+
+@app.route('/debug')
+def debug_info():
+    """Debug endpoint to see what files are available on Render"""
+    try:
+        debug_data = {
+            "working_directory": os.getcwd(),
+            "today_formats": {
+                "underscore": datetime.now().strftime('%Y_%m_%d'),
+                "dash": datetime.now().strftime('%Y-%m-%d')
+            },
+            "data_directory_exists": os.path.exists('data'),
+            "files_in_data": [],
+            "files_in_root": [],
+            "environment_vars": {
+                "PORT": os.environ.get('PORT'),
+                "RENDER": os.environ.get('RENDER'),
+                "RENDER_SERVICE_ID": os.environ.get('RENDER_SERVICE_ID')
+            }
+        }
+        
+        # List files in data directory
+        if os.path.exists('data'):
+            try:
+                debug_data["files_in_data"] = os.listdir('data')
+            except Exception as e:
+                debug_data["data_directory_error"] = str(e)
+        
+        # List some files in root
+        try:
+            root_files = [f for f in os.listdir('.') if f.endswith('.json')]
+            debug_data["files_in_root"] = root_files
+        except Exception as e:
+            debug_data["root_directory_error"] = str(e)
+        
+        # Try to load data and show what happens
+        debug_data["load_attempt"] = {}
+        try:
+            games = load_today_games_safe()
+            debug_data["load_attempt"]["success"] = True
+            debug_data["load_attempt"]["games_count"] = len(games)
+            debug_data["load_attempt"]["sample_game"] = games[0] if games else None
+        except Exception as e:
+            debug_data["load_attempt"]["success"] = False
+            debug_data["load_attempt"]["error"] = str(e)
+        
+        return jsonify(debug_data)
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 @app.route('/api/games')
 def api_games():
