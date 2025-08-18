@@ -7,7 +7,8 @@ Does not interfere with the local robust app.py
 from flask import Flask, jsonify, render_template_string
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
+import pytz
 import logging
 
 app = Flask(__name__)
@@ -16,33 +17,55 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def get_pacific_time():
+    """Get current time in Pacific timezone"""
+    pacific = pytz.timezone('US/Pacific')
+    return datetime.now(pacific)
+
 def load_today_games_safe():
-    """Safely load today's games for Render environment"""
+    """Safely load today's games for Render environment with fallback to recent data"""
     try:
-        today = datetime.now().strftime('%Y_%m_%d')
-        today_dash = datetime.now().strftime('%Y-%m-%d')
+        # Use Pacific Time for determining "today"
+        pacific_now = get_pacific_time()
+        today = pacific_now.strftime('%Y_%m_%d')
+        today_dash = pacific_now.strftime('%Y-%m-%d')
         
         # Log environment info
         logger.info(f"Current working directory: {os.getcwd()}")
-        logger.info(f"Looking for today's games: {today} / {today_dash}")
+        logger.info(f"Pacific Time: {pacific_now}")
+        logger.info(f"Looking for today's games (Pacific): {today} / {today_dash}")
         
         # Check what files exist in data directory
         if os.path.exists('data'):
             data_files = os.listdir('data')
             logger.info(f"Files in data directory: {data_files}")
+            
+            # Find the most recent betting recommendations file if today's doesn't exist
+            betting_files = [f for f in data_files if f.startswith('betting_recommendations_2025') and f.endswith('.json')]
+            betting_files.sort(reverse=True)  # Get most recent first
+            logger.info(f"Available betting files: {betting_files}")
         else:
             logger.warning("Data directory not found")
+            betting_files = []
         
         # Try different file patterns that exist on Render
         file_patterns = [
             f'data/betting_recommendations_{today}.json',
             f'data/betting_recommendations_{today_dash}.json',
+        ]
+        
+        # Add the most recent betting files as fallbacks
+        for betting_file in betting_files[:3]:  # Try the 3 most recent
+            file_patterns.append(f'data/{betting_file}')
+        
+        # Add unified cache as final fallback
+        file_patterns.extend([
             'data/unified_predictions_cache.json',
             # Try without data/ prefix in case files are in root
             f'betting_recommendations_{today}.json',
             f'betting_recommendations_{today_dash}.json',
             'unified_predictions_cache.json'
-        ]
+        ])
         
         for file_path in file_patterns:
             logger.info(f"Checking file: {file_path}")
@@ -86,27 +109,39 @@ def load_today_games_safe():
                                 logger.info(f"Using list format with {len(games_data)} games")
                         
                         elif 'predictions_by_date' in data:
-                            # Handle unified cache format
+                            # Handle unified cache format - try multiple dates
                             logger.info("Found predictions_by_date format")
-                            today_data = data['predictions_by_date'].get(today_dash, {})
-                            logger.info(f"Today data keys: {list(today_data.keys()) if today_data else 'No data for today'}")
                             
-                            if 'games' in today_data and isinstance(today_data['games'], dict):
-                                for game_key, game_data in today_data['games'].items():
-                                    if isinstance(game_data, dict):
-                                        safe_game = {
-                                            'game_id': game_key,
-                                            'away_team': game_data.get('away_team', 'Team A'),
-                                            'home_team': game_data.get('home_team', 'Team B'),
-                                            'away_pitcher': game_data.get('away_pitcher', 'TBD'),
-                                            'home_pitcher': game_data.get('home_pitcher', 'TBD'),
-                                            'predicted_total_runs': game_data.get('predicted_total_runs', 8.5),
-                                            'win_probabilities': game_data.get('win_probabilities', {
-                                                'away_prob': 0.5,
-                                                'home_prob': 0.5
-                                            })
-                                        }
-                                        games_data.append(safe_game)
+                            # Try today first, then recent dates (using Pacific time)
+                            date_attempts = [today_dash]
+                            for i in range(1, 5):  # Try previous 4 days
+                                prev_date = (pacific_now - timedelta(days=i)).strftime('%Y-%m-%d')
+                                date_attempts.append(prev_date)
+                            
+                            for date_attempt in date_attempts:
+                                logger.info(f"Trying date: {date_attempt}")
+                                date_data = data['predictions_by_date'].get(date_attempt, {})
+                                
+                                if 'games' in date_data and isinstance(date_data['games'], dict):
+                                    logger.info(f"Found {len(date_data['games'])} games for {date_attempt}")
+                                    for game_key, game_data in date_data['games'].items():
+                                        if isinstance(game_data, dict):
+                                            safe_game = {
+                                                'game_id': game_key,
+                                                'away_team': game_data.get('away_team', 'Team A'),
+                                                'home_team': game_data.get('home_team', 'Team B'),
+                                                'away_pitcher': game_data.get('away_pitcher', 'TBD'),
+                                                'home_pitcher': game_data.get('home_pitcher', 'TBD'),
+                                                'predicted_total_runs': game_data.get('predicted_total_runs', 8.5),
+                                                'win_probabilities': game_data.get('win_probabilities', {
+                                                    'away_prob': 0.5,
+                                                    'home_prob': 0.5
+                                                })
+                                            }
+                                            games_data.append(safe_game)
+                                    if games_data:
+                                        logger.info(f"Using games from {date_attempt}")
+                                        break
                     
                     if games_data:
                         logger.info(f"Successfully loaded {len(games_data)} games from {file_path}")
@@ -426,8 +461,8 @@ def index():
         
         return render_template_string(html_template, 
                                     games=games, 
-                                    today=datetime.now().strftime('%B %d, %Y'),
-                                    timestamp=datetime.now().strftime('%I:%M %p'))
+                                    today=get_pacific_time().strftime('%B %d, %Y'),
+                                    timestamp=get_pacific_time().strftime('%I:%M %p PT'))
         
     except Exception as e:
         logger.error(f"Error in index route: {e}")
@@ -442,11 +477,14 @@ def index():
 def debug_info():
     """Debug endpoint to see what files are available on Render"""
     try:
+        pacific_now = get_pacific_time()
         debug_data = {
             "working_directory": os.getcwd(),
+            "utc_time": datetime.now().isoformat(),
+            "pacific_time": pacific_now.isoformat(),
             "today_formats": {
-                "underscore": datetime.now().strftime('%Y_%m_%d'),
-                "dash": datetime.now().strftime('%Y-%m-%d')
+                "underscore": pacific_now.strftime('%Y_%m_%d'),
+                "dash": pacific_now.strftime('%Y-%m-%d')
             },
             "data_directory_exists": os.path.exists('data'),
             "files_in_data": [],
