@@ -109,7 +109,7 @@ def index():
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>MLB-Betting Prediction System</title>
+            <title>MLB-Betting Prediction System v2.2 - UPDATED</title>
             <style>
                 * {
                     margin: 0;
